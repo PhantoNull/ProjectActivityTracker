@@ -10,7 +10,7 @@ import javax.validation.constraints.Email;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Utente {
 
     @Id
     @Column(name="c_UserName", length=32, unique = true, nullable = false)
