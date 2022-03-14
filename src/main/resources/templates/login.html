@@ -14,10 +14,10 @@
 <p th:if="${loginError}" class="error">Wrong user or password</p>
 <form th:action="@{/login.html}" method="post">
     <label for="username">Username</label>:
-    <input type="text" id="username" name="username" autofocus="autofocus" /> <br />
+    <input type="text" id="username" name="username" autofocus="autofocus"/> <br/>
     <label for="password">Password</label>:
-    <input type="password" id="password" name="password" /> <br />
-    <input type="submit" value="Log in" />
+    <input type="password" id="password" name="password"/> <br/>
+    <input type="submit" value="Log in"/>
 </form>
 <div th:insert="fragments/footer.html :: footer"></div>
 
@@ -31,13 +31,14 @@
                         <figure class="image">
                             <img src="Logo.png">
                         </figure>
+                        <div class="title is-danger">.</div>
                         <div class="field">
                             <label for="" class="label">Email</label>
                             <div class="control has-icons-left">
                                 <input type="email" placeholder="e.g. email@rationence.eu" class="input" required>
                                 <span class="icon is-small is-left">
-                  <i class="fa fa-envelope"></i>
-                </span>
+                                    <i class="fa fa-envelope"></i>
+                                </span>
                             </div>
                         </div>
                         <div class="field">
