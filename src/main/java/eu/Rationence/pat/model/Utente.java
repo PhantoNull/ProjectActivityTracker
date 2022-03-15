@@ -4,13 +4,14 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.io.Serializable;
 
 @Entity(name = "User")
 @Table(name = "User")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Utente {
+public class Utente implements Serializable {
 
     @Id
     @Column(name="c_UserName", length=32, unique = true, nullable = false)

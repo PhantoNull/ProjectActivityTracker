@@ -17,7 +17,6 @@ public class MainController {
         this.utentiService = utentiService;
     }
 
-
     @RequestMapping ("/")
     public String index() {
         return "index.html";
@@ -26,7 +25,7 @@ public class MainController {
     @GetMapping ("/utenti")
     public String utenti(Model model) {
         model.addAttribute("utenti", utentiService.findAll());
-        System.out.println(model);
+        System.out.println(model.getAttribute("utenti"));
         return "utenti.html";
     }
 
