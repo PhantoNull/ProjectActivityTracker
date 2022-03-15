@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
 <link rel="stylesheet" href="extra.css">
@@ -21,11 +22,17 @@
                             <p>Pannello Gestione Utenti</p>
                         </div>
                         <div class="message-body">
-
-                            <tr th:each="utente: ${utenti}">
-                                <td th:text="${utente.username}" />
-                                <td th:text="${utente.email}" />
-                            </tr>
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                </tr>
+                                <!--/*@thymesVar id="listaUtenti" type=""*/-->
+                                <tr th:each="utente : ${listaUtenti}">
+                                    <td th:text="${utente.username}" />
+                                    <td th:text="${utente.email}" />
+                                </tr>
+                            </table>
 
                         </div>
                     </article>

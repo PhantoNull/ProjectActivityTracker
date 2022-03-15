@@ -24,8 +24,8 @@ public class MainController {
 
     @GetMapping ("/utenti")
     public String utenti(Model model) {
-        model.addAttribute("utenti", utentiService.findAll());
-        System.out.println(model.getAttribute("utenti"));
+        model.addAttribute("listaUtenti", utentiService.findAll());
+        System.out.println(model.getAttribute("listaUtenti"));
         return "utenti.html";
     }
 
