@@ -11,6 +11,12 @@ import java.util.List;
 public class UtentiService {
     @Autowired
     private UtentiRepository utentiRepository;
-    public Utente findUtenteByUsername(String string){return utentiRepository.getUtenteByUsername(string);}
-    public List<Utente> findAll() {return utentiRepository.findAll();}
+
+    public Utente findUtenteByUsername(String string){
+        return utentiRepository.getUtenteByUsername(string);
+    }
+
+    public List<Utente> findAll() {
+        return utentiRepository.findAll();
+    }
 }
