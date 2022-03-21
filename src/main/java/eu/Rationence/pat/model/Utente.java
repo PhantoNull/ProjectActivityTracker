@@ -32,21 +32,17 @@ public class Utente implements Serializable {
     @Column(name="x_Surame", nullable = false, length=64)
     private String surname;
 
-    @Column(name="c_Role", nullable = false, length=16)
-    private String role;
-
     @Column(name="i_Cost", nullable = false)
     private float cost;
 
     @Column(name="x_Time", nullable = false, length=5)
     private String time;
 
-    @Column(name="h_Password", nullable = false, length=60)
+    @Column(name="h_Password", nullable = false, length=128)
     private String passwordHash;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="h_Salt", length=5, nullable = false)
-    private String passwordSalt;
+    @Column(name="f_Enabled", nullable = false)
+    private boolean enabled;
 
     @Override
     public boolean equals(Object o) {

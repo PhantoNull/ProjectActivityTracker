@@ -12,8 +12,9 @@
 
 <section class="hero is-primary is-fullheight">
     <div class="hero-body">
-        <div class="container">
+            <div class="container">
             <div class="columns is-centered">
+                <div class="container">
                 <div class="column is-5">
                     <div class="title has-text-centered">Menu utenti</div>
 
@@ -26,11 +27,16 @@
                                 <tr>
                                     <th>Username</th>
                                     <th>Email</th>
+                                    <th>Password</th>
+                                    <th>Abilitato</th>
                                 </tr>
                                 <!--/*@thymesVar id="listaUtenti" type=""*/-->
                                 <tr th:each="utente : ${listaUtenti}">
                                     <td th:text="${utente.username}" />
                                     <td th:text="${utente.email}" />
+                                    <td th:text="${utente.passwordHash}" />
+                                    <td th:text="${utente.enabled}" />
+
                                 </tr>
                             </table>
 
@@ -40,6 +46,7 @@
 
 
 
+                </div>
                 </div>
             </div>
         </div>
