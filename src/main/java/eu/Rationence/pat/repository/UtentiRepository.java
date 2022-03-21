@@ -9,8 +9,7 @@ import java.util.List;
 public interface UtentiRepository extends CrudRepository<Utente, String> {
     Utente getUtenteByUsername(String string);
     List<Utente> findAll();
-    void deleteAllByUsername(List<String> listaNomiUtenti);
-    Utente saveAll(List<Utente> listaUtenti);
+    Utente save(Utente utente);
 }
 
 
