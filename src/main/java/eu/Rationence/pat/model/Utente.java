@@ -6,10 +6,11 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "User")
-@Table(name = "User")
+@Table(name = "PAT_Users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,6 +22,12 @@ public class Utente implements Serializable {
     @Id
     @Column(name="c_Username", length=50, unique = true, nullable = false)
     private String username;
+
+    @ManyToMany
+    @JoinTable(name="PAT_UsersRoles",
+                joinColumns = @JoinColumn(name="c_Username"),
+                inverseJoinColumns = @JoinColumn(name="c_Role"))
+    private List<Role> roleList;
 
     @Column(name="e_Email", unique = true, nullable = false)
     @Email
