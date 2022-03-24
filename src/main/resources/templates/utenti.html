@@ -31,11 +31,11 @@
                                     <th>Abilitato</th>
                                 </tr>
                                 <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                <tr th:each="utente : ${listaUtenti}">
-                                    <td th:text="${utente.username}" />
-                                    <td th:text="${utente.email}" />
-                                    <td th:text="${utente.passwordHash}" />
-                                    <td th:text="${utente.enabled}" />
+                                <tr th:each="user : ${listaUtenti}">
+                                    <td th:text="${user.username}" />
+                                    <td th:text="${user.email}" />
+                                    <td th:text="${user.passwordHash}" />
+                                    <td th:text="${user.enabled}" />
 
                                 </tr>
                             </table>

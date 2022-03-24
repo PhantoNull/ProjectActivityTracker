@@ -10,26 +10,29 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity(name = "Role")
-@Table(name = "PAT_Roles")
+@Entity(name = "Team")
+@Table(name = "PAT_Team")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
 @ToString
-public class Role implements Serializable {
+public class Team implements Serializable {
 
     @Id
-    @Column(name="c_Role", length=50, unique = true, nullable = false)
-    private String role;
+    @Column(name="c_Team", length=5, unique = true, nullable = false)
+    private String teamName;
+
+    @Column(name="x_Team", length=128, nullable = false)
+    private String teamDesc;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Role utente = (Role) o;
-        return role != null && Objects.equals(role, utente.role);
+        Team utente = (Team) o;
+        return teamName != null && Objects.equals(teamName, utente.teamName);
     }
 
     @Override

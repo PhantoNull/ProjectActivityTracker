@@ -17,10 +17,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-public class Utente implements Serializable {
+public class User implements Serializable {
 
     @Id
-    @Column(name="c_Username", length=50, unique = true, nullable = false)
+    @Column(name="c_Username", length=64, unique = true, nullable = false)
     private String username;
 
     @ManyToMany
@@ -29,7 +29,11 @@ public class Utente implements Serializable {
                 inverseJoinColumns = @JoinColumn(name="c_Role"))
     private List<Role> roleList;
 
-    @Column(name="e_Email", unique = true, nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "c_Team")
+    private Team team;
+
+    @Column(name="e_Email", unique = true, length=128, nullable = false)
     @Email
     private String email;
 
@@ -39,8 +43,11 @@ public class Utente implements Serializable {
     @Column(name="x_Surame", nullable = false, length=64)
     private String surname;
 
+    @Column(name="x_Description", nullable = false, length=128)
+    private String description;
+
     @Column(name="i_Cost", nullable = false)
-    private float cost;
+    private double cost;
 
     @Column(name="x_Time", nullable = false, length=5)
     private String time;
@@ -55,8 +62,8 @@ public class Utente implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Utente utente = (Utente) o;
-        return username != null && Objects.equals(username, utente.username);
+        User user = (User) o;
+        return username != null && Objects.equals(username, user.username);
     }
 
     @Override
