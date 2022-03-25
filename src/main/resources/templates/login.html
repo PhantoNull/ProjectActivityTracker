@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login Rationente Activity Tracker</title>
+    <title>Login Rationence</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/15181efa86.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/bulma@0.9.0/css/bulma.min.css" />
@@ -25,19 +25,25 @@
                 <div class="column right has-text-centered">
                     <h1 class="title is-4">Login</h1>
                     <p class="description">Effettua l'accesso</p>
-                    <form>
+                    <p th:if="${param.error}" class="notification is-danger">
+                        Username o password errati.
+                    </p>
+                    <p th:if="${param.logout}" class="notification is-success">
+                        Logout effettuato con successo.
+                    </p>
+                    <form name="f" th:action="@{/login}" method="post">
                         <div class="field">
                             <div class="control">
-                                <input class="input is-medium" type="text" placeholder="Username">
+                                <input class="input is-medium" id="username" name="username" type="text" placeholder="Username">
                             </div>
                         </div>
 
                         <div class="field">
                             <div class="control">
-                                <input class="input is-medium" type="email" placeholder="Password">
+                                <input class="input is-medium" id="password" name="password" type="password" placeholder="Password">
                             </div>
                         </div>
-                        <button class="button is-block is-primary is-fullwidth is-medium">Login</button>
+                        <button type="submit" class="button is-block is-primary is-fullwidth is-medium">Login</button>
                         <br />
                         <small><em>Lorem ipsum dolor sit amet consectetur.</em></small>
                     </form>

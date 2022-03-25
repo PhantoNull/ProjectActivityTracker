@@ -10,7 +10,7 @@
 <div th:insert="fragments/header.html :: header"></div>
 
 
-<div class="title">Login page</div>
+<div class="title">Pagina Login</div>
 <p th:if="${loginError}" class="error">Wrong user or password</p>
 <form th:action="@{/login}" method="post">
     <label for="username">Username</label>:

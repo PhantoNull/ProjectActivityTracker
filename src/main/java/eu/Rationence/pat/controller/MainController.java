@@ -1,8 +1,10 @@
 package eu.Rationence.pat.controller;
 
+import eu.Rationence.pat.model.ProjectType;
 import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.model.Team;
 import eu.Rationence.pat.model.User;
+import eu.Rationence.pat.service.ProjectTypeService;
 import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UtentiService;
@@ -26,6 +28,8 @@ public class MainController {
     private final TeamService teamService;
     @Autowired
     private final RoleService roleService;
+    @Autowired
+    private final ProjectTypeService projectTypeService;
 
     @RequestMapping ("/")
     public String index() {
@@ -42,11 +46,6 @@ public class MainController {
     @RequestMapping("/login")
     public String login() {
         return "login.html";
-    }
-
-    @RequestMapping("/loginnuovo")
-    public String loginnuovo() {
-        return "loginnuovo.html";
     }
 
     @RequestMapping("/login-error.html")
@@ -133,6 +132,31 @@ public class MainController {
                 .enabled(true)
                 .build();
         utentiService.saveUser(marcon);
+
+        ProjectType projCons = ProjectType.builder()
+                .projectType("CONS")
+                .projectTypeDesc("Consulenza")
+                .build();
+
+        ProjectType projDevp = ProjectType.builder()
+                .projectType("DEVP")
+                .projectTypeDesc("Development")
+                .build();
+
+        ProjectType projTrng = ProjectType.builder()
+                .projectType("TRNG")
+                .projectTypeDesc("Training")
+                .build();
+
+        ProjectType projServ = ProjectType.builder()
+                .projectType("SERV")
+                .projectTypeDesc("Service")
+                .build();
+
+        projectTypeService.saveProjectType(projCons);
+        projectTypeService.saveProjectType(projDevp);
+        projectTypeService.saveProjectType(projTrng);
+        projectTypeService.saveProjectType(projServ);
 
         return "index";
     }
