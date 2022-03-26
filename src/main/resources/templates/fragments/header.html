@@ -12,9 +12,8 @@
                                     Utente:
                                 </span>
             <span th:text="${#authentication.getPrincipal().getUsername()}"
-                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2">
-
-                                </span>
+                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2 username">
+            </span>
         </div>
         <div class="level-item">
             <form th:action="@{/logout}">

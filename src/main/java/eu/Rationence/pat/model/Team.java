@@ -1,5 +1,6 @@
 package eu.Rationence.pat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -24,7 +25,7 @@ public class Team implements Serializable {
     @Column(name="x_Team", length=128, nullable = false)
     private String teamDesc;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Administrator")
     private User administrator;
 

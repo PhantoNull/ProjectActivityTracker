@@ -19,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -78,10 +77,10 @@ public class MainController {
     public String initialize(){
 
         Role roleUser = Role.builder()
-                .role("ROLE_USER")
+                .role("USER")
                 .build();
         Role roleAdmin = Role.builder()
-                .role("ROLE_ADMIN")
+                .role("ADMIN")
                 .build();
         roleService.saveRole(roleUser);
         roleService.saveRole(roleAdmin);
@@ -108,7 +107,7 @@ public class MainController {
         List<Role> roleList = new ArrayList();
         roleList.add(roleUser);
         User luca = User.builder()
-                .username("luca.dipierro")
+                .username("Luca.DiPierro")
                 .name("Luca")
                 .surname("Di Pierro")
                 .description("Luca Di Pierro")
@@ -139,7 +138,7 @@ public class MainController {
 
         roleList.add(roleAdmin);
         User marcon = User.builder()
-                .username("giuseppe.marcon")
+                .username("Giuseppe.Marcon")
                 .name("Giuseppe")
                 .surname("Marcon")
                 .description("Giuseppe Marcon")
@@ -152,6 +151,11 @@ public class MainController {
                 .enabled(true)
                 .build();
         utentiService.saveUser(marcon);
+
+        devTeam.setAdministrator(luca);
+        ammTeam.setAdministrator(marcon);
+        teamService.saveTeam(devTeam);
+        teamService.saveTeam(ammTeam);
 
         ProjectType projCons = ProjectType.builder()
                 .projectType("CONS")

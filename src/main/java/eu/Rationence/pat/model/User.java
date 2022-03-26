@@ -31,11 +31,11 @@ public class User implements Serializable {
     private List<Role> roleList;
      */
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Role")
     private Role role;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Team")
     private Team team;
 
