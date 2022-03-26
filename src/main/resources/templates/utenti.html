@@ -13,30 +13,8 @@
             <div class="columns is-centered">
                 <div class="column">
 
-                    <nav class="level">
-                        <div class="level-left">
-                            <div class="level-item">
 
-                            </div>
-                        </div>
-                        <div class="level-right">
-                            <div class="level-item">
-                                <span class="has-text-weight-medium">
-                                    Utente:
-                                </span>
-                                <span th:text="${#authentication.getPrincipal().getUsername()}"
-                                      class="has-text-primary has-text-weight-semibold level-item subtitle ml-2">
-
-                                </span>
-                            </div>
-                            <div class="level-item">
-                                <form th:action="@{/logout}">
-                                    <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
-                                </form>
-                            </div>
-                        </div>
-                    </nav>
-
+                    <div th:include="fragments/header.html :: header"></div>
 
                     <nav class="breadcrumb" aria-label="breadcrumbs">
                         <ul>
@@ -65,39 +43,44 @@
                         </div>
                         <div class="message-body">
                             <div class="columns is-centered">
-                                <div class="column is-justify-content-center">
-                                    <table class="table is-striped is-hoverable">
-                                        <tr>
-                                            <th>Username</th>
-                                            <th>Nome</th>
-                                            <th>Cognome</th>
-                                            <th>Descrizione</th>
-                                            <th>Email</th>
-                                            <th>Team</th>
-                                            <th>Costo</th>
-                                            <th>Tempo</th>
-                                            <th>Abilitato</th>
-                                        </tr>
-                                        <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                        <tr th:each="user : ${listaUtenti}">
-                                            <td th:text="${user.username}" />
-                                            <td th:text="${user.name}" />
-                                            <td th:text="${user.surname}" />
-                                            <td th:text="${user.description}" />
-                                            <td th:text="${user.email}" />
-                                            <td th:text="${user.team.teamDesc}" />
-                                            <td th:text="${user.cost}" />
-                                            <td th:text="${user.time}" />
-                                            <td th:text="${user.enabled}" />
+                                <div class="column">
+                                    <div class="table__wrapper">
+                                        <table class="table is-striped is-hoverable is-fullwidth">
+                                            <tr>
+                                                <th></th>
+                                                <th>Username</th>
+                                                <th>Nome</th>
+                                                <th>Cognome</th>
+                                                <th>Descrizione</th>
+                                                <th>Email</th>
+                                                <th>Team</th>
+                                                <th>Costo</th>
+                                                <th>Tempo</th>
+                                                <th>Abilitato</th>
+                                            </tr>
+                                            <!--/*@thymesVar id="listaUtenti" type=""*/-->
+                                            <tr th:each="user : ${listaUtenti}">
+                                                <td>
+                                                    <input th:id="${user.username}" type="checkbox">
+                                                </td>
+                                                <td th:text="${user.username}" />
+                                                <td th:text="${user.name}" />
+                                                <td th:text="${user.surname}" />
+                                                <td th:text="${user.description}" />
+                                                <td th:text="${user.email}" />
+                                                <td th:text="${user.team.teamName}" />
+                                                <td th:text="${user.cost}" />
+                                                <td th:text="${user.time}" />
+                                                <td th:text="${user.enabled}" />
 
-                                        </tr>
-                                    </table>
+                                            </tr>
+                                        </table>
+                                    </div>
                                 </div>
 
 
 
                             </div>
-                            <br>
                         </div>
                     </article>
 

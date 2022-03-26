@@ -23,11 +23,17 @@ public class User implements Serializable {
     @Column(name="c_Username", length=64, unique = true, nullable = false)
     private String username;
 
+    /*
     @ManyToMany
     @JoinTable(name="PAT_UsersRoles",
                 joinColumns = @JoinColumn(name="c_Username"),
                 inverseJoinColumns = @JoinColumn(name="c_Role"))
     private List<Role> roleList;
+     */
+
+    @ManyToOne
+    @JoinColumn(name = "c_Role")
+    private Role role;
 
     @ManyToOne
     @JoinColumn(name = "c_Team")

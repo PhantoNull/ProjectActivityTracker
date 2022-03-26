@@ -3,10 +3,7 @@ package eu.Rationence.pat.model;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -26,6 +23,10 @@ public class Team implements Serializable {
 
     @Column(name="x_Team", length=128, nullable = false)
     private String teamDesc;
+
+    @ManyToOne
+    @JoinColumn(name = "c_Administrator")
+    private User administrator;
 
     @Override
     public boolean equals(Object o) {

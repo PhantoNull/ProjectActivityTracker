@@ -45,8 +45,13 @@ public class MainController {
     @GetMapping ("/utenti")
     public String utenti(Model model) {
         model.addAttribute("listaUtenti", utentiService.findAll());
-        System.out.println(model.getAttribute("listaUtenti"));
         return "utenti.html";
+    }
+
+    @GetMapping ("/teams")
+    public String teams(Model model) {
+        model.addAttribute("listaTeams", teamService.findAll());
+        return "teams.html";
     }
 
     @RequestMapping("/login")
@@ -108,7 +113,7 @@ public class MainController {
                 .surname("Di Pierro")
                 .description("Luca Di Pierro")
                 .email("luca.dipierro@rationence.eu")
-                .roleList(roleList)
+                .role(roleUser)
                 .team(devTeam)
                 .cost(100.0)
                 .passwordHash(encoder.encode("password90!"))
@@ -123,7 +128,7 @@ public class MainController {
                 .surname("Rossi")
                 .description("Marco Rossi")
                 .email("marco.rossi@rationence.eu")
-                .roleList(roleList)
+                .role(roleUser)
                 .team(anaTeam)
                 .cost(100.0)
                 .passwordHash(encoder.encode("password"))
@@ -139,7 +144,7 @@ public class MainController {
                 .surname("Marcon")
                 .description("Giuseppe Marcon")
                 .email("giuseppe.marcon@rationence.eu")
-                .roleList(roleList)
+                .role(roleAdmin)
                 .team(ammTeam)
                 .cost(200.0)
                 .passwordHash(encoder.encode("passwordmarcon"))

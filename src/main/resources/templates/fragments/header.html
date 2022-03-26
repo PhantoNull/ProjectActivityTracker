@@ -1,3 +1,25 @@
-<footer th:fragment="header">
-    Prova header aggiunto componente
-</footer>
+<nav th:fragment="header" class="level">
+    <div class="level-left">
+        <div class="level-item">
+            <figure class="image ratiologo mr-2">
+                <img src="images/Logo.png">
+            </figure>
+        </div>
+    </div>
+    <div class="level-right">
+        <div class="level-item">
+                                <span class="has-text-weight-medium">
+                                    Utente:
+                                </span>
+            <span th:text="${#authentication.getPrincipal().getUsername()}"
+                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2">
+
+                                </span>
+        </div>
+        <div class="level-item">
+            <form th:action="@{/logout}">
+                <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>

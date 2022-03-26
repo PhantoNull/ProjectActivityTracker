@@ -95,3 +95,7 @@ input:focus {
 .ratiologo{
     width: 20rem;
 }
+
+.table__wrapper{
+    overflow-x: auto;
+}
