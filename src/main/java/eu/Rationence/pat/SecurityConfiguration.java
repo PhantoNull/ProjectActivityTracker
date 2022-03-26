@@ -22,9 +22,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     protected void configure(HttpSecurity http) throws Exception {
+        String[] staticResources  =  {
+                "/css/**",
+                "/images/**",
+                "/js/**"
+        };
         http
                 .authorizeRequests()
                     .antMatchers("/", "/utenti", "/index").authenticated()
+                    .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()
                     .and()

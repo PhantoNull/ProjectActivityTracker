@@ -1,75 +1,116 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
-<link rel="stylesheet" href="extra.css">
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
 
-<head>
-    <title>Pannello Di Controllo</title>
+<head th:include="fragments/headFragment.html :: headFragment">
+    <title id="pageTitle">Login Rationence</title>
 </head>
-<body>
 
-<section class="hero is-primary is-fullheight">
+<script src="js/mainjs.js"></script>
+
+<body>
+<section class="hero is-fullheight">
     <div class="hero-body">
         <div class="container">
             <div class="columns is-centered">
-                <div class="column is-5">
-                    <div class="title has-text-centered">Main menù</div>
+                <div class="column is-7">
 
-                    <article class="message is-link ">
+
+
+
+                    <nav class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <figure class="image ratiologo mr-2">
+                                    <img src="images/Logo.png">
+                                </figure>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <span class="has-text-weight-medium">
+                                    Utente:
+                                </span>
+                                <span th:text="${#authentication.getPrincipal().getUsername()}"
+                                      class="has-text-primary has-text-weight-semibold level-item subtitle ml-2">
+
+                                </span>
+                            </div>
+                            <div class="level-item">
+                                <form th:action="@{/logout}">
+                                    <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </nav>
+
+
+
+                    <nav class="breadcrumb" aria-label="breadcrumbs">
+                        <ul>
+                            <li>
+                                <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="is-3">Home</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <article class="message is-primary ">
                         <div class="message-header">
                             <p>Strumenti Amministrativi IT</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-centered is-mobile">
-                                <div class="column has-text-centered is-5">
+                                <div class="column has-text-centered is-4">
                                     <figure class="image is-128x128">
-                                        <img src="team.png">
-                                        <div class="clear subtitle has-text-grey-darker has-text-weight-bold">Teams</div>
+                                        <img src="images/team2.png">
                                     </figure>
                                 </div>
-                                <div class="column has-text-centered is-5">
+                                <div class="column has-text-centered is-4">
                                     <figure class="image is-128x128">
-                                        <img src="client.png">
-                                        <div class="clear subtitle has-text-grey-darker has-text-weight-bold">Clienti</div>
+                                        <img src="images/client2.png">
                                     </figure>
                                 </div>
-                                <div class="column has-text-centered is-5">
+                                <div class="column has-text-centered is-3">
                                     <figure class="image is-128x128">
-                                        <img src="standardactivity.png">
-                                        <div class="clear subtitle has-text-grey-darker has-text-weight-bold">Standard Activity</div>
+                                        <img src="images/standardactivity2.png">
                                     </figure>
                                 </div>
                             </div>
+                            <br>
                         </div>
                     </article>
 
 
-                    <article class="message is-link">
+                    <article class="message is-primary">
                         <div class="message-header">
-                            <p>Strumenti Amministrativi IT</p>
+                            <p>Strumenti Utenti</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-centered is-mobile">
-                                <div class="column has-text-centered is-5">
-                                    <figure class="image is-flex is-128x128">
-                                        <img src="user.png">
-                                    </figure>
-                                    <div class="subtitle">Utenti</div>
+                                <div class="column has-text-centered is-4">
+                                    <a th:href="@{/utenti}">
+                                        <figure th:onclick="'clickImg(\'userimg\')'"  class="image is-128x128">
+                                            <img  id="userimg" src="images/user2.png">
+                                        </figure>
+                                    </a>
+
                                 </div>
-                                <div class="column has-text-centered is-5">
-                                    <figure class="image is-flex is-128x128">
-                                        <img src="project.png">
+                                <div class="column has-text-centered is-4">
+                                    <figure class="image is-128x128">
+                                        <img src="images/project2.png">
                                     </figure>
-                                    <div class="subtitle">Progetti</div>
                                 </div>
-                                <div class="column has-text-centered is-5">
-                                    <figure class="image is-flex is-128x128">
-                                        <img src="time.png">
+                                <div class="column has-text-centered is-3">
+                                    <figure class="image is-128x128">
+                                        <img src="images/time2.png">
                                     </figure>
-                                    <div class="subtitle">Tracking Activities</div>
                                 </div>
                             </div>
+                            <br>
                         </div>
                     </article>
 
