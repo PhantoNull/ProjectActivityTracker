@@ -97,9 +97,9 @@ input:focus {
 }
 
 .table__wrapper{
-    overflow-x: auto;
+    /*overflow-x: auto;*/
 }
 
 .username{
-    text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.66);
+    text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.36);
 }

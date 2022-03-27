@@ -2,7 +2,7 @@
     <div class="level-left">
         <div class="level-item">
             <figure class="image ratiologo mr-2">
-                <img src="/images/Logo.png">
+                <img src="/images/Logo.png" alt="logo">
             </figure>
         </div>
     </div>
@@ -15,22 +15,23 @@
     </div>
     <div class="level-right">
         <div class="level-item">
-                                <span class="has-text-weight-medium">
-                                    Utente:
-                                </span>
+            <span class="icon is-medium has-text-primary-dark">
+                <i class="fas fa-user fa-lg"></i>
+            </span>
             <span th:text="${#authentication.getPrincipal().getUsername()}"
-                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2 username">
+                  class="has-text-primary-dark has-text-weight-semibold level-item subtitle ml-2 username">
+            </span>
+        </div>
+        <div class="level-item">
+            <span class="icon is-medium has-text-primary-dark">
+                <i class="fas fa-user-tag fa-lg"></i>
+            </span>
+            <span th:text="${#authentication.getPrincipal().authorities[0]}"
+                  class="has-text-primary-dark has-text-weight-semibold level-item subtitle ml-2 username">
             </span>
         </div>
     </div>
     <div class="level-right">
-        <div class="level-item">
-                                <span class="has-text-weight-medium">
-                                    Ruolo:
-                                </span>
-            <span th:text="${#authentication.getPrincipal().authorities[0]}"
-                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2 username">
-            </span>
-        </div>
+
     </div>
 </nav>
