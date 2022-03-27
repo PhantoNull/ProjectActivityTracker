@@ -8,6 +8,13 @@
     </div>
     <div class="level-right">
         <div class="level-item">
+            <form th:action="@{/logout}">
+                <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
+            </form>
+        </div>
+    </div>
+    <div class="level-right">
+        <div class="level-item">
                                 <span class="has-text-weight-medium">
                                     Utente:
                                 </span>
@@ -15,10 +22,15 @@
                   class="has-text-primary has-text-weight-semibold level-item subtitle ml-2 username">
             </span>
         </div>
+    </div>
+    <div class="level-right">
         <div class="level-item">
-            <form th:action="@{/logout}">
-                <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
-            </form>
+                                <span class="has-text-weight-medium">
+                                    Ruolo:
+                                </span>
+            <span th:text="${#authentication.getPrincipal().authorities[0]}"
+                  class="has-text-primary has-text-weight-semibold level-item subtitle ml-2 username">
+            </span>
         </div>
     </div>
 </nav>

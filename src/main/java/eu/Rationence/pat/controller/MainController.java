@@ -44,24 +44,18 @@ public class MainController {
     @GetMapping ("/utenti")
     public String utenti(Model model) {
         model.addAttribute("listaUtenti", utentiService.findAll());
-        return "utenti.html";
+        return "utenti";
     }
 
     @GetMapping ("/teams")
     public String teams(Model model) {
         model.addAttribute("listaTeams", teamService.findAll());
-        return "teams.html";
+        return "teams";
     }
 
     @RequestMapping("/login")
     public String login() {
-        return "login.html";
-    }
-
-    @RequestMapping("/login-error.html")
-    public String loginError(Model model) {
-        model.addAttribute("loginError", true);
-        return "login.html";
+        return "login";
     }
 
     @RequestMapping(value="/logout", method = RequestMethod.GET)
