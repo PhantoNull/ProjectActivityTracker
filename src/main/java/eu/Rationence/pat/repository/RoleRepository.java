@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface RoleRepository extends CrudRepository<Role, String> {
-    Role getRoleByRole(String string);
+    Role getRoleByRoleName(String string);
     List<Role> findAll();
     Role save(Role role);
     

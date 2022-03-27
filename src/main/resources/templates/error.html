@@ -1,8 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
+
+<head th:include="fragments/headFragment.html :: headFragment">
+    <title id="pageTitle">Login Rationence</title>
+</head>
+
+<script src="js/mainjs.js"></script>
+
 <body>
-<h1>Oops Qualcosa è andato storto! </h1>
-<h2>Sembra che la risorsa non sia esistente o disponibile al momento.</h2>
-<a href="/">Vai alla Home</a>
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-7">
+                    <div class="title has-text-primary-dark has-text-weight-semibold">Oops!<br> Qualcosa è andato storto! </div>
+                    <div class="subtitle">Sembra che la risorsa non sia esistente o disponibile al momento.</div>
+                    <div class="subtitle has-text-primary-dark has-text-weight-bold mx-auto">
+                        <a href="/">Vai alla Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

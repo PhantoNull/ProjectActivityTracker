@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 
 <head th:include="fragments/headFragment.html :: headFragment">
-
     <title id="pageTitle">Login Rationence</title>
 </head>
 
@@ -28,11 +27,19 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="/teams">
+                                <a href="/utenti">
                                     <span class="icon is-medium">
                                       <i class="fas fa-user" aria-hidden="true"></i>
                                     </span>
-                                    <span class="is-3">Teams</span>
+                                    <span class="is-3">Utenti</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/roles">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-user-tag" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="is-3">Ruoli</span>
                                 </a>
                             </li>
                         </ul>
@@ -40,7 +47,7 @@
 
                     <article class="message is-primary ">
                         <div class="message-header">
-                            <p>Gestione Teams</p>
+                            <p>Gestione Ruoli</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-centered">
@@ -48,18 +55,14 @@
                                     <table class="table is-striped is-hoverable is-fullwidth">
                                         <tr>
                                             <th></th>
-                                            <th>Nome</th>
-                                            <th>Descrizione</th>
-                                            <th>Amministratore</th>
+                                            <th>Ruolo</th>
                                         </tr>
-                                        <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                        <tr th:each="team,iter : ${listaTeams}" th:id="riga+${iter.index}">
+                                        <!--/*@thymesVar id="listaRuoli" type=""*/-->
+                                        <tr th:each="role,iter : ${listaRuoli}" th:id="riga+${iter.index}">
                                             <td>
-                                                <input th:onclick="'selezionaRigaTabella(\'riga' + ${iter.index} + '\');'" th:id="${team.teamName}" type="checkbox">
+                                                <input th:onclick="'selezionaRigaTabella(\'riga' + ${iter.index} + '\');'" th:id="${role.roleName}" type="checkbox">
                                             </td>
-                                            <td th:text="${team.teamName}" />
-                                            <td th:text="${team.teamDesc}" />
-                                            <td />
+                                            <td th:text="${role.roleName}" />
                                         </tr>
                                     </table>
                                 </div>

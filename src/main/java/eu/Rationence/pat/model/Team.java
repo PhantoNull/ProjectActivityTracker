@@ -26,10 +26,10 @@ public class Team implements Serializable {
     private String teamDesc;
 
     //JsonIgnoreProperties(value = {"c_Team"}, allowSetters = true)
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_Administrator")
-    @JsonBackReference
-    private User administrator;
+    //@ManyToOne(fetch=FetchType.LAZY)
+    //@JoinColumn(name = "c_Administrator")
+    //@JsonBackReference
+    //private User administrator;
 
     @Override
     public boolean equals(Object o) {

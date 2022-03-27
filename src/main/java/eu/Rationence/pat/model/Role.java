@@ -22,14 +22,14 @@ public class Role implements Serializable {
 
     @Id
     @Column(name="c_Role", length=50, unique = true, nullable = false)
-    private String role;
+    private String roleName;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Role utente = (Role) o;
-        return role != null && Objects.equals(role, utente.role);
+        return roleName != null && Objects.equals(roleName, utente.roleName);
     }
 
     @Override

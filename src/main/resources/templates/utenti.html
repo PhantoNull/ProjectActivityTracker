@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 
 <head th:include="fragments/headFragment.html :: headFragment">
@@ -6,6 +8,15 @@
 </head>
 
 <body>
+<script src="/js/mainjs.js"></script>
+<script type="text/javascript" th:inline="javascript">
+    function mostraModal(){
+        document.getElementById("modal-aggiungi-utente").classList.add('is-active');
+    }
+    function nascondiModal(){
+        document.getElementById("modal-aggiungi-utente").classList.remove('is-active');
+    }
+</script>
 
 <section class="hero is-fullheight">
     <div class="hero-body">
@@ -41,13 +52,13 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary-dark">
+                                <span class="icon is-large has-text-primary-dark is-clickable" th:onclick="'mostraModal();'">
                                   <i class="fas fa-user-plus fa-2x"></i>
                                 </span>
-                                <span class="icon is-large has-text-primary-dark">
+                                <span class="icon is-large has-text-primary-dark is-clickable">
                                   <i class="fas fa-save fa-2x"></i>
                                 </span>
-                                <span class="icon is-large has-text-primary-dark">
+                                <span class="icon is-large has-text-primary-dark is-clickable">
                                   <i class="fas fa-trash-alt fa-2x"></i>
                                 </span>
                             </div>
@@ -67,6 +78,7 @@
                                             <tr>
                                                 <th></th>
                                                 <th>Username</th>
+                                                <th>Ruolo</th>
                                                 <th>Nome</th>
                                                 <th>Cognome</th>
                                                 <th>Descrizione</th>
@@ -77,20 +89,20 @@
                                                 <th>Abilitato</th>
                                             </tr>
                                             <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                            <tr th:each="user : ${listaUtenti}">
+                                            <tr th:each="user,iter : ${listaUtenti}" th:id="riga+${iter.index}">
                                                 <td>
-                                                    <input th:id="${user.username}" type="checkbox">
+                                                    <input th:onclick="'selezionaRigaTabella(\'riga' + ${iter.index} + '\');'" type="checkbox">
                                                 </td>
-                                                <td th:text="${user.username}"/>
-                                                <td th:text="${user.name}"/>
-                                                <td th:text="${user.surname}"/>
-                                                <td th:text="${user.description}"/>
-                                                <td th:text="${user.email}"/>
-                                                <td th:text="${user.team.teamName}"/>
-                                                <td th:text="${user.cost}"/>
-                                                <td th:text="${user.time}"/>
-                                                <td th:text="${user.enabled}"/>
-
+                                                <td th:text="${user.username}"></td>
+                                                <td th:text="${user.role.roleName}"></td>
+                                                <td th:text="${user.name}"></td>
+                                                <td th:text="${user.surname}"></td>
+                                                <td th:text="${user.description}"></td>
+                                                <td th:text="${user.email}"></td>
+                                                <td th:text="${user.team.teamName}"></td>
+                                                <td th:text="${user.cost}"></td>
+                                                <td th:text="${user.time}"></td>
+                                                <td th:text="${user.enabled}"></td>
                                             </tr>
                                         </table>
                                     </div>
@@ -108,62 +120,75 @@
     </div>
 </section>
 
-<div id="modal-aggiungi-utente" class="modal is-active">
+<div class="modal" id="modal-aggiungi-utente">
     <div class="modal-background"></div>
     <div class="modal-card">
         <header class="modal-card-head">
             <p class="modal-card-title is-primary">Aggiungi utente</p>
-            <button class="delete" aria-label="close"></button>
+            <button class="delete" aria-label="close" th:onclick="'nascondiModal();'"></button>
         </header>
 
+        <!--/*@thymesVar id="user" type=""*/-->
         <form action="#" th:action="@{/adduser}" th:object="${user}" method="post">
             <section class="modal-card-body">
                 <label for="username">Username</label>
-                <input class="input" id="username" name="username" type="text" placeholder="Username" maxlength="64"
-                       required>
+
+                <p class="control has-icons-left">
+                    <input class="input" id="username" name="username" type="text" placeholder="Username" maxlength="64" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-user"></i>
+                        </span>
+                </p>
+
                 <label for="name">Nome</label>
                 <input class="input" id="name" name="name" type="text" placeholder="Nome" maxlength="32" required>
                 <label for="surname">Cognome</label>
-                <input class="input" id="surname" name="surname" type="text" placeholder="Cognome" maxlength="62"
-                       required>
+                <input class="input" id="surname" name="surname" type="text" placeholder="Cognome" maxlength="62" required>
                 <label for="description">Descrizione</label>
                 <input class="input" id="description" name="description" type="text" placeholder="Descrizione"
                        maxlength="128" required>
-                <label for="password">Password</label>
-                <input class="input" id="password" name="password" type="password" placeholder="Password" maxlength="32"
-                       required>
+
+                <label for="passwordHash">Password</label>
+                <p class="control has-icons-left">
+                    <input class="input" id="passwordHash" name="passwordHash" type="password" placeholder="Password" maxlength="32" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                </p>
+
                 <label for="email">Email</label>
-                <input class="input" id="email" name="email" type="email" placeholder="Email" maxlength="128" required>
-                <div>
-                    <label for="role">Team</label>
+                <p class="control has-icons-left">
+                    <input class="input" id="email" name="email" type="email" placeholder="Email" maxlength="128" required>
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                </p>
+                <label for="role">Ruolo</label>
+                <div class="level">
                     <div id="role" class="select">
                         <select>
-                            <option>USER</option>
-                            <option>ADMIN</option>
+                                <option th:each="role : ${listaRuoli}" th:text="${role.roleName}"></option>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label for="team">Team</label>
+                <label for="team">Team</label>
+                <div class="level">
                     <div id="team" class="select">
                         <select>
-                            <option>Null</option>
-                            <option>Amministrazione</option>
-                            <option>Sviluppo</option>
-                            <option>Analytics</option>
+                            <option th:each="team : ${listaTeams}" th:text="${team.teamName}"></option>
                         </select>
                     </div>
                 </div>
                 <label for="cost">Costo</label>
                 <input class="input" id="cost" name="cost" type="number" placeholder="100" th:required>
                 <label for="time">Tempo</label>
-                <input class="input" id="time" name="time" type="number" placeholder="88888" minlenght="5" maxlenght="5"
+                <input class="input" id="time" name="time" type="number" placeholder="88888" min="11111" max="88888"
                        th:required>
 
             </section>
             <footer class="modal-card-foot">
                 <input type="submit" class="button is-success" value="Crea utente">
-                <button class="button is-danger">Annulla</button>
+                <button class="button is-danger" th:onclick="'nascondiModal();'">Annulla</button>
             </footer>
         </form>
     </div>

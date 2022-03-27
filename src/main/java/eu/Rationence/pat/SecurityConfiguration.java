@@ -29,7 +29,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         };
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/utenti", "/index").authenticated()
+                    .antMatchers("/").authenticated()
+                    .antMatchers("/utenti", "/teams", "/adduser", "/roles").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()

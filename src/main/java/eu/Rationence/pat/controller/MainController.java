@@ -47,14 +47,18 @@ public class MainController {
     @GetMapping ("/utenti")
     public String utenti(Model model) {
         model.addAttribute("listaUtenti", utentiService.findAll());
+        model.addAttribute("listaTeams", teamService.findAll());
+        model.addAttribute("listaRuoli", roleService.findAll());
         return "utenti";
     }
 
     @PostMapping("/adduser")
     public String addUser(@Valid User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "add-user";
+            return "redirect:/utenti?addusererror="+result.getAllErrors();
         }
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.setPasswordHash((encoder.encode(user.getPasswordHash())));
         utentiService.saveUser(user);
         return "redirect:/utenti";
     }
@@ -63,6 +67,12 @@ public class MainController {
     public String teams(Model model) {
         model.addAttribute("listaTeams", teamService.findAll());
         return "teams";
+    }
+
+    @GetMapping ("/roles")
+    public String roles(Model model) {
+        model.addAttribute("listaRuoli", roleService.findAll());
+        return "roles";
     }
 
     @RequestMapping("/login")
@@ -83,10 +93,10 @@ public class MainController {
     public String initialize(){
 
         Role roleUser = Role.builder()
-                .role("USER")
+                .roleName("USER")
                 .build();
         Role roleAdmin = Role.builder()
-                .role("ADMIN")
+                .roleName("ADMIN")
                 .build();
         roleService.saveRole(roleUser);
         roleService.saveRole(roleAdmin);
@@ -158,8 +168,8 @@ public class MainController {
                 .build();
         utentiService.saveUser(marcon);
 
-        devTeam.setAdministrator(luca);
-        ammTeam.setAdministrator(marcon);
+        //devTeam.setAdministrator(luca);
+        //ammTeam.setAdministrator(marcon);
         teamService.saveTeam(devTeam);
         teamService.saveTeam(ammTeam);
 

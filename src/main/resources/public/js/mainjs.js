@@ -11,3 +11,18 @@ function deClickImg(img){
     img.style.transition = "transform 0.5s ease";
     console.log("INGRANDITO");
 }
+
+var listaRighe = [];
+function selezionaRigaTabella(id){
+    listaRighe[id] = !listaRighe[id];
+    console.log(id);
+    if(listaRighe[id]){
+        document.getElementById(id).classList.add('is-selected');
+        console.log("attivata "+ id);
+    }
+    else{
+        document.getElementById(id).classList.remove('is-selected');
+        console.log("disattivata " +id);
+    }
+
+}
