@@ -1,6 +1,6 @@
 package eu.Rationence.pat.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -25,8 +25,10 @@ public class Team implements Serializable {
     @Column(name="x_Team", length=128, nullable = false)
     private String teamDesc;
 
+    //JsonIgnoreProperties(value = {"c_Team"}, allowSetters = true)
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Administrator")
+    @JsonBackReference
     private User administrator;
 
     @Override

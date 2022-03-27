@@ -1,5 +1,6 @@
  package eu.Rationence.pat.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -37,6 +38,7 @@ public class User implements Serializable {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Team")
+    @JsonManagedReference
     private Team team;
 
     @Column(name="e_Email", unique = true, length=128, nullable = false)
