@@ -23,4 +23,6 @@ public class RoleService {
     }
 
     public Role saveRole(Role role){ return roleRepository.save(role);};
+
+    public void deleteRoleByRoleName(String roleName){ roleRepository.deleteRoleByRoleName(roleName);}
 }

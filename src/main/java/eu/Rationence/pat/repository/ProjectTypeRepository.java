@@ -10,8 +10,7 @@ import java.util.List;
 public interface ProjectTypeRepository extends CrudRepository<ProjectType, String> {
     ProjectType getProjectTypeByProjectType(String string);
     List<ProjectType> findAll();
-    ProjectType save(ProjectType team);
-    
+    ProjectType save(ProjectType project);
 }
 
 

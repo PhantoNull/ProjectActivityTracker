@@ -33,11 +33,11 @@ public class User implements Serializable {
      */
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_Role")
+    @JoinColumn(name = "c_Role", nullable = false)
     private Role role;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_Team")
+    @JoinColumn(name = "c_Team", nullable = false)
     @JsonManagedReference
     private Team team;
 

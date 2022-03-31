@@ -3,11 +3,11 @@
     --background: rgb(237, 237, 237);
     --textDark: hsla(0, 0%, 0%, 0.66);
     --textLight: hsla(0, 0%, 0%, 0.33);
-    --primary: #4fa8ba;
+    --primary: #9accdc;
 }
 body:before {
     /*overflow:hidden;*/
-    /*background: var(--background);*/
+    /*background: #d7f1f1;*/
     content: "";
     display: block;
     position: fixed;
@@ -102,4 +102,54 @@ input:focus {
 
 .username{
     text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.36);
+}
+
+th.checkboxCol{
+    width: 30px;
+}
+
+th.usernameCol{
+    width:180px; !important
+}
+
+th.nameCol{
+    width:100px; !important
+}
+
+th.surnameCol{
+    width:120px; !important
+}
+
+th.descriptionCol{
+    width:220px; !important
+}
+
+th.emailCol{
+    width:300px; !important
+}
+
+th.timeCol,
+th.costCol{
+    width:70px;
+}
+
+th.roleCol,
+th.teamCol{
+    width:80px; !important
+}
+
+.width110{
+    width:110px; !important
+}
+
+.width80{
+    width:80px; !important
+}
+
+.hide{
+    display:none;
+}
+
+.tabecheckbox:checked{
+    background-color:#4FA9BAFF;
 }

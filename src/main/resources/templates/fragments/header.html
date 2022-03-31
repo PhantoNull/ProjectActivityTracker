@@ -1,7 +1,7 @@
 <nav th:fragment="header" class="level">
     <div class="level-left">
         <div class="level-item">
-            <figure class="image ratiologo mr-2">
+            <figure class="image ratiologo">
                 <img src="/images/Logo.png" alt="logo">
             </figure>
         </div>
@@ -12,7 +12,7 @@
                 <i class="fas fa-user fa-lg"></i>
             </span>
             <span th:text="${#authentication.getPrincipal().getUsername()}"
-                  class="has-text-primary-dark has-text-weight-semibold level-item subtitle ml-2 username">
+                  class="has-text-primary-dark has-text-weight-medium level-item subtitle username">
             </span>
         </div>
         <div class="level-item">
@@ -20,15 +20,16 @@
                 <i class="fas fa-user-tag fa-lg"></i>
             </span>
             <span th:text="${#authentication.getPrincipal().authorities[0]}"
-                  class="has-text-primary-dark has-text-weight-semibold level-item subtitle ml-2 username">
+                  class="has-text-primary-dark has-text-weight-medium level-item subtitle username">
             </span>
+        </div>
+        <div class="level-item">
+            <form th:action="@{/logout}">
+                <button type="submit" name="logout" value="value" class="button is-primary ml-2">Logout</button>
+            </form>
         </div>
     </div>
     <div class="level-right">
-        <div class="level-item">
-            <form th:action="@{/logout}">
-                <button type="submit" name="logout" value="value" class="button is-primary">Logout</button>
-            </form>
-        </div>
+
     </div>
 </nav>

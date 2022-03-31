@@ -10,16 +10,22 @@
     <div class="columns is-multiline">
         <div class="column is-8 is-offset-2 login">
             <div class="columns">
-                <div class="column left">
-                    <h1 class="title is-1">Rationence</h1>
-                    <h2 class="subtitle colored has-text-primary is-4">Project Activity Tracker</h2>
+                <div class="column left has-text-centered">
+                    <h1 class="title colored has-text-primary has-text-weight-bold is-1 is-center">
+                        <!--<figure class="image is-128x128">
+                            <img  id="userimg" src="/images/Logo.png">
+                        </figure>-->
+                        Rationence
+                    </h1>
+                    <h2 class="subtitle colored has-text-primary-dark has-text-weight-semibold is-4">Project Activity Tracking</h2>
+                    <small><em>Software di tracking attività per progetti.</em></small>
                     <figure class="image is-128x128 mx-auto">
                         <img src="/images/RPATIcon.png">
                     </figure>
                 </div>
                 <div class="column right has-text-centered">
-                    <h1 class="title is-4">Login</h1>
-                    <p class="description">Effettua l'accesso</p>
+                    <h1 class="title has-text-primary has-text-weight-semibold is-4">Login</h1>
+                    <!-- <p class="description">Effettua l'accesso</p> -->
                     <p th:if="${param.error}" class="notification is-danger">
                         ⚠️ Credenziali errate️
                     </p>
@@ -40,7 +46,6 @@
                         </div>
                         <button type="submit" class="button is-block is-primary is-fullwidth is-medium">Login</button>
                         <br />
-                        <small><em>Software di tracking attività per progetti.</em></small>
                     </form>
                 </div>
             </div>

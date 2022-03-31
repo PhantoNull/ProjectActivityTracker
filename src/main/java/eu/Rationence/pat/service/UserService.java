@@ -10,12 +10,12 @@ import java.util.List;
 
 @Service
 @Configurable
-public class UtentiService {
+public class UserService {
     @Autowired
     private UserRepository utentiRepository;
 
     public User findUtenteByUsername(String string){
-        return utentiRepository.getUtenteByUsername(string);
+        return utentiRepository.getUserByUsername(string);
     }
 
     public List<User> findAll() {
@@ -23,4 +23,6 @@ public class UtentiService {
     }
 
     public User saveUser(User user){ return utentiRepository.save(user);};
+
+    public void deleteUserByUsername(String string){ utentiRepository.deleteUserByUsername(string);}
 }

@@ -12,16 +12,22 @@ function deClickImg(img){
     console.log("INGRANDITO");
 }
 
-var listaRighe = [];
-function selezionaRigaTabella(id){
-    listaRighe[id] = !listaRighe[id];
-    console.log(id);
-    if(listaRighe[id]){
-        document.getElementById(id).classList.add('is-selected');
+function showModal(id){
+    document.getElementById(id).classList.add('is-active');
+}
+function hideModal(id){
+    document.getElementById(id).classList.remove('is-active');
+}
+
+var tableRowList = [];
+function selectTableRow(id){
+    tableRowList[id] = !tableRowList[id];
+    if(tableRowList[id]){
+        document.getElementById("riga"+id).classList.add('is-selected');
         console.log("attivata "+ id);
     }
     else{
-        document.getElementById(id).classList.remove('is-selected');
+        document.getElementById("riga"+id).classList.remove('is-selected');
         console.log("disattivata " +id);
     }
 

@@ -1,13 +1,7 @@
 package eu.Rationence.pat.controller;
 
-import eu.Rationence.pat.model.ProjectType;
-import eu.Rationence.pat.model.Role;
-import eu.Rationence.pat.model.Team;
-import eu.Rationence.pat.model.User;
-import eu.Rationence.pat.service.ProjectTypeService;
-import eu.Rationence.pat.service.RoleService;
-import eu.Rationence.pat.service.TeamService;
-import eu.Rationence.pat.service.UtentiService;
+import eu.Rationence.pat.model.*;
+import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,14 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,48 +21,28 @@ import java.util.List;
 @AllArgsConstructor
 public class MainController {
     @Autowired
-    private final UtentiService utentiService;
+    private final UserService userService;
     @Autowired
     private final TeamService teamService;
     @Autowired
     private final RoleService roleService;
     @Autowired
     private final ProjectTypeService projectTypeService;
+    @Autowired
+    private final ClientTypeService clientTypeService;
+    @Autowired
+    private final ClientService clientService;
+
 
     @RequestMapping ("/")
     public String index() {
         return "index.html";
     }
 
-    @GetMapping ("/utenti")
-    public String utenti(Model model) {
-        model.addAttribute("listaUtenti", utentiService.findAll());
-        model.addAttribute("listaTeams", teamService.findAll());
-        model.addAttribute("listaRuoli", roleService.findAll());
-        return "utenti";
-    }
-
-    @PostMapping("/adduser")
-    public String addUser(@Valid User user, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "redirect:/utenti?addusererror="+result.getAllErrors();
-        }
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPasswordHash((encoder.encode(user.getPasswordHash())));
-        utentiService.saveUser(user);
-        return "redirect:/utenti";
-    }
-
     @GetMapping ("/teams")
     public String teams(Model model) {
         model.addAttribute("listaTeams", teamService.findAll());
         return "teams";
-    }
-
-    @GetMapping ("/roles")
-    public String roles(Model model) {
-        model.addAttribute("listaRuoli", roleService.findAll());
-        return "roles";
     }
 
     @RequestMapping("/login")
@@ -135,10 +105,10 @@ public class MainController {
                 .time("88888")
                 .enabled(true)
                 .build();
-        utentiService.saveUser(luca);
+        userService.saveUser(luca);
 
         User disabled = User.builder()
-                .username("marco.rossi")
+                .username("Marco.Rossi")
                 .name("Marco")
                 .surname("Rossi")
                 .description("Marco Rossi")
@@ -150,7 +120,7 @@ public class MainController {
                 .time("66006")
                 .enabled(false)
                 .build();
-        utentiService.saveUser(disabled);
+        userService.saveUser(disabled);
 
         roleList.add(roleAdmin);
         User marcon = User.builder()
@@ -166,10 +136,11 @@ public class MainController {
                 .time("88888")
                 .enabled(true)
                 .build();
-        utentiService.saveUser(marcon);
+        userService.saveUser(marcon);
 
         //devTeam.setAdministrator(luca);
         //ammTeam.setAdministrator(marcon);
+
         teamService.saveTeam(devTeam);
         teamService.saveTeam(ammTeam);
 
@@ -192,12 +163,31 @@ public class MainController {
                 .projectType("SERV")
                 .projectTypeDesc("Service")
                 .build();
-
         projectTypeService.saveProjectType(projCons);
         projectTypeService.saveProjectType(projDevp);
         projectTypeService.saveProjectType(projTrng);
         projectTypeService.saveProjectType(projServ);
 
+        ClientType clientDirect = ClientType.builder()
+                .clientType("DIRECT")
+                .build();
+        ClientType clientPartner = ClientType.builder()
+                .clientType("PARTNER")
+                .build();
+        ClientType clientInternal = ClientType.builder()
+                .clientType("INTERNAL")
+                .build();
+
+        clientTypeService.saveClientType(clientDirect);
+        clientTypeService.saveClientType(clientPartner);
+        clientTypeService.saveClientType(clientInternal);
+
+        Client clientBPER = Client.builder()
+                .client("BPER")
+                .clientDesc("Banca Popolare Emilia Romagna")
+                .clientType(clientDirect)
+                .build();
+        clientService.saveClient(clientBPER);
         return "login";
     }
 

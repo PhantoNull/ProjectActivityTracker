@@ -6,32 +6,41 @@
 
 <body>
 <script src="/js/mainjs.js"></script>
-<script type="text/javascript">
 
-    async function saveRoles(){
+<script type="text/javascript">
+    async function saveProjects(){
+        if(tableRowList.every(v => v === false))
+            return 1;
         for (let index in tableRowList){
             if(tableRowList[index]){
                 let data = new FormData(document.getElementById("form"+index));
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                await fetch("/addRole", {method: 'POST', body: data})
-                    .then(response => response.text())
-                    .catch(error => console.log(error));
+                if (index != "addProject")
+                    await fetch("/updateProject", {method: 'POST', body: data})
+                          .then(response => response.text())
+                        .catch(error => console.log(error));
+                else
+                    await fetch("/addProject", {method: 'POST', body: data})
+                        .then(response => response.text())
+                        .catch(error => console.log(error));
             }
         }
         window.location.reload(true);
     }
 
-    async function deleteRoles(){
+    async function deleteProjects(){
+        if(tableRowList.every(v => v === false))
+            return 1;
         for (let index in tableRowList){
             if(tableRowList[index]){
                 let data = new FormData(document.getElementById("form"+index));
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                if(index != 'addrole')
-                    await fetch("/deleteRole", {method: 'POST', body: data})
+                if(index != 'addproject')
+                    await fetch("/deleteProject", {method: 'POST', body: data})
                         .then(response => response.text())
                         .catch(error => console.log(error));
             }
@@ -62,26 +71,18 @@
                                 <ul>
                                     <li>
                                         <a href="/">
-                                        <span class="icon is-medium">
-                                          <i class="fas fa-home" aria-hidden="true"></i>
-                                        </span>
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
                                             <span>Home</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="/users">
-                                        <span class="icon is-medium">
-                                          <i class="fas fa-user" aria-hidden="true"></i>
-                                        </span>
-                                            <span>Users</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/roles">
-                                        <span class="icon is-medium">
-                                          <i class="fas fa-user-tag" aria-hidden="true"></i>
-                                        </span>
-                                            <span>Roles</span>
+                                        <a href="/projects">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-sheet-plastic" aria-hidden="true"></i>
+                                    </span>
+                                            <span>Projects</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -89,7 +90,7 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Salva" th:onclick="'saveRoles();'">
+                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Salva" th:onclick="'saveProjects();'">
                                   <i class="fas fa-save fa-2x"></i>
                                 </span>
                                 <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
@@ -104,29 +105,31 @@
                         <div class="level m-0">
                             <div class="level-left">
                                 <div class="level-item">
-                                    <p>Confermi di voler cancellare i ruoli selezionati?</p>
+                                    <p>Confermi di voler cancellare i progetti selezionati?</p>
                                 </div>
                             </div>
                         </div>
                         <div class="level">
                             <div class="level-left">
                                 <div class="level-item">
-                                    <p class="has-text-weight-semibold is-underlined ml-2"> Questa operazione sarà irreversibile e cancellerà tutti i ruoli selezionati.</p>
+                                    <p class="has-text-weight-semibold is-underlined ml-2"> Questa operazione sarà irreversibile e cancellerà tutti i dati legati ai progetti.</p>
                                 </div>
                             </div>
                             <div class="level-right">
                                 <div class="level-item">
-                                    <button class="button is-danger" th:onclick="'deleteRoles(), showConfirm(false);'">Prosegui</button>
+                                    <button class="button is-danger" th:onclick="'deleteProjects(), showConfirm(false);'">Prosegui</button>
                                     <button class="button ml-3" th:onclick="'showConfirm(false);'">Annulla</button>
                                 </div>
 
                             </div>
                         </div>
+
+
                     </div>
 
                     <article class="message is-primary ">
                         <div class="message-header">
-                            <p>Roles Control Panel</p>
+                            <p>Users Control Panel</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-centered">
@@ -135,30 +138,48 @@
                                         <table>
                                             <tr >
                                                 <th class="checkboxCol"></th>
-                                                <th class="rolenameCol">Role</th>
+                                                <th class="projectCol">Project</th>
+                                                <th class="projectDescCol">Description</th>
+                                                <th class="clientCol">Client</th>
+                                                <th class="projectTypeCol">Type</th>
+                                                <th class="dateCol">Start</th>
+                                                <th class="dateCol">End</th>
+                                                <th class="dateCol">Close</th>
+                                                <th class="teamCol">Team</th>
+                                                <th class="usernameCol">Project Manager</th>
+                                                <th class="projectValueCol">Value</th>
                                             </tr>
                                             <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                            <tr th:each="role,iter : ${listaRuoli}" th:id="riga+${iter.index}">
-                                                <form  th:id="form+${iter.index}" th:object="${role}" method="post">
+                                            <tr th:each="project,iter : ${listaProgetti}" th:id="riga+${iter.index}">
+                                                <form th:action="@{/updateproject}"  th:id="form+${iter.index}" th:object="${project}" method="post">
                                                     <td style="text-align:center; vertical-align:middle;">
                                                         <input th:onclick="'selezionaRigaTabella(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
                                                     </td>
                                                     <td>
-                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="rolename + ${iter.index}" name="roleName" type="text" th:value="${role.roleName}" th:placeholder="${role.roleName}" maxlength="50" required readonly>
-                                                    </td>
-                                                </form>
-                                            </tr>
-                                            <!--new user form-->
-                                            <tr th:id="rigaaddrole">
-                                                <form  id="formaddrole" th:object="${role}" method="post">
-                                                    <td style="text-align:center; vertical-align:middle;">
-                                                        <input th:onclick="'selezionaRigaTabella(\'addrole\');'" type="checkbox" class="tablecheckbox">
+                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="project + ${iter.index}" name="project" type="text" th:value="${project.project}" th:placeholder="${project.project}" maxlength="16" required readonly>
                                                     </td>
                                                     <td>
-                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="rolenameaddrole" name="roleName" type="text" placeholder="" maxlength="50" required>
+                                                        <input class="input" th:id="desc + ${iter.index}" name="description" type="text" th:value="${project.description}" th:placeholder="${project.description}" maxlength="64" required>
                                                     </td>
+                                                    <td>
+                                                        <div class="select">
+                                                            <select th:id="client + ${iter.index}" name="client" th:selected="${project.client.client}" class="width110">
+                                                                <option th:each="client : ${listaClienti}" th:selected="${project.client.client == client.client}" th:value="${client.client}" th:text="${client.client}"></option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="select">
+                                                             <select th:id="type + ${iter.index}" name="projectType" th:selected="${project.projectType.projectType}" class="width110">
+                                                                 <option th:each="projectType : ${listaTipoProgetti}" th:selected="${project.projectType.projectType == projectType.projectType}" th:value="${projectType.projectType}" th:text="${projectType.projectType}"></option>
+                                                             </select>
+                                                        </div>
+                                                    </td>
+
                                                 </form>
                                             </tr>
+                                            <!--new project form-->
+
                                         </table>
                                     </div>
                                 </div>

@@ -17,7 +17,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.jdbcAuthentication()
                 .dataSource(datasource)
                 .usersByUsernameQuery("SELECT c_Username, h_Password, f_Enabled FROM PAT_Users where c_Username = ?")
-                .authoritiesByUsernameQuery(" SELECT c_Username, c_Role from PAT_Users where c_Username =?")
+                .authoritiesByUsernameQuery(" SELECT c_Username, c_Role from PAT_Users where c_Username = ?")
                 .passwordEncoder(new BCryptPasswordEncoder());
     }
 
@@ -30,7 +30,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     .antMatchers("/").authenticated()
-                    .antMatchers("/utenti", "/teams", "/adduser", "/roles").hasAuthority("ADMIN")
+                    .antMatchers("/users", "/teams", "/adduser", "/roles", "/addUser",
+                            "/updateUser", "/deleteUser", "/addRole", "/deleteRole",
+                            "/projects", "/addProject", "/updateProject", "/deleteProject").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:include="fragments/headFragment.html :: headFragment">
+    <title id="pageTitle">Login Rationence</title>
+</head>
+
+<body>
+<script src="/js/mainjs.js"></script>
+
+<script type="text/javascript">
+    async function saveUsers(){
+        if(tableRowList.every(v => v === false))
+            return 1;
+        for (let index in tableRowList){
+            if(tableRowList[index]){
+                let data = new FormData(document.getElementById("form"+index));
+                for (let value of data.values()) {
+                    console.log(value);
+                }
+                if (index != "adduser")
+                    await fetch("/updateUser", {method: 'POST', body: data})
+                          .then(response => response.text())
+                        .catch(error => console.log(error));
+                else
+                    await fetch("/addUser", {method: 'POST', body: data})
+                        .then(response => response.text())
+                        .catch(error => console.log(error));
+            }
+        }
+        window.location.reload(true);
+    }
+
+    async function deleteUsers(){
+        if(tableRowList.every(v => v === false))
+            return 1;
+        for (let index in tableRowList){
+            if(tableRowList[index]){
+                let data = new FormData(document.getElementById("form"+index));
+                for (let value of data.values()) {
+                    console.log(value);
+                }
+                if(index != 'adduser')
+                    await fetch("/deleteUser", {method: 'POST', body: data})
+                        .then(response => response.text())
+                        .catch(error => console.log(error));
+            }
+        }
+        window.location.reload(true);
+    }
+
+    async function resetPassword(){
+        if(tableRowList.every(v => v === false))
+            return 1;
+        for (let index in tableRowList){
+            if(tableRowList[index]){
+                let data = new FormData(document.getElementById("form"+index));
+                for (let value of data.values()) {
+                    console.log(value);
+                }
+                if(index != 'adduser')
+                    await fetch("/resetPasswordUser", {method: 'POST', body: data})
+                        .then(response => response.text())
+                        .catch(error => console.log(error));
+            }
+        }
+        window.location.reload(true);
+    }
+
+    function showConfirm(bool){
+        let elem = document.getElementById("confirm-delete");
+        if(bool && !tableRowList.every(v => v === false))
+            elem.style.display = "block";
+        else
+            elem.style.display = "none";
+    }
+</script>
+
+<section class=""> <!--hero is-fullheight-->
+    <div class=""> <!--hero-body-->
+        <div class="container mt-6">
+            <div class="columns">
+                <div class="column">
+
+                    <div th:include="fragments/header.html :: header"></div>
+
+                    <div class="level mt-5">
+                        <div class="level-left">
+                            <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
+                                <ul>
+                                    <li>
+                                        <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                            <span>Home</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/users">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-user" aria-hidden="true"></i>
+                                    </span>
+                                            <span>Users</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Reset Password" th:onclick="'resetPassword();'">
+                                  <i class="fas fa-key fa-2x"></i>
+                                </span>
+                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Salva" th:onclick="'saveUsers();'">
+                                  <i class="fas fa-save fa-2x"></i>
+                                </span>
+                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="confirm-delete" class="hide notification is-primary">
+                        <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                        <div class="level m-0">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <p>Confermi di voler cancellare gli utenti selezionati?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <p class="has-text-weight-semibold is-underlined ml-2"> Questa operazione sarà irreversibile e cancellerà tutti i dati legati all'utente.</p>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <div class="level-item">
+                                    <button class="button is-danger" th:onclick="'deleteUsers(), showConfirm(false);'">Prosegui</button>
+                                    <button class="button ml-3" th:onclick="'showConfirm(false);'">Annulla</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <article class="message is-primary ">
+                        <div class="message-header">
+                            <p>Users Control Panel</p>
+                        </div>
+                        <div class="message-body">
+                            <div class="columns is-centered">
+                                <div class="column">
+                                    <div class="table__wrapper">
+                                        <table>
+                                            <tr >
+                                                <th class="checkboxCol has-text-primary-dark"></th>
+                                                <th class="usernameCol has-text-primary-dark">Username</th>
+                                                <th class="roleCol has-text-primary-dark">Role</th>
+                                                <th class="nameCol has-text-primary-dark">Name</th>
+                                                <th class="surnameCol has-text-primary-dark">Surname</th>
+                                                <th class="descriptionCol has-text-primary-dark">Description</th>
+                                                <th class="emailCol has-text-primary-dark">Email</th>
+                                                <th class="teamCol has-text-primary-dark">Team</th>
+                                                <th class="costCol has-text-primary-dark">Cost</th>
+                                                <th class="timeCol has-text-primary-dark">Time</th>
+                                                <th class="enabledCol has-text-primary-dark">Enabled</th>
+                                            </tr>
+                                            <!--/*@thymesVar id="listaUtenti" type=""*/-->
+                                            <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
+                                                <form th:action="@{/updateuser}"  th:id="form+${iter.index}" th:object="${user}" method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" th:id="pass + ${iter.index}" name="passwordHash" value="fake">
+                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-success-light has-text-primary is-primary" th:id="username + ${iter.index}" name="username" type="text" th:value="${user.username}" th:placeholder="${user.username}" maxlength="64" required readonly>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="role + ${iter.index}" name="role" th:selected="${user.role.roleName}" class="width110">
+                                                            <option name="role" th:each="role : ${listaRuoli}" th:selected="${user.role.roleName == role.roleName}" th:value="${role.roleName}" th:text="${role.roleName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="name + ${iter.index}" name="name" type="text" th:value="${user.name}" th:placeholder="${user.name}" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="surname + ${iter.index}" name="surname" type="text" th:value="${user.surname}" th:placeholder="${user.surname}" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="description + ${iter.index}" name="description" type="text" th:value="${user.description}" th:placeholder="${user.description}" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="email + ${iter.index}" name="email" type="email" th:value="${user.email}" th:placeholder="${user.email}" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="team + ${iter.index}" name="team" th:selected="${user.team.teamName}" class="width110">
+                                                            <option th:each="team : ${listaTeams}" th:selected="${user.team.teamName == team.teamName}" th:value="${team.teamName}" th:text="${team.teamName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="cost + ${iter.index}" name="cost" type="text" th:value="${user.cost}" th:placeholder="${user.cost}" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="time + ${iter.index}" name="time" type="text" th:value="${user.time}" th:placeholder="${user.time}" minlength="5" maxlength="5" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="enabled + ${iter.index}" name="enabled" class="width80">
+                                                            <option th:selected="${user.enabled}" value="true">yes</option>
+                                                            <option th:selected="${!user.enabled}" value="false">no</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                </form>
+                                            </tr>
+                                            <!--new user form-->
+                                            <tr th:id="rowadduser">
+                                                <form th:action="@{/adduser}"  id="formadduser" th:object="${user}" method="post">
+                                                    <td style="text-align:center; vertical-align:middle;">
+                                                        <input type="hidden" th:id="passadduser" name="passwordHash" value="fake">
+                                                        <input th:onclick="'selectTableRow(\'adduser\');'" type="checkbox" class="tablecheckbox">
+                                                    </td>
+                                                    <td>
+                                                        <input class="input has-text-primary" th:id="usernameadduser" name="username" type="text" placeholder="" maxlength="64" required>
+                                                    </td>
+                                                    <td>
+                                                        <div class="select">
+                                                            <select th:id="roleadduser" name="role" th:selected="USER" class="width110">
+                                                                <option name="role" th:each="role : ${listaRuoli}" th:selected="USER" th:value="${role.roleName}" th:text="${role.roleName}"></option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="nameadduser" name="name" type="text" placeholder="" maxlength="32" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="surnameadduser" name="surname" type="text" placeholder="" maxlength="64" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="descriptionadduser" name="description" type="text" placeholder="" maxlength="128" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="emailadduser" name="email" type="email" placeholder="" maxlength="128" required>
+                                                    </td>
+                                                    <td>
+                                                        <div class="select">
+                                                            <select th:id="teamadduser" name="team" class="width110">
+                                                                <option th:each="team : ${listaTeams}" th:value="${team.teamName}" th:text="${team.teamName}"></option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="costadduser" name="cost" type="text" placeholder="" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="input" th:id="timeadduser" name="time" type="text" placeholder="" minlength="5" maxlength="5" required>
+                                                    </td>
+                                                    <td>
+                                                        <div class="select">
+                                                            <select th:id="enabledadduser" name="enabled" class="width80">
+                                                                <option value="true">yes</option>
+                                                                <option value="false">no</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                </form>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal" id="modal-cancella-utenti">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title has-text-danger">Attenzione</p>
+            <button class="delete" aria-label="close" th:onclick="'hideModal(\'modal-cancella-utenti\');'"></button>
+        </header>
+
+        <!--/*@thymesVar id="user" type=""*/-->
+        <form th:action="@{/deleteuser}" th:object="${user}" method="post">
+            <section class="modal-card-body">
+                <p>Sei sicuro di voler eliminare gli utenti selezionati?<p>
+                <p class="has-text-medium has-text-danger">Questa operazione sarà irreversibile e cancellerà tutti i dati legati all'utente.</p>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-danger" th:onclick="'hideModal(\'modal-cancella-utenti\'), deleteUsers()'">Cancella Utenti</button>
+                <button class="button" th:onclick="'hideModal(\'modal-cancella-utenti\');'">Annulla</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+</body>
+
+</html>
