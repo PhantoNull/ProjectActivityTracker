@@ -7,14 +7,21 @@ import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.management.BadAttributeValueExpException;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Controller
@@ -36,10 +43,32 @@ public class UserController {
     }
 
     @PostMapping("/addUser")
-    public ResponseEntity<String> addUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
+    public ResponseEntity<String> addUser(@Valid User user,
+                                          @RequestParam(value="team") String teamKey,
+                                          @RequestParam(value="role") String roleKey,
+                                          @RequestParam(value="cost") String cost,
+                                          BindingResult result){
         try{
-            if(user.equals(userService.findUtenteByUsername(user.getUsername())))
-                return ResponseEntity.status(409).body("ERROR: " + user.getUsername() + "is in the database");
+            if(result.hasErrors()) {
+                System.out.println("ERROR: " + result.getAllErrors());
+                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
+            }
+            if(user.equals(userService.findUtenteByUsername(user.getUsername()))){
+                System.out.println("ERROR: " + user.getUsername() + " is already created");
+                return ResponseEntity.status(409).body("ERROR: " + user.getUsername() + " is already created");
+            }
+            if(!EmailValidator.getInstance().isValid(user.getEmail())){
+                System.out.println("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
+                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
+            }
+            if(!isNumericString(user.getTime()) || user.getTime().length() != 5){
+                System.out.println("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
+                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
+            }
+            if(!isNumericString(cost)){
+                System.out.println("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
+                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
+            }
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
             Role roleRepo = roleService.findRoleByRoleName(roleKey);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -56,21 +85,24 @@ public class UserController {
     }
 
     @PostMapping("/updateUser")
-    @ResponseStatus(value = HttpStatus.OK)
-    @ResponseBody
-    public void updateUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
-        Team teamRepo = teamService.findTeamByTeamName(teamKey);
-        Role roleRepo = roleService.findRoleByRoleName(roleKey);
-        User userRepo = userService.findUtenteByUsername(user.getUsername());
-        user.setPasswordHash(userRepo.getPasswordHash());
-        user.setTeam(teamRepo);
-        user.setRole(roleRepo);
-        userService.saveUser(user);
+    public ResponseEntity<String> updateUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
+        try{
+            Team teamRepo = teamService.findTeamByTeamName(teamKey);
+            Role roleRepo = roleService.findRoleByRoleName(roleKey);
+            User userRepo = userService.findUtenteByUsername(user.getUsername());
+            user.setPasswordHash(userRepo.getPasswordHash());
+            user.setTeam(teamRepo);
+            user.setRole(roleRepo);
+            userService.saveUser(user);
+            return ResponseEntity.ok("User '" + user.getUsername() + "' updated.");
+        }
+        catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .body("ERROR: " + e.getMessage());
+        }
     }
 
     @PostMapping("/resetPasswordUser")
-    @ResponseStatus(value = HttpStatus.OK)
-    @ResponseBody
     public void resetPasswordUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
         User userRepo = userService.findUtenteByUsername(user.getUsername());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -80,12 +112,24 @@ public class UserController {
     }
 
     @PostMapping("/deleteUser")
-    @ResponseStatus(value = HttpStatus.OK)
-    @ResponseBody
     public void deleteUser(@Valid User user){
         User userRepo = userService.findUtenteByUsername(user.getUsername());
         userService.deleteUserByUsername(userRepo.getUsername());
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleBadRequestException(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("ERROR: Empty input or mismatched input type");
+    }
 
+    public boolean isNumericString(String string){
+        for (int i=0; i< string.length(); i++){
+            if("0123456789".indexOf(string.charAt(i)) == -1)
+                return false;
+        }
+        return true;
+    }
 }

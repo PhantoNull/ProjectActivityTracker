@@ -8,7 +8,10 @@
 <script src="/js/mainjs.js"></script>
 
 <script type="text/javascript">
+    var error_log = "";
+
     async function saveUsers(){
+        error_log = "";
         if(tableRowList.every(v => v === false))
             return 1;
         for (let index in tableRowList){
@@ -17,20 +20,35 @@
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                if (index != "adduser")
+                if (index != "99999")
                     await fetch("/updateUser", {method: 'POST', body: data})
-                          .then(response => response.text())
-                        .catch(error => console.log(error));
+                        .then(function(response) {
+                            if(!response.ok) {
+                                function data(data) {
+                                    error_log += data + "<br>";
+                                }
+                            }
+                        })
+                            .catch(error => console.log(error));
                 else
                     await fetch("/addUser", {method: 'POST', body: data})
                         .then(response => response.text())
+                        .then(data => error_log += data + "<br>")
                         .catch(error => console.log(error));
             }
         }
-        window.location.reload(true);
+        if(error_log !== ""){
+            let errorelement = document.getElementById("error-log-text");
+            errorelement.innerHTML = error_log;
+            showErrorLog(true);
+        }
+        else
+            window.location.reload(true);
+
     }
 
     async function deleteUsers(){
+        error_log = "";
         if(tableRowList.every(v => v === false))
             return 1;
         for (let index in tableRowList){
@@ -39,7 +57,7 @@
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                if(index != 'adduser')
+                if(index != '99999')
                     await fetch("/deleteUser", {method: 'POST', body: data})
                         .then(response => response.text())
                         .catch(error => console.log(error));
@@ -49,6 +67,7 @@
     }
 
     async function resetPassword(){
+        error_log = "";
         if(tableRowList.every(v => v === false))
             return 1;
         for (let index in tableRowList){
@@ -57,7 +76,7 @@
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                if(index != 'adduser')
+                if(index != '99999')
                     await fetch("/resetPasswordUser", {method: 'POST', body: data})
                         .then(response => response.text())
                         .catch(error => console.log(error));
@@ -69,6 +88,14 @@
     function showConfirm(bool){
         let elem = document.getElementById("confirm-delete");
         if(bool && !tableRowList.every(v => v === false))
+            elem.style.display = "block";
+        else
+            elem.style.display = "none";
+    }
+
+    function showErrorLog(bool){
+        let elem = document.getElementById("error-log");
+        if(bool)
             elem.style.display = "block";
         else
             elem.style.display = "none";
@@ -121,31 +148,51 @@
                         </div>
                     </div>
 
-                    <div id="confirm-delete" class="hide notification is-primary">
-                        <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div id="error-log" class="hide notification is-primary">
+                        <button class="delete" th:onclick="'showErrorLog(false)'"></button>
                         <div class="level m-0">
                             <div class="level-left">
                                 <div class="level-item">
-                                    <p>Confermi di voler cancellare gli utenti selezionati?</p>
+                                    <p>Log:</p>
                                 </div>
                             </div>
                         </div>
                         <div class="level">
                             <div class="level-left">
                                 <div class="level-item">
-                                    <p class="has-text-weight-semibold is-underlined ml-2"> Questa operazione sarà irreversibile e cancellerà tutti i dati legati all'utente.</p>
+                                    <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                                </div>
+                            </div>
+                            <div class="level-right">
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="confirm-delete" class="hide notification is-primary">
+                        <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                        <div class="level m-0">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <p>Do you really want to delete selected users?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible and will erase all user-related data.</p>
                                 </div>
                             </div>
                             <div class="level-right">
                                 <div class="level-item">
-                                    <button class="button is-danger" th:onclick="'deleteUsers(), showConfirm(false);'">Prosegui</button>
-                                    <button class="button ml-3" th:onclick="'showConfirm(false);'">Annulla</button>
+                                    <button class="button is-danger" th:onclick="'deleteUsers(), showConfirm(false);'">Continue</button>
+                                    <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                                 </div>
 
                             </div>
                         </div>
-
-
                     </div>
 
                     <article class="message is-primary ">
@@ -207,7 +254,7 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="cost + ${iter.index}" name="cost" type="text" th:value="${user.cost}" th:placeholder="${user.cost}" required>
+                                                    <input class="input" th:id="cost + ${iter.index}" name="cost" type="number" th:value="${user.cost}" th:placeholder="${user.cost}" required>
                                                 </td>
                                                 <td>
                                                     <input class="input" th:id="time + ${iter.index}" name="time" type="text" th:value="${user.time}" th:placeholder="${user.time}" minlength="5" maxlength="5" required>
@@ -223,11 +270,11 @@
                                                 </form>
                                             </tr>
                                             <!--new user form-->
-                                            <tr th:id="rowadduser">
-                                                <form th:action="@{/adduser}"  id="formadduser" th:object="${user}" method="post">
+                                            <tr id="row99999">
+                                                <form th:action="@{/adduser}"  id="form99999" th:object="${user}" method="post">
                                                     <td style="text-align:center; vertical-align:middle;">
                                                         <input type="hidden" th:id="passadduser" name="passwordHash" value="fake">
-                                                        <input th:onclick="'selectTableRow(\'adduser\');'" type="checkbox" class="tablecheckbox">
+                                                        <input th:onclick="'selectTableRow(\'99999\');'" type="checkbox" class="tablecheckbox">
                                                     </td>
                                                     <td>
                                                         <input class="input has-text-primary" th:id="usernameadduser" name="username" type="text" placeholder="" maxlength="64" required>
@@ -259,7 +306,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <input class="input" th:id="costadduser" name="cost" type="text" placeholder="" required>
+                                                        <input class="input" th:id="costadduser" name="cost" type="number" placeholder="" required>
                                                     </td>
                                                     <td>
                                                         <input class="input" th:id="timeadduser" name="time" type="text" placeholder="" minlength="5" maxlength="5" required>

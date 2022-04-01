@@ -55,7 +55,7 @@ public class User implements Serializable {
     private String description;
 
     @Column(name="i_Cost", nullable = false)
-    private double cost;
+    private int cost;
 
     @Column(name="x_Time", nullable = false, length=5)
     private String time;

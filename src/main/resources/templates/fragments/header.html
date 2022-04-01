@@ -24,7 +24,7 @@
             </span>
         </div>
         <div class="level-item">
-            <form th:action="@{/logout}">
+            <form th:if="${#httpServletRequest.requestURI == '/'}" th:action="@{/logout}">
                 <button type="submit" name="logout" value="value" class="button is-primary ml-2">Logout</button>
             </form>
         </div>

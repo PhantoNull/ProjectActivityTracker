@@ -2871,7 +2871,7 @@ a.tag:hover {
   height: 2.5em;
 }
 .select:not(.is-multiple):not(.is-loading)::after {
-  border-color: #485fc7;
+  border-color: #4f8fa6;
   right: 1.125em;
   z-index: 4;
 }
@@ -2966,16 +2966,16 @@ a.tag:hover {
   box-shadow: 0 0 0 0.125em rgba(79, 143, 166, 0.25);
 }
 .select.is-link:not(:hover)::after {
-  border-color: #485fc7;
+  border-color: #39697c;
 }
 .select.is-link select {
-  border-color: #485fc7;
+  border-color: #4f8fa6;
 }
 .select.is-link select:hover, .select.is-link select.is-hovered {
-  border-color: #3a51bb;
+  border-color: #39697c;
 }
 .select.is-link select:focus, .select.is-link select.is-focused, .select.is-link select:active, .select.is-link select.is-active {
-  box-shadow: 0 0 0 0.125em rgba(72, 95, 199, 0.25);
+  box-shadow: 0 0 0 0.125em rgb(42, 79, 94);
 }
 .select.is-info:not(:hover)::after {
   border-color: #3e8ed0;

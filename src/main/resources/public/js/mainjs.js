@@ -23,11 +23,11 @@ var tableRowList = [];
 function selectTableRow(id){
     tableRowList[id] = !tableRowList[id];
     if(tableRowList[id]){
-        document.getElementById("riga"+id).classList.add('is-selected');
+        document.getElementById("row"+id).classList.add('is-selected');
         console.log("attivata "+ id);
     }
     else{
-        document.getElementById("riga"+id).classList.remove('is-selected');
+        document.getElementById("row"+id).classList.remove('is-selected');
         console.log("disattivata " +id);
     }
 

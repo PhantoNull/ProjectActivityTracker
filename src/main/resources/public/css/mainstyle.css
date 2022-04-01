@@ -128,13 +128,13 @@ th.emailCol{
     width:300px; !important
 }
 
-th.timeCol,
-th.costCol{
-    width:70px;
+th.timeCol{
+    width:80px; !important
 }
 
 th.roleCol,
-th.teamCol{
+th.teamCol,
+th.costCol{
     width:80px; !important
 }
 
