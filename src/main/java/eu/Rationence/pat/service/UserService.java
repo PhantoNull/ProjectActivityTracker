@@ -12,17 +12,19 @@ import java.util.List;
 @Configurable
 public class UserService {
     @Autowired
-    private UserRepository utentiRepository;
+    private UserRepository userRepository;
 
-    public User findUtenteByUsername(String string){
-        return utentiRepository.getUserByUsername(string);
+    public User findUserByUsername(String string){
+        return userRepository.getUserByUsername(string);
     }
+
+    public User findUserByEmail(String string){ return userRepository.getUsernameByEmail(string);}
 
     public List<User> findAll() {
-        return utentiRepository.findAll();
+        return userRepository.findAll();
     }
 
-    public User saveUser(User user){ return utentiRepository.save(user);};
+    public User saveUser(User user){ return userRepository.save(user);};
 
-    public void deleteUserByUsername(String string){ utentiRepository.deleteUserByUsername(string);}
+    public void deleteUserByUsername(String string){ userRepository.deleteUserByUsername(string);}
 }

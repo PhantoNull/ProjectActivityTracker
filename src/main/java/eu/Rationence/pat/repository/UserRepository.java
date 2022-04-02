@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends CrudRepository<User, String> {
     User getUserByUsername(String string);
+    User getUsernameByEmail(String string);
     List<User> findAll();
     User save(User user);
     @Transactional

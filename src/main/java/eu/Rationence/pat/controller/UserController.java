@@ -16,12 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import javax.management.BadAttributeValueExpException;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Controller
@@ -49,26 +44,18 @@ public class UserController {
                                           @RequestParam(value="cost") String cost,
                                           BindingResult result){
         try{
-            if(result.hasErrors()) {
-                System.out.println("ERROR: " + result.getAllErrors());
+            if(result.hasErrors())
                 return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
-            }
-            if(user.equals(userService.findUtenteByUsername(user.getUsername()))){
-                System.out.println("ERROR: " + user.getUsername() + " is already created");
+            if(user.equals(userService.findUserByUsername(user.getUsername())))
                 return ResponseEntity.status(409).body("ERROR: " + user.getUsername() + " is already created");
-            }
-            if(!EmailValidator.getInstance().isValid(user.getEmail())){
-                System.out.println("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
+            if(user.equals(userService.findUserByEmail(user.getEmail())))
+                return ResponseEntity.status(409).body("ERROR: " + user.getEmail() + " is already used by another user");
+            if(!EmailValidator.getInstance().isValid(user.getEmail()))
                 return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
-            }
-            if(!isNumericString(user.getTime()) || user.getTime().length() != 5){
-                System.out.println("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
+            if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
                 return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
-            }
-            if(!isNumericString(cost)){
-                System.out.println("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
+            if(!isNumericString(cost))
                 return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
-            }
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
             Role roleRepo = roleService.findRoleByRoleName(roleKey);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -89,7 +76,7 @@ public class UserController {
         try{
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
             Role roleRepo = roleService.findRoleByRoleName(roleKey);
-            User userRepo = userService.findUtenteByUsername(user.getUsername());
+            User userRepo = userService.findUserByUsername(user.getUsername());
             user.setPasswordHash(userRepo.getPasswordHash());
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
@@ -104,7 +91,7 @@ public class UserController {
 
     @PostMapping("/resetPasswordUser")
     public void resetPasswordUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
-        User userRepo = userService.findUtenteByUsername(user.getUsername());
+        User userRepo = userService.findUserByUsername(user.getUsername());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
         userRepo.setPasswordHash(userRepo.getPasswordHash());
@@ -113,7 +100,7 @@ public class UserController {
 
     @PostMapping("/deleteUser")
     public void deleteUser(@Valid User user){
-        User userRepo = userService.findUtenteByUsername(user.getUsername());
+        User userRepo = userService.findUserByUsername(user.getUsername());
         userService.deleteUserByUsername(userRepo.getUsername());
     }
 
