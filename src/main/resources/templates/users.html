@@ -20,20 +20,15 @@
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                if (index != "99999")
+                if (index !== "99999")
                     await fetch("/updateUser", {method: 'POST', body: data})
-                        .then(function(response) {
-                            if(!response.ok) {
-                                function data(data) {
-                                    error_log += data + "<br>";
-                                }
-                            }
-                        })
-                            .catch(error => console.log(error));
+                        .then(response => response.text())
+                        .then(body => error_log += body + "<br>")
+                        .catch(error => console.log(error));
                 else
                     await fetch("/addUser", {method: 'POST', body: data})
                         .then(response => response.text())
-                        .then(data => error_log += data + "<br>")
+                        .then(body => error_log += body + "<br>")
                         .catch(error => console.log(error));
             }
         }
@@ -41,6 +36,7 @@
             let errorelement = document.getElementById("error-log-text");
             errorelement.innerHTML = error_log;
             showErrorLog(true);
+            setTimeout(window.location.reload(true), 5000);
         }
         else
             window.location.reload(true);
@@ -254,7 +250,7 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="cost + ${iter.index}" name="cost" type="number" th:value="${user.cost}" th:placeholder="${user.cost}" required>
+                                                    <input class="input has-text-right" th:id="cost + ${iter.index}" name="cost" type="number" th:value="${user.cost}" th:placeholder="${user.cost}" required>
                                                 </td>
                                                 <td>
                                                     <input class="input" th:id="time + ${iter.index}" name="time" type="text" th:value="${user.time}" th:placeholder="${user.time}" minlength="5" maxlength="5" required>
@@ -306,7 +302,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <input class="input" th:id="costadduser" name="cost" type="number" placeholder="" required>
+                                                        <input class="input has-text-right" th:id="costadduser" name="cost" type="number" placeholder="" required>
                                                     </td>
                                                     <td>
                                                         <input class="input" th:id="timeadduser" name="time" type="text" placeholder="" minlength="5" maxlength="5" required>

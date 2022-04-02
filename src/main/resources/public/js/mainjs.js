@@ -2,7 +2,7 @@ function clickImg(imgString) {
     let img = document.getElementById(imgString);
     img.style.transform = "scale(0.1)";
     img.style.transition = "transform 0.5s ease";
-    setTimeout(deClickImg(img), 0.5);
+    setTimeout(deClickImg(img), 500);
     console.log("RIMPICCIOLITO");
 }
 
