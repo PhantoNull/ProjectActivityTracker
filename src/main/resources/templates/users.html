@@ -36,7 +36,7 @@
             let errorelement = document.getElementById("error-log-text");
             errorelement.innerHTML = error_log;
             showErrorLog(true);
-            setTimeout(window.location.reload(true), 5000);
+            setTimeout(function(){window.location.reload(true)}, 5000);
         }
         else
             window.location.reload(true);

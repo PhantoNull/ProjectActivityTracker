@@ -1,15 +1,13 @@
 function clickImg(imgString) {
     let img = document.getElementById(imgString);
-    img.style.transform = "scale(0.1)";
-    img.style.transition = "transform 0.5s ease";
-    setTimeout(deClickImg(img), 500);
-    console.log("RIMPICCIOLITO");
+    img.style.transform = "scale(0.70)";
+    img.style.transition = "transform 0.01s ease";
+    setTimeout(function(){deClickImg(img)}, 100);
 }
 
 function deClickImg(img){
-    img.style.transform = "scale(1)";
-    img.style.transition = "transform 0.5s ease";
-    console.log("INGRANDITO");
+    img.style.transform = "scale(1.0)";
+    img.style.transition = "transform 0.01s ease";
 }
 
 function showModal(id){
