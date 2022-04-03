@@ -131,13 +131,13 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Reset Password" th:onclick="'resetPassword();'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Reset Password" th:onclick="'resetPassword();'">
                                   <i class="fas fa-key fa-2x"></i>
                                 </span>
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Salva" th:onclick="'saveUsers();'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva" th:onclick="'saveUsers();'">
                                   <i class="fas fa-save fa-2x"></i>
                                 </span>
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
                                   <i class="fas fa-trash-alt fa-2x"></i>
                                 </span>
                             </div>
@@ -221,7 +221,9 @@
                                                     <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
-                                                    <input class="input has-background-success-light has-text-primary" th:id="username + ${iter.index}" name="username" type="text" th:value="${user.username}" th:placeholder="${user.username}" maxlength="64" required readonly>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold"
+                                                           th:id="username + ${iter.index}" name="username" type="text" th:value="${user.username}"
+                                                           th:placeholder="${user.username}" maxlength="64" required readonly>
                                                 </td>
                                                 <td>
                                                     <div class="select">
@@ -273,7 +275,8 @@
                                                         <input th:onclick="'selectTableRow(\'99999\');'" type="checkbox" class="tablecheckbox">
                                                     </td>
                                                     <td>
-                                                        <input class="input has-text-primary" th:id="usernameadduser" name="username" type="text" placeholder="" maxlength="64" required>
+                                                        <input class="input has-text-primary has-text-weight-semibold"
+                                                               th:id="usernameadduser" name="username" type="text" placeholder="" maxlength="64" required>
                                                     </td>
                                                     <td>
                                                         <div class="select">

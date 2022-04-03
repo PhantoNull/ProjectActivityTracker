@@ -8,19 +8,19 @@
     </div>
     <div class="level-right">
         <div class="level-item">
-            <span class="icon is-medium has-text-primary-dark">
+            <span class="icon is-medium has-text-primary">
                 <i class="fas fa-user fa-lg"></i>
             </span>
             <span th:text="${#authentication.getPrincipal().getUsername()}"
-                  class="has-text-primary-dark has-text-weight-medium level-item subtitle username">
+                  class="has-text-primary has-text-weight-medium level-item subtitle username">
             </span>
         </div>
         <div class="level-item">
-            <span class="icon is-medium has-text-primary-dark">
+            <span class="icon is-medium has-text-primary">
                 <i class="fas fa-user-tag fa-lg"></i>
             </span>
             <span th:text="${#authentication.getPrincipal().authorities[0]}"
-                  class="has-text-primary-dark has-text-weight-medium level-item subtitle username">
+                  class="has-text-primary has-text-weight-medium level-item subtitle username">
             </span>
         </div>
         <div class="level-item">
@@ -28,8 +28,5 @@
                 <button type="submit" name="logout" value="value" class="button is-primary ml-2">Logout</button>
             </form>
         </div>
-    </div>
-    <div class="level-right">
-
     </div>
 </nav>
