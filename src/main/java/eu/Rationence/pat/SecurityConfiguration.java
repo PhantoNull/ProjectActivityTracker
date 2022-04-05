@@ -29,7 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         };
         http
                 .authorizeRequests()
-                    .antMatchers("/").authenticated()
+                    .antMatchers("/", "/changePasswordUser").authenticated()
                     .antMatchers("/users", "/teams", "/roles", "/addUser",
                             "/updateUser", "/deleteUser", "/addRole", "/deleteRole",
                             "/projects", "/addProject", "/updateProject", "/deleteProject").hasAuthority("ADMIN")
@@ -43,5 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
                 .logout()
                     .permitAll();
+                //.and()
+                //.httpBasic().and().csrf().disable();
     }
 }

@@ -121,22 +121,19 @@ public class UserController {
     }
 
     @PostMapping("/changePasswordUser")
-    public ResponseEntity<String> changePasswordUser(@Valid User user,
-                                                    @RequestParam(value="newPassword") String newPass,
-                                                    BindingResult result,
+    public ResponseEntity<String> changePasswordUser(@RequestParam(value="password") String newPass,
                                                      Principal principal){
         try{
-            if(result.hasErrors())
-                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
-            User userRepo = userService.findUserByUsername(user.getUsername());
+            String username = principal.getName();
+            User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't reset " + user.getUsername() + "'s password. (User does not exists)");
-            if(!principal.getName().equals(user.getUsername()))
-                return ResponseEntity.status(401).body("ERROR: Not authorized");
+                return ResponseEntity.status(409).body("ERROR: Can't reset " + username + "'s password. (User does not exists)");
+            if(newPass.length() < 8)
+                return ResponseEntity.status(400).body("ERROR: Password length must be at least 8 characters");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             userRepo.setPasswordHash(encoder.encode(newPass));
             userService.saveUser(userRepo);
-            return ResponseEntity.ok("User '" + user.getUsername() + "'s password reset.");
+            return ResponseEntity.ok("Your password has been successfully changed");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

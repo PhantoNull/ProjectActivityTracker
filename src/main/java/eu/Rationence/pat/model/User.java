@@ -32,11 +32,11 @@ public class User implements Serializable {
      */
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_Role", nullable = false)
+    @JoinColumn(name = "c_Role", nullable = false, foreignKey = @ForeignKey(name = "fk_Role_User"))
     private Role role;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_Team", nullable = false)
+    @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_User"))
     @JsonManagedReference
     private Team team;
 
