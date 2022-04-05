@@ -34,6 +34,7 @@ public class UserController {
         model.addAttribute("listaUtenti", userService.findAll());
         model.addAttribute("listaTeams", teamService.findAll());
         model.addAttribute("listaRuoli", roleService.findAll());
+        model.addAttribute("pageTitle", "PAT Prova");
         return "users";
     }
 
@@ -46,20 +47,15 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
-            if(user.equals(userService.findUserByUsername(user.getUsername())))
-                return ResponseEntity.status(409).body("ERROR: " + user.getUsername() + " is already created");
-            if(user.equals(userService.findUserByEmail(user.getEmail())))
-                return ResponseEntity.status(409).body("ERROR: " + user.getEmail() + " is already used by another user");
-            if(!EmailValidator.getInstance().isValid(user.getEmail()))
-                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
-            if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
-                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
-            if(!isNumericString(cost))
-                return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
-            Team teamRepo = teamService.findTeamByTeamName(teamKey);
-            Role roleRepo = roleService.findRoleByRoleName(roleKey);
+            if(userService.findUserByUsername(user.getUsername()) != null)
+                return ResponseEntity.status(409).body("ERROR: " + user.getUsername() + " has been already created");
+            ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
+            if(validityError != null)
+                return validityError;
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             user.setPasswordHash(encoder.encode("RatioPassTemp!"));
+            Team teamRepo = teamService.findTeamByTeamName(teamKey);
+            Role roleRepo = roleService.findRoleByRoleName(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             userService.saveUser(user);
@@ -72,12 +68,23 @@ public class UserController {
     }
 
     @PostMapping("/updateUser")
-    public ResponseEntity<String> updateUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
+    public ResponseEntity<String> updateUser(@Valid User user,
+                                          @RequestParam(value="team") String teamKey,
+                                          @RequestParam(value="role") String roleKey,
+                                          @RequestParam(value="cost") String cost,
+                                          BindingResult result){
         try{
+            if(result.hasErrors())
+                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
+            User userRepo = userService.findUserByUsername(user.getUsername());
+            if(userRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Can't update user " + user.getUsername() + " (User does not exists)");
+            ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
+            if(validityError != null)
+                return validityError;
+            user.setPasswordHash(userRepo.getPasswordHash());
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
             Role roleRepo = roleService.findRoleByRoleName(roleKey);
-            User userRepo = userService.findUserByUsername(user.getUsername());
-            user.setPasswordHash(userRepo.getPasswordHash());
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             userService.saveUser(user);
@@ -90,23 +97,73 @@ public class UserController {
     }
 
     @PostMapping("/resetPasswordUser")
-    public void resetPasswordUser(@Valid User user, @RequestParam(value="team") String teamKey , @RequestParam(value="role") String roleKey){
-        User userRepo = userService.findUserByUsername(user.getUsername());
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
-        userRepo.setPasswordHash(userRepo.getPasswordHash());
-        userService.saveUser(userRepo);
+    public ResponseEntity<String> resetPasswordUser(@Valid User user,
+                                             @RequestParam(value="team") String teamKey,
+                                             @RequestParam(value="role") String roleKey,
+                                             @RequestParam(value="cost") String cost,
+                                             BindingResult result){
+        try{
+            if(result.hasErrors())
+                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
+            User userRepo = userService.findUserByUsername(user.getUsername());
+            if(userRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Can't reset " + user.getUsername() + "'s password. (User does not exists)");
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
+            userService.saveUser(userRepo);
+            return ResponseEntity.ok("User '" + user.getUsername() + "'s password reset.");
+        }
+        catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .body("ERROR: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/changePasswordUser")
+    public ResponseEntity<String> changePasswordUser(@Valid User user,
+                                                    @RequestParam(value="newPassword")
+                                                    BindingResult result){
+        try{
+            if(result.hasErrors())
+                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
+            User userRepo = userService.findUserByUsername(user.getUsername());
+            if(userRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Can't reset " + user.getUsername() + "'s password. (User does not exists)");
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
+            userService.saveUser(userRepo);
+            return ResponseEntity.ok("User '" + user.getUsername() + "'s password reset.");
+        }
+        catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .body("ERROR: " + e.getMessage());
+        }
     }
 
     @PostMapping("/deleteUser")
-    public void deleteUser(@Valid User user){
-        User userRepo = userService.findUserByUsername(user.getUsername());
-        userService.deleteUserByUsername(userRepo.getUsername());
+    public ResponseEntity<String> deleteUser(@Valid User user,
+                                                    @RequestParam(value="team") String teamKey,
+                                                    @RequestParam(value="role") String roleKey,
+                                                    @RequestParam(value="cost") String cost,
+                                                    BindingResult result){
+        try{
+            if(result.hasErrors())
+                return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
+            User userRepo = userService.findUserByUsername(user.getUsername());
+            if(userRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
+            userService.deleteUserByUsername(user.getUsername());
+            return ResponseEntity.ok("User '" + user.getUsername() + "' succesfully deleted.");
+        }
+        catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .body("ERROR: " + e.getMessage());
+        }
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception exception) {
+    public ResponseEntity<String> handleBadRequestException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("ERROR: Empty input or mismatched input type");
@@ -118,5 +175,23 @@ public class UserController {
                 return false;
         }
         return true;
+    }
+
+    public ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
+        if(!user.equals(userService.findUserByEmail(user.getEmail())) && userService.findUserByEmail(user.getEmail()) != null)
+            return ResponseEntity.status(409).body("ERROR: " + user.getEmail() + " is already used by another user");
+        if(!EmailValidator.getInstance().isValid(user.getEmail()))
+            return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
+        if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
+            return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
+        if(!isNumericString(cost))
+            return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
+        Team teamRepo = teamService.findTeamByTeamName(teamKey);
+        Role roleRepo = roleService.findRoleByRoleName(roleKey);
+        if(teamRepo == null)
+            return ResponseEntity.badRequest().body("ERROR: Team" + teamKey + " not found.");
+        if(roleRepo == null)
+            return ResponseEntity.badRequest().body("ERROR: Role" + roleKey + " not found.");
+        return null;
     }
 }

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head th:include="fragments/headFragment.html :: headFragment">
-    <title id="pageTitle">Login Rationence</title>
 </head>
 
 <body>
@@ -10,81 +9,92 @@
 <script type="text/javascript">
     var error_log = "";
 
-    async function saveUsers(){
-        error_log = "";
-        if(tableRowList.every(v => v === false))
+    async function action(actionString) {
+        let error_log = "";
+        let tableChanged = false;
+        if (tableRowList.every(v => v === false))
             return 1;
-        for (let index in tableRowList){
-            if(tableRowList[index]){
-                let data = new FormData(document.getElementById("form"+index));
-                for (let value of data.values()) {
-                    console.log(value);
+        switch (actionString) {
+            case 'saveUsers':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        if (index !== "99999")
+                            await fetch("/updateUser", {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => error_log += body + "<br>")
+                                .catch(error => console.log(error));
+                        else
+                            await fetch("/addUser", {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    error_log += body + "<br>";
+                                    if (!body.includes("ERROR:"))
+                                        tableChanged = true;
+                                })
+                                .catch(error => console.log(error));
+                    }
                 }
-                if (index !== "99999")
-                    await fetch("/updateUser", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .then(body => error_log += body + "<br>")
-                        .catch(error => console.log(error));
-                else
-                    await fetch("/addUser", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .then(body => error_log += body + "<br>")
-                        .catch(error => console.log(error));
-            }
+                break;
+            case 'deleteUsers':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        if (index != '99999')
+                            await fetch("/deleteUser", {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    error_log += body + "<br>";
+                                    if (!body.includes("ERROR:"))
+                                        tableChanged = true;
+                                })
+                                .catch(error => console.log(error));
+
+                    }
+                }
+                return window.location.reload(true)
+                break;
+            case 'resetPasswords':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        if (index != '99999')
+                            await fetch("/resetPasswordUser", {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => error_log += body + "<br>")
+                                .catch(error => console.log(error));
+                    }
+                }
+                break;
         }
-        if(error_log !== ""){
+        if (error_log !== "") {
             let errorelement = document.getElementById("error-log-text");
             errorelement.innerHTML = error_log;
             showErrorLog(true);
-            setTimeout(function(){window.location.reload(true)}, 5000);
+            if (tableChanged === true)
+                setTimeout(function () {window.location.reload(true)}, 3000);
         }
-        else
-            window.location.reload(true);
-
-    }
-
-    async function deleteUsers(){
-        error_log = "";
-        if(tableRowList.every(v => v === false))
-            return 1;
-        for (let index in tableRowList){
-            if(tableRowList[index]){
-                let data = new FormData(document.getElementById("form"+index));
-                for (let value of data.values()) {
-                    console.log(value);
-                }
-                if(index != '99999')
-                    await fetch("/deleteUser", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .catch(error => console.log(error));
-            }
-        }
-        window.location.reload(true);
-    }
-
-    async function resetPassword(){
-        error_log = "";
-        if(tableRowList.every(v => v === false))
-            return 1;
-        for (let index in tableRowList){
-            if(tableRowList[index]){
-                let data = new FormData(document.getElementById("form"+index));
-                for (let value of data.values()) {
-                    console.log(value);
-                }
-                if(index != '99999')
-                    await fetch("/resetPasswordUser", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .catch(error => console.log(error));
-            }
-        }
-        window.location.reload(true);
     }
 
     function showConfirm(bool){
         let elem = document.getElementById("confirm-delete");
-        if(bool && !tableRowList.every(v => v === false))
-            elem.style.display = "block";
+        if(bool && !tableRowList.every(v => v === false)){
+            tableRowList['99999'] = false;
+            document.getElementById("checkboxadduser").checked = false;
+            if(!tableRowList.every(v => v === false))
+                elem.style.display = "block";
+        }
+
         else
             elem.style.display = "none";
     }
@@ -102,9 +112,9 @@
     <div class=""> <!--hero-body-->
         <div class="container mt-6">
             <div class="columns">
-                <div class="column">
+                <div class="column" style="min-width:1345px;">
 
-                    <div th:include="fragments/header.html :: header"></div>
+                    <div th:include="fragments/authbar.html :: authbar"></div>
 
                     <div class="level mt-5">
                         <div class="level-left">
@@ -131,10 +141,10 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Reset Password" th:onclick="'resetPassword();'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Reset Password" th:onclick="'action(\'resetPasswords\');'">
                                   <i class="fas fa-key fa-2x"></i>
                                 </span>
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva" th:onclick="'saveUsers();'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva" th:onclick="'action(\'saveUsers\');'">
                                   <i class="fas fa-save fa-2x"></i>
                                 </span>
                                 <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
@@ -183,7 +193,7 @@
                             </div>
                             <div class="level-right">
                                 <div class="level-item">
-                                    <button class="button is-danger" th:onclick="'deleteUsers(), showConfirm(false);'">Continue</button>
+                                    <button class="button is-danger" th:onclick="'action(\'deleteUsers\'), showConfirm(false);'">Continue</button>
                                     <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                                 </div>
 
@@ -272,7 +282,7 @@
                                                 <form th:action="@{/adduser}"  id="form99999" th:object="${user}" method="post">
                                                     <td style="text-align:center; vertical-align:middle;">
                                                         <input type="hidden" th:id="passadduser" name="passwordHash" value="fake">
-                                                        <input th:onclick="'selectTableRow(\'99999\');'" type="checkbox" class="tablecheckbox">
+                                                        <input id="checkboxadduser" th:onclick="'selectTableRow(\'99999\');'" type="checkbox" class="tablecheckbox">
                                                     </td>
                                                     <td>
                                                         <input class="input has-text-primary has-text-weight-semibold"

@@ -13,9 +13,9 @@
     <div > <!--class="hero-body"-->
         <div class="container mt-6">
             <div class="columns is-centered">
-                <div class="column is-fullwidth">
+                <div class="column">
 
-                    <div th:include="fragments/header.html :: header"></div>
+                    <div th:include="fragments/authbar.html :: authbar"></div>
 
                     <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
                         <ul>
@@ -33,25 +33,25 @@
 
                     <article sec:authorize="hasAuthority('ADMIN')" class="message is-primary ">
                         <div class="message-header">
-                            <p>Strumenti Amministrativi</p>
+                            <p>Administrative Functions</p>
                         </div>
                         <div class="message-body">
-                            <div class="columns is-centered is-mobile">
-                                <div class="column has-text-centered is-4">
+                            <div class="columns is-0-mobile is-centered is-mobile">
+                                <div class="column">
                                     <a th:href="@{/teams}">
-                                        <figure th:onclick="'clickImg(\'teamsimg\')'"  class="image is-128x128">
+                                        <figure th:onclick="'clickImg(\'teamsimg\')'"  class="image is-128x128 m-auto">
                                             <img  id="teamsimg" src="/images/team3.png">
                                         </figure>
                                     </a>
 
                                 </div>
-                                <div class="column has-text-centered is-4">
-                                    <figure class="image is-128x128">
+                                <div class="column">
+                                    <figure class="image is-128x128 m-auto">
                                         <img src="images/client3.png">
                                     </figure>
                                 </div>
-                                <div class="column has-text-centered is-2">
-                                    <figure class="image is-128x128">
+                                <div class="column">
+                                    <figure class="image is-128x128 m-auto">
                                         <img src="images/standardactivity3.png">
                                     </figure>
                                 </div>
@@ -62,26 +62,26 @@
 
                     <article class="message is-primary">
                         <div class="message-header">
-                            <p>Strumenti Utenti</p>
+                            <p>User Functions</p>
                         </div>
                         <div class="message-body">
-                            <div class="columns is-centered is-mobile">
-                                <div class="column has-text-centered is-4" sec:authorize="hasAuthority('ADMIN')">
+                            <div class="columns is-0-mobile is-centered is-mobile">
+                                <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/users}">
-                                        <figure th:onclick="'clickImg(\'userimg\')'"  class="image is-128x128">
+                                        <figure th:onclick="'clickImg(\'userimg\')'"  class="image is-128x128 m-auto">
                                             <img  id="userimg" src="images/user3.png">
                                         </figure>
                                     </a>
                                 </div>
-                                <div class="column has-text-centered is-4">
+                                <div class="column">
                                     <a th:href="@{/projects}">
-                                        <figure th:onclick="'clickImg(\'projimg\')'"  class="image is-128x128">
+                                        <figure th:onclick="'clickImg(\'projimg\')'"  class="image is-128x128 m-auto">
                                             <img  id="projimg" src="images/project3.png">
                                         </figure>
                                     </a>
                                 </div>
-                                <div class="column has-text-centered is-2">
-                                    <figure class="image is-128x128">
+                                <div class="column">
+                                    <figure class="image is-128x128 m-auto">
                                         <img src="images/time3.png">
                                     </figure>
                                 </div>

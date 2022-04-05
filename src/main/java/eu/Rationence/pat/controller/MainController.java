@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -75,14 +74,17 @@ public class MainController {
         Team devTeam = Team.builder()
                 .teamName("DEV")
                 .teamDesc("Sviluppatori")
+                .teamAdmin("Luca.DiPierro")
                 .build();
         Team ammTeam = Team.builder()
                 .teamName("AMM")
                 .teamDesc("Amministrazione")
+                .teamAdmin("Giuseppe.Marcon")
                 .build();
         Team anaTeam = Team.builder()
                 .teamName("ANA")
                 .teamDesc("Analytics")
+                .teamAdmin("Marco.Rossi")
                 .build();
         teamService.saveTeam(devTeam);
         teamService.saveTeam(ammTeam);

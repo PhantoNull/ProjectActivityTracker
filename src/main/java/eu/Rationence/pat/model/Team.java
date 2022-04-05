@@ -25,6 +25,9 @@ public class Team implements Serializable {
     @Column(name="x_Team", length=128, nullable = false)
     private String teamDesc;
 
+    @Column(name="c_TeamAdmin", length=64, nullable = false)
+    private String teamAdmin;
+
     //JsonIgnoreProperties(value = {"c_Team"}, allowSetters = true)
     //@ManyToOne(fetch=FetchType.LAZY)
     //@JoinColumn(name = "c_Administrator")

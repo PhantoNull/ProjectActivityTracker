@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     .antMatchers("/").authenticated()
-                    .antMatchers("/users", "/teams", "/adduser", "/roles", "/addUser",
+                    .antMatchers("/users", "/teams", "/roles", "/addUser",
                             "/updateUser", "/deleteUser", "/addRole", "/deleteRole",
                             "/projects", "/addProject", "/updateProject", "/deleteProject").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
@@ -44,5 +44,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logout()
                     .permitAll();
     }
-
 }
