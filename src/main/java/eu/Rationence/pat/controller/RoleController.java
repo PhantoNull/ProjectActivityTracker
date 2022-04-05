@@ -40,7 +40,7 @@ public class RoleController {
 
     @PostMapping("/deleteRole")
     public ResponseEntity<String> deleteRole(@Valid Role role){
-        if(role.getRoleName() != "ADMIN" && role.getRoleName() != "USER"){
+        if(!role.getRoleName().equals("ADMIN") && !role.getRoleName().equals("USER")){
             try{
                 roleService.deleteRoleByRoleName(role.getRoleName());
                 return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");

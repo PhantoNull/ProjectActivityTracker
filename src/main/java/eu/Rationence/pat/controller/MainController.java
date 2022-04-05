@@ -33,9 +33,9 @@ public class MainController {
     private final ClientService clientService;
 
 
-    @RequestMapping ("/")
+    @GetMapping ("/")
     public String index() {
-        return "index.html";
+        return "index";
     }
 
     @GetMapping ("/teams")
@@ -44,7 +44,7 @@ public class MainController {
         return "teams";
     }
 
-    @RequestMapping("/login")
+    @GetMapping("/login")
     public String login() {
         return "login";
     }

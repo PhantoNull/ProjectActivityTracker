@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.security.Principal;
 
 
 @Controller
@@ -121,16 +122,19 @@ public class UserController {
 
     @PostMapping("/changePasswordUser")
     public ResponseEntity<String> changePasswordUser(@Valid User user,
-                                                    @RequestParam(value="newPassword")
-                                                    BindingResult result){
+                                                    @RequestParam(value="newPassword") String newPass,
+                                                    BindingResult result,
+                                                     Principal principal){
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body("ERROR: " + result.getAllErrors());
             User userRepo = userService.findUserByUsername(user.getUsername());
             if(userRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't reset " + user.getUsername() + "'s password. (User does not exists)");
+            if(!principal.getName().equals(user.getUsername()))
+                return ResponseEntity.status(401).body("ERROR: Not authorized");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
+            userRepo.setPasswordHash(encoder.encode(newPass));
             userService.saveUser(userRepo);
             return ResponseEntity.ok("User '" + user.getUsername() + "'s password reset.");
         }
@@ -172,9 +176,9 @@ public class UserController {
     public boolean isNumericString(String string){
         for (int i=0; i< string.length(); i++){
             if("0123456789".indexOf(string.charAt(i)) == -1)
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
     public ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
@@ -182,9 +186,9 @@ public class UserController {
             return ResponseEntity.status(409).body("ERROR: " + user.getEmail() + " is already used by another user");
         if(!EmailValidator.getInstance().isValid(user.getEmail()))
             return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
-        if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
+        if(isNumericString(user.getTime()) || user.getTime().length() != 5)
             return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
-        if(!isNumericString(cost))
+        if(isNumericString(cost))
             return ResponseEntity.badRequest().body("ERROR: " + user.getUsername() + "'s cost '" + cost + "' is not valid");
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         Role roleRepo = roleService.findRoleByRoleName(roleKey);
