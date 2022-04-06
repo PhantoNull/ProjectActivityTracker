@@ -39,9 +39,8 @@
 
     function checkPasswordValidity(pass){
         var passw = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,64}$/;
-        if(pass.match(passw))
-            return true;
-        return false;
+        return pass.match(passw);
+
     }
 </script>
 
