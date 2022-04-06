@@ -28,11 +28,11 @@ import java.util.Objects;
      private String projectDesc;
 
      @ManyToOne(fetch=FetchType.LAZY)
-     @JoinColumn(name = "c_Client", nullable = false)
+     @JoinColumn(name = "c_Client", nullable = false, foreignKey = @ForeignKey(name = "fk_Client_Project"))
      private Client client;
 
      @ManyToOne(fetch=FetchType.LAZY)
-     @JoinColumn(name = "c_ProjectType", nullable = false)
+     @JoinColumn(name = "c_ProjectType", nullable = false, foreignKey = @ForeignKey(name = "fk_ProjectType_Project"))
      private ProjectType projectType;
 
      @Column(name="d_Start", nullable = false)
@@ -48,11 +48,11 @@ import java.util.Objects;
      private String dateClose;
 
      @ManyToOne(fetch=FetchType.LAZY)
-     @JoinColumn(name = "c_Team", nullable = false)
+     @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_Project"))
      private Team team;
 
      @ManyToOne(fetch=FetchType.LAZY)
-     @JoinColumn(name = "c_ProjectManager", nullable = false)
+     @JoinColumn(name = "c_ProjectManager", nullable = false, foreignKey = @ForeignKey(name = "fk_ProjectManager_Project"))
      private User projectManager;
 
      @Column(name="i_Value", nullable = false)

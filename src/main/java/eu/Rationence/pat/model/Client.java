@@ -25,7 +25,7 @@ public class Client implements Serializable {
     private String clientDesc;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "c_ClientType")
+    @JoinColumn(name = "c_ClientType", nullable = false, foreignKey = @ForeignKey(name = "fk_ClientType_Client"))
     private ClientType clientType;
 
     @Override

@@ -170,7 +170,7 @@ public class UserController {
                 .body("ERROR: Empty input or mismatched input type");
     }
 
-    public boolean isNumericString(String string){
+    private boolean isNumericString(String string){
         for (int i=0; i< string.length(); i++){
             if("0123456789".indexOf(string.charAt(i)) == -1)
                 return true;
@@ -178,7 +178,7 @@ public class UserController {
         return false;
     }
 
-    public ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
+    private ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
         if(!user.equals(userService.findUserByEmail(user.getEmail())) && userService.findUserByEmail(user.getEmail()) != null)
             return ResponseEntity.status(409).body("ERROR: " + user.getEmail() + " is already used by another user");
         if(!EmailValidator.getInstance().isValid(user.getEmail()))
