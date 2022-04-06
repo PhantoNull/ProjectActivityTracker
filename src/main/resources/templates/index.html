@@ -14,7 +14,7 @@
         let error_log = "";
 
         let data = new FormData(document.getElementById("changePassword"));
-        if(!checkPasswordValidity(data.valueOf("password"))){
+        if(!checkPasswordValidity(document.getElementById("inputPassword").value)){
             document.getElementById("error-log").classList.remove('has-text-success');
             document.getElementById("error-log").classList.add('has-text-danger');
             return document.getElementById("error-log").innerHTML = "ERROR: Password does not match minimum requirements";
@@ -39,7 +39,7 @@
 
     function checkPasswordValidity(pass){
         var passw = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,64}$/;
-        if(pass.value.match(passw))
+        if(pass.match(passw))
             return true;
         return false;
     }
@@ -120,7 +120,7 @@
                                         </figure>
                                     </a>
                                 </div>
-                                <div class="column">
+                                <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/projects}">
                                         <figure th:onclick="'clickImg(\'projimg\')'"  class="image is-128x128 m-auto">
                                             <img  id="projimg" src="images/project3.png">
@@ -163,7 +163,7 @@
                     <form th:action="@{/change}" id="changePassword">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <label>
-                            <input class="input" type="password" name="password" maxlength="64" required />
+                            <input id="inputPassword" class="input" type="password" name="password" maxlength="64" required />
                         </label>
                     </form>
                     <div id="error-log" class="is-text m-auto">
