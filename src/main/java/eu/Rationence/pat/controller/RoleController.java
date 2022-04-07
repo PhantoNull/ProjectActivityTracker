@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 
 
@@ -18,20 +19,19 @@ public class RoleController {
     @Autowired
     private final RoleService roleService;
 
-    @GetMapping ("/roles")
+    @GetMapping("/roles")
     public String roles(Model model) {
         model.addAttribute("listaRuoli", roleService.findAll());
         return "roles";
     }
 
     @PostMapping("/addRole")
-    public ResponseEntity<String> addRole(@Valid Role role){
-        try{
+    public ResponseEntity<String> addRole(@Valid Role role) {
+        try {
             System.out.println(role);
             roleService.saveRole(role);
             return ResponseEntity.ok("Role '" + role.getRoleName() + "' saved.");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body("ERROR: " + e.getMessage());
         }
@@ -39,19 +39,17 @@ public class RoleController {
     }
 
     @PostMapping("/deleteRole")
-    public ResponseEntity<String> deleteRole(@Valid Role role){
-        if(!role.getRoleName().equals("ADMIN") && !role.getRoleName().equals("USER")){
-            try{
-                roleService.deleteRoleByRoleName(role.getRoleName());
-                return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");
-            }
-            catch(Exception e){
-                return ResponseEntity.badRequest()
-                        .body("ERROR : " + e.getMessage());
-            }
+    public ResponseEntity<String> deleteRole(@Valid Role role) {
+        if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
+            return ResponseEntity.badRequest()
+                    .body("ERROR : Can't delete default ADMIN or USER role");
+        try {
+            roleService.deleteRoleByRoleName(role.getRoleName());
+            return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("ERROR : " + e.getMessage());
         }
-
-        return ResponseEntity.badRequest()
-                .body("ERROR : Can't delete default ADMIN or USER role");
     }
+
 }

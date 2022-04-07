@@ -7,8 +7,6 @@
 <script src="/js/mainjs.js"></script>
 
 <script type="text/javascript">
-    var error_log = "";
-
     async function action(actionString) {
         let error_log = "";
         let tableChanged = false;
@@ -27,24 +25,26 @@
                             await fetch("/updateUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
+                                    let span;
                                     if(body.includes("ERROR"))
-                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
+                                        span = "<span class=\"has-text-danger\">";
                                     else
-                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
-
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
                                 })
                                 .catch(error => console.log(error));
                         else
                             await fetch("/addUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
+                                    let span;
                                     if(body.includes("ERROR"))
-                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
-                                    else{
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
                                         tableChanged = true;
-                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
                                     }
-
+                                    error_log += span + body + "</span><br>";
                                 })
                                 .catch(error => console.log(error));
                     }
@@ -61,13 +61,12 @@
                             await fetch("/deleteUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
+                                    let span;
                                     if(body.includes("ERROR"))
-                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
-                                    else{
-                                        tableChanged = true;
-                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
-                                    }
-
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
                                 })
                                 .catch(error => console.log(error));
 
@@ -79,20 +78,16 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        for (let value of data.values()) {
-                            console.log(value);
-                        }
                         if (index != '99999')
                             await fetch("/resetPasswordUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
+                                    let span;
                                     if(body.includes("ERROR"))
-                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
-                                    else{
-                                        tableChanged = true;
-                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
-                                    }
-
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
                                 })
                                 .catch(error => console.log(error));
                     }
@@ -116,7 +111,6 @@
             if(!tableRowList.every(v => v === false))
                 elem.style.display = "block";
         }
-
         else
             elem.style.display = "none";
     }
@@ -130,8 +124,7 @@
     }
 </script>
 
-<section class=""> <!--hero is-fullheight-->
-    <div class=""> <!--hero-body-->
+<section class="">
         <div class="container mt-6">
             <div class="columns">
                 <div class="column" style="min-width:1345px;">
@@ -357,12 +350,9 @@
                             </div>
                         </div>
                     </article>
-
-
                 </div>
             </div>
         </div>
-    </div>
 </section>
 
 <div class="modal" id="modal-cancella-utenti">
