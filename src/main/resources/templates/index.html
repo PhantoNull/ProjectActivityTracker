@@ -38,7 +38,7 @@
     }
 
     function checkPasswordValidity(pass){
-        var passw = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,64}$/;
+        var passw = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,64}$/;
         return pass.match(passw);
 
     }
@@ -70,8 +70,15 @@
                         <div class="level-right">
                             <div class="level-item">
                                 <span class="icon is-large has-text-primary is-clickable" data-tooltip="Change Password" th:onclick="'showModal(\'modal-change-password\');'">
-                                  <i class="fas fa-key fa-2x"></i>
+                                  <i class="fas fa-key fa-2x table-button"></i>
                                 </span>
+                            </div>
+                            <div class="level-item">
+                                <a th:href="@{/logout}">
+                                    <span class="icon is-large has-text-primary is-clickable" data-tooltip="Logout">
+                                      <i class="fas fa-sign-out-alt fa-2x table-button"></i>
+                                    </span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -79,27 +86,31 @@
 
                     <article sec:authorize="hasAuthority('ADMIN')" class="message is-primary ">
                         <div class="message-header">
-                            <p>Administrative Functions</p>
+                            <p class="subtitle has-text-white has-text-weight-semibold m-auto">Administrative Functions</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-0-mobile is-centered is-mobile">
                                 <div class="column">
                                     <a th:href="@{/teams}">
                                         <figure th:onclick="'clickImg(\'teamsimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="teamsimg" src="/images/team3.png">
+                                            <img  id="teamsimg" src="/images/team3.png" class="menu-item">
                                         </figure>
                                     </a>
 
                                 </div>
                                 <div class="column">
-                                    <figure class="image is-128x128 m-auto">
-                                        <img src="images/client3.png">
-                                    </figure>
+                                    <a th:href="@{/clients}">
+                                        <figure th:onclick="'clickImg(\'clientimg\')'" class="image is-128x128 m-auto">
+                                            <img id="clientimg" src="images/client3.png" class="menu-item">
+                                        </figure>
+                                    </a>
                                 </div>
                                 <div class="column">
-                                    <figure class="image is-128x128 m-auto">
-                                        <img src="images/standardactivity3.png">
-                                    </figure>
+                                    <a th:href="@{/standardactivities}">
+                                        <figure th:onclick="'clickImg(\'standardactivityimg\')'" class="image is-128x128 m-auto">
+                                            <img id="standardactivityimg" src="images/standardactivity3.png" class="menu-item">
+                                        </figure>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -108,28 +119,30 @@
 
                     <article class="message is-primary">
                         <div class="message-header">
-                            <p>User Functions</p>
+                            <p class="subtitle has-text-white has-text-weight-semibold m-auto">User Functions</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-0-mobile is-centered is-mobile">
                                 <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/users}">
                                         <figure th:onclick="'clickImg(\'userimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="userimg" src="images/user3.png">
+                                            <img  id="userimg" src="images/user3.png" class="menu-item">
                                         </figure>
                                     </a>
                                 </div>
                                 <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/projects}">
                                         <figure th:onclick="'clickImg(\'projimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="projimg" src="images/project3.png">
+                                            <img  id="projimg" src="images/project3.png" class="menu-item">
                                         </figure>
                                     </a>
                                 </div>
                                 <div class="column">
-                                    <figure class="image is-128x128 m-auto">
-                                        <img src="images/time3.png">
-                                    </figure>
+                                    <a th:href="@{/tracking}">
+                                        <figure th:onclick="'clickImg(\'timeimg\')'" class="image is-128x128 m-auto">
+                                            <img id="timeimg" src="images/time3.png" class="menu-item">
+                                        </figure>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -150,12 +163,14 @@
             <!--/*@thymesVar id="user" type=""*/-->
 
                 <section class="modal-card-body">
+                    <p class="mb-4">Here you can change your user password.</p>
                     <p class="mb-2">Password security requirements:</p>
-                    <ul>
-                        <li>At least 8 characters long</li>
-                        <li>Must contain at least one number</li>
-                        <li>Must contain at least one uppercase letter</li>
-                        <li>Must contain at least one lowercase letter</li>
+                    <ul class="list">
+                        <li>• At least 8 characters long</li>
+                        <li>• Must contain at least one number</li>
+                        <li>• Must contain at least one uppercase letter</li>
+                        <li>• Must contain at least one lowercase letter</li>
+                        <li>• Must contain at least one symbol</li>
                     </ul>
                     <p>
                     <p class="mb-2 mt-5">Insert your new password: <p>

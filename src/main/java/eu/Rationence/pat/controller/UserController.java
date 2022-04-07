@@ -18,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -128,8 +130,10 @@ public class UserController {
             User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't reset " + username + "'s password. (User does not exists)");
-            if(newPass.length() < 8)
-                return ResponseEntity.status(400).body("ERROR: Password length must be at least 8 characters");
+            Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,64}$");
+            Matcher matcher = pattern.matcher(newPass);
+            if(!matcher.find())
+                return ResponseEntity.status(400).body("ERROR: Password does not match minimum requirements (server)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             userRepo.setPasswordHash(encoder.encode(newPass));
             userService.saveUser(userRepo);

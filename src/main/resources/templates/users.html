@@ -26,15 +26,25 @@
                         if (index !== "99999")
                             await fetch("/updateUser", {method: 'POST', body: data})
                                 .then(response => response.text())
-                                .then(body => error_log += body + "<br>")
+                                .then(body => {
+                                    if(body.includes("ERROR"))
+                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
+                                    else
+                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
+
+                                })
                                 .catch(error => console.log(error));
                         else
                             await fetch("/addUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
-                                    error_log += body + "<br>";
-                                    if (!body.includes("ERROR:"))
+                                    if(body.includes("ERROR"))
+                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
+                                    else{
                                         tableChanged = true;
+                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
+                                    }
+
                                 })
                                 .catch(error => console.log(error));
                     }
@@ -47,13 +57,17 @@
                         for (let value of data.values()) {
                             console.log(value);
                         }
-                        if (index != '99999')
+                        if (index != "99999")
                             await fetch("/deleteUser", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
-                                    error_log += body + "<br>";
-                                    if (!body.includes("ERROR:"))
+                                    if(body.includes("ERROR"))
+                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
+                                    else{
                                         tableChanged = true;
+                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
+                                    }
+
                                 })
                                 .catch(error => console.log(error));
 
@@ -71,7 +85,15 @@
                         if (index != '99999')
                             await fetch("/resetPasswordUser", {method: 'POST', body: data})
                                 .then(response => response.text())
-                                .then(body => error_log += body + "<br>")
+                                .then(body => {
+                                    if(body.includes("ERROR"))
+                                        error_log += "<span class=\"has-text-danger\">" + body + "</span><br>";
+                                    else{
+                                        tableChanged = true;
+                                        error_log += "<span class=\"has-text-primary\">" + body + "</span><br>";
+                                    }
+
+                                })
                                 .catch(error => console.log(error));
                     }
                 }
@@ -142,19 +164,19 @@
                         <div class="level-right">
                             <div class="level-item">
                                 <span class="icon is-large has-text-primary is-clickable" data-tooltip="Reset Password" th:onclick="'action(\'resetPasswords\');'">
-                                  <i class="fas fa-user-lock fa-2x"></i>
+                                  <i class="fas fa-user-lock fa-2x table-button"></i>
                                 </span>
                                 <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva" th:onclick="'action(\'saveUsers\');'">
-                                  <i class="fas fa-save fa-2x"></i>
+                                  <i class="fas fa-save fa-2x table-button"></i>
                                 </span>
                                 <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
-                                  <i class="fas fa-trash-alt fa-2x"></i>
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="error-log" class="hide notification is-primary">
+                    <div id="error-log" class="hide notification has-background-primary-light">
                         <button class="delete" th:onclick="'showErrorLog(false)'"></button>
                         <div class="level m-0">
                             <div class="level-left">

@@ -112,6 +112,13 @@ th.costCol{width:80px; !important}
     background-color:#4FA9BAFF;
 }
 
+.table-button:hover {
+    color: #5598A8FF;
+}
+
+.menu-item {opacity: 0.8;}
+.menu-item:hover {opacity: 1.0;}
+
 /* Remove input number arrows*/
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
