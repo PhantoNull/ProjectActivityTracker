@@ -106,7 +106,7 @@ th.roleCol,
 th.teamCol,
 th.costCol{width:80px; !important}
 .width110{width:110px; !important}
-.width80{width:80px; !important}
+.width80{width:90px; !important}
 .hide{display:none;}
 .tablecheckbox:checked{
     background-color:#4FA9BAFF;

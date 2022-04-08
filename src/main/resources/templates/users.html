@@ -143,10 +143,7 @@
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;
-                console.log("PARENT: " + columnKey);
-                console.log(parentTableRow);
-                if(!columnInput.value.includes(filterValue) && filterValue !== 'ALL'){
-                    console.log("FILTER VALUE: " + filterValue + "   INPUT VALUE: " + columnInput.value);
+                if(!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL'){
                     parentTableRow.classList.add('hidden');
                 }
             }
@@ -157,7 +154,7 @@
 <section class="">
     <div class="container mt-6">
         <div class="columns">
-            <div class="column" style="min-width:1345px;">
+            <div class="column" style="min-width:1355px;">
 
                 <div th:include="fragments/authbar.html :: authbar"></div>
 
