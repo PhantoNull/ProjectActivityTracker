@@ -125,15 +125,29 @@
     }
 
     function filterTableRow(){
-        let tableColumnList = ["Username", "Role", "Name", "Surname"]
-        for (let columnKey in tableColumnList){
+        for (let i = 0; i < 99998; i++){
+            let row = document.getElementById("row"+i);
+            if(row != null)
+                row.classList.remove('hidden');
+            else
+                break;
+        }
+        let tableColumnList = ["Username", "Role", "Name", "Surname", "Email", "Description", "Team", "Cost", "Time", "Enabled"];
+        for (let columnKey of tableColumnList){
             let columnInputs = document.getElementsByClassName("f"+columnKey);
-            let filterValue = document.getElementById(columnKey + "filter");
+            let filterValue = document.getElementById(columnKey + "filter").value;
             for (let columnInput of columnInputs){
-                let parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                let parentTableRow;
+                //I select (ROLE, TEAM, ENABLED) sono a un livello innestato inferiore (hanno un div in più)
+                if(columnKey === "Role" || columnKey == "Team" || columnKey == "Enabled")
+                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                else
+                    parentTableRow = columnInput.parentNode.parentNode;
+                console.log("PARENT: " + columnKey);
                 console.log(parentTableRow);
-                if(!columnInput.value.includes(filterValue)){
-                    continue;
+                if(!columnInput.value.includes(filterValue) && filterValue !== 'ALL'){
+                    console.log("FILTER VALUE: " + filterValue + "   INPUT VALUE: " + columnInput.value);
+                    parentTableRow.classList.add('hidden');
                 }
             }
         }
@@ -247,7 +261,11 @@
 
                                 <div class="table__wrapper">
                                     <table>
-                                        <tr id="rowfilter">
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter" class="mb-3">
                                             <td style="text-align:center; vertical-align:middle;">
 
                                             </td>
@@ -260,7 +278,7 @@
                                             <td>
                                                 <div class="select">
                                                     <select th:id="Rolefilter" name="role"
-                                                            class="width110" th:onkeyup="'filterTableRow()'">
+                                                            class="width110" th:onchange="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option name="role" th:each="role : ${listaRuoli}"
                                                                 th:value="${role.roleName}"
@@ -286,7 +304,7 @@
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="Teamfilter" name="team" class="width110" th:onkeyup="'filterTableRow()'">
+                                                    <select th:id="Teamfilter" name="team" class="width110" th:onchange="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option th:each="team : ${listaTeams}"
                                                                 th:value="${team.teamName}"
@@ -304,8 +322,8 @@
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="Enabledfilter" name="enabled" class="width80" th:onkeyup="'filterTableRow()'">
-                                                        <option value="ALL">BOTH</option>
+                                                    <select th:id="Enabledfilter" name="enabled" class="width80" th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
                                                         <option value="true">yes</option>
                                                         <option value="false">no</option>
                                                     </select>
@@ -391,7 +409,7 @@
                                                            th:placeholder="${user.cost}" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="time + ${iter.index}" name="time"
+                                                    <input class="input fTime" th:id="time + ${iter.index}" name="time"
                                                            type="text" th:value="${user.time}"
                                                            th:placeholder="${user.time}" minlength="5" maxlength="5"
                                                            required>
