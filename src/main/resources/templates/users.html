@@ -123,6 +123,21 @@
         else
             elem.style.display = "none";
     }
+
+    function filterTableRow(){
+        let tableColumnList = ["Username", "Role", "Name", "Surname"]
+        for (let columnKey in tableColumnList){
+            let columnInputs = document.getElementsByClassName("f"+columnKey);
+            let filterValue = document.getElementById(columnKey + "filter");
+            for (let columnInput of columnInputs){
+                let parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                console.log(parentTableRow);
+                if(!columnInput.value.includes(filterValue)){
+                    continue;
+                }
+            }
+        }
+    }
 </script>
 
 <section class="">
@@ -238,13 +253,14 @@
                                             </td>
                                             <td>
                                                 <input class="input has-text-primary has-text-weight-semibold"
-                                                       th:id="usernamefilter" name="username" type="text"
-                                                       placeholder="" maxlength="64" required>
+                                                       th:id="Usernamefilter" name="username" type="text"
+                                                       placeholder="" maxlength="64" required
+                                                        th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="rolefilter" name="role"
-                                                            class="width110">
+                                                    <select th:id="Rolefilter" name="role"
+                                                            class="width110" th:onkeyup="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option name="role" th:each="role : ${listaRuoli}"
                                                                 th:value="${role.roleName}"
@@ -253,24 +269,24 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <input class="input" th:id="namefilter" name="name" type="text"
-                                                       placeholder="" maxlength="32" required>
+                                                <input class="input" th:id="Namefilter" name="name" type="text"
+                                                       placeholder="" maxlength="32" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
-                                                <input class="input" th:id="surnamefilter" name="surname" type="text"
-                                                       placeholder="" maxlength="64" required>
+                                                <input class="input" th:id="Surnamefilter" name="surname" type="text"
+                                                       placeholder="" maxlength="64" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
-                                                <input class="input" th:id="descriptionfilter" name="description"
-                                                       type="text" placeholder="" maxlength="128" required>
+                                                <input class="input" th:id="Descriptionfilter" name="description"
+                                                       type="text" placeholder="" maxlength="128" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
-                                                <input class="input" th:id="emailfilter" name="email" type="email"
-                                                       placeholder="" maxlength="128" required>
+                                                <input class="input" th:id="Emailfilter" name="email" type="email"
+                                                       placeholder="" maxlength="128" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="teamfilter" name="team" class="width110">
+                                                    <select th:id="Teamfilter" name="team" class="width110" th:onkeyup="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option th:each="team : ${listaTeams}"
                                                                 th:value="${team.teamName}"
@@ -279,16 +295,16 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <input class="input has-text-right" th:id="costfilter" name="cost"
-                                                       type="number" placeholder="" required>
+                                                <input class="input has-text-right" th:id="Costfilter" name="cost"
+                                                       type="number" placeholder="" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
-                                                <input class="input" th:id="timefilter" name="time" type="text"
-                                                       placeholder="" minlength="5" maxlength="5" required>
+                                                <input class="input" th:id="Timefilter" name="time" type="text"
+                                                       placeholder="" minlength="5" maxlength="5" required th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="enabledfilter" name="enabled" class="width80">
+                                                    <select th:id="Enabledfilter" name="enabled" class="width80" th:onkeyup="'filterTableRow()'">
                                                         <option value="ALL">BOTH</option>
                                                         <option value="true">yes</option>
                                                         <option value="false">no</option>
@@ -320,7 +336,7 @@
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
-                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold"
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fUsername"
                                                            th:id="username + ${iter.index}" name="username" type="text"
                                                            th:value="${user.username}"
                                                            th:placeholder="${user.username}" maxlength="64" required
@@ -329,7 +345,7 @@
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="role + ${iter.index}" name="role"
-                                                                th:selected="${user.role.roleName}" class="width110">
+                                                                th:selected="${user.role.roleName}" class="width110 fRole">
                                                             <option name="role" th:each="role : ${listaRuoli}"
                                                                     th:selected="${user.role.roleName == role.roleName}"
                                                                     th:value="${role.roleName}"
@@ -338,30 +354,30 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="name + ${iter.index}" name="name"
+                                                    <input class="input fName" th:id="name + ${iter.index}" name="name"
                                                            type="text" th:value="${user.name}"
                                                            th:placeholder="${user.name}" maxlength="32" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="surname + ${iter.index}" name="surname"
+                                                    <input class="input fSurname" th:id="surname + ${iter.index}" name="surname"
                                                            type="text" th:value="${user.surname}"
                                                            th:placeholder="${user.surname}" maxlength="64" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="description + ${iter.index}"
+                                                    <input class="input fDescription" th:id="description + ${iter.index}"
                                                            name="description" type="text" th:value="${user.description}"
                                                            th:placeholder="${user.description}" maxlength="128"
                                                            required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="email + ${iter.index}" name="email"
+                                                    <input class="input fEmail" th:id="email + ${iter.index}" name="email"
                                                            type="email" th:value="${user.email}"
                                                            th:placeholder="${user.email}" maxlength="128" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="team + ${iter.index}" name="team"
-                                                                th:selected="${user.team.teamName}" class="width110">
+                                                                th:selected="${user.team.teamName}" class="width110 fTeam">
                                                             <option th:each="team : ${listaTeams}"
                                                                     th:selected="${user.team.teamName == team.teamName}"
                                                                     th:value="${team.teamName}"
@@ -370,7 +386,7 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input has-text-right" th:id="cost + ${iter.index}"
+                                                    <input class="input has-text-right fCost" th:id="cost + ${iter.index}"
                                                            name="cost" type="number" th:value="${user.cost}"
                                                            th:placeholder="${user.cost}" required>
                                                 </td>
@@ -383,7 +399,7 @@
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="enabled + ${iter.index}" name="enabled"
-                                                                class="width80">
+                                                                class="width80 fEnabled">
                                                             <option th:selected="${user.enabled}" value="true">yes
                                                             </option>
                                                             <option th:selected="${!user.enabled}" value="false">no
