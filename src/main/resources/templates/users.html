@@ -26,7 +26,7 @@
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
-                                    if(body.includes("ERROR"))
+                                    if (body.includes("ERROR"))
                                         span = "<span class=\"has-text-danger\">";
                                     else
                                         span = "<span class=\"has-text-primary\">";
@@ -38,7 +38,7 @@
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
-                                    if(body.includes("ERROR"))
+                                    if (body.includes("ERROR"))
                                         span = "<span class=\"has-text-danger\">";
                                     else {
                                         span = "<span class=\"has-text-primary\">";
@@ -62,7 +62,7 @@
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
-                                    if(body.includes("ERROR"))
+                                    if (body.includes("ERROR"))
                                         span = "<span class=\"has-text-danger\">";
                                     else
                                         span = "<span class=\"has-text-primary\">";
@@ -83,7 +83,7 @@
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
-                                    if(body.includes("ERROR"))
+                                    if (body.includes("ERROR"))
                                         span = "<span class=\"has-text-danger\">";
                                     else
                                         span = "<span class=\"has-text-primary\">";
@@ -99,25 +99,26 @@
             errorelement.innerHTML = error_log;
             showErrorLog(true);
             if (tableChanged === true)
-                setTimeout(function () {window.location.reload(true)}, 3000);
+                setTimeout(function () {
+                    window.location.reload(true)
+                }, 3000);
         }
     }
 
-    function showConfirm(bool){
+    function showConfirm(bool) {
         let elem = document.getElementById("confirm-delete");
-        if(bool && !tableRowList.every(v => v === false)){
+        if (bool && !tableRowList.every(v => v === false)) {
             tableRowList['99999'] = false;
             document.getElementById("checkboxadduser").checked = false;
-            if(!tableRowList.every(v => v === false))
+            if (!tableRowList.every(v => v === false))
                 elem.style.display = "block";
-        }
-        else
+        } else
             elem.style.display = "none";
     }
 
-    function showErrorLog(bool){
+    function showErrorLog(bool) {
         let elem = document.getElementById("error-log");
-        if(bool)
+        if (bool)
             elem.style.display = "block";
         else
             elem.style.display = "none";
@@ -125,234 +126,351 @@
 </script>
 
 <section class="">
-        <div class="container mt-6">
-            <div class="columns">
-                <div class="column" style="min-width:1345px;">
+    <div class="container mt-6">
+        <div class="columns">
+            <div class="column" style="min-width:1345px;">
 
-                    <div th:include="fragments/authbar.html :: authbar"></div>
+                <div th:include="fragments/authbar.html :: authbar"></div>
 
-                    <div class="level mt-5">
-                        <div class="level-left">
-                            <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
-                                <ul>
-                                    <li>
-                                        <a href="/">
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
                                     <span class="icon is-medium">
                                       <i class="fas fa-home" aria-hidden="true"></i>
                                     </span>
-                                            <span>Home</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/users">
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/users">
                                     <span class="icon is-medium">
                                       <i class="fas fa-user" aria-hidden="true"></i>
                                     </span>
-                                            <span>Users</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <span>Users</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                                <span class="icon is-large has-text-primary is-clickable mr-2"
+                                      data-tooltip="Reset Password" th:onclick="'action(\'resetPasswords\');'">
+                                  <i class="fas fa-user-lock fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva"
+                                  th:onclick="'action(\'saveUsers\');'">
+                                  <i class="fas fa-save fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina"
+                                  th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hide notification has-background-primary-light">
+                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hide notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected users?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all user-related data.</p>
+                            </div>
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Reset Password" th:onclick="'action(\'resetPasswords\');'">
-                                  <i class="fas fa-user-lock fa-2x table-button"></i>
-                                </span>
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva" th:onclick="'action(\'saveUsers\');'">
-                                  <i class="fas fa-save fa-2x table-button"></i>
-                                </span>
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
-                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
-                                </span>
+                                <button class="button is-danger"
+                                        th:onclick="'action(\'deleteUsers\'), showConfirm(false);'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                             </div>
+
                         </div>
                     </div>
+                </div>
 
-                    <div id="error-log" class="hide notification has-background-primary-light">
-                        <button class="delete" th:onclick="'showErrorLog(false)'"></button>
-                        <div class="level m-0">
-                            <div class="level-left">
-                                <div class="level-item">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
-                                </div>
-                            </div>
-                            <div class="level-right">
-
-
-                            </div>
-                        </div>
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">User Management</p>
                     </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
 
-                    <div id="confirm-delete" class="hide notification is-primary">
-                        <button class="delete" th:onclick="'showConfirm(false)'"></button>
-                        <div class="level m-0">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <p>Do you really want to delete selected users?</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible and will erase all user-related data.</p>
-                                </div>
-                            </div>
-                            <div class="level-right">
-                                <div class="level-item">
-                                    <button class="button is-danger" th:onclick="'action(\'deleteUsers\'), showConfirm(false);'">Continue</button>
-                                    <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
-                                </div>
+                                <div class="table__wrapper">
+                                    <table>
+                                        <tr id="rowfilter">
+                                            <td style="text-align:center; vertical-align:middle;">
 
-                            </div>
-                        </div>
-                    </div>
-
-                    <article class="message is-primary">
-                        <div class="message-header">
-                            <p class="subtitle has-text-white has-text-weight-semibold m-auto">User Management</p>
-                        </div>
-                        <div class="message-body">
-                            <div class="columns is-centered">
-                                <div class="column">
-                                    <div class="table__wrapper">
-                                        <table>
-                                            <tr>
-                                                <th class="checkboxCol has-text-primary-dark"></th>
-                                                <th class="usernameCol has-text-primary-dark">Username</th>
-                                                <th class="roleCol has-text-primary-dark">Role</th>
-                                                <th class="nameCol has-text-primary-dark">Name</th>
-                                                <th class="surnameCol has-text-primary-dark">Surname</th>
-                                                <th class="descriptionCol has-text-primary-dark">Description</th>
-                                                <th class="emailCol has-text-primary-dark">Email</th>
-                                                <th class="teamCol has-text-primary-dark">Team</th>
-                                                <th class="costCol has-text-primary-dark">Cost</th>
-                                                <th class="timeCol has-text-primary-dark">Time</th>
-                                                <th class="enabledCol has-text-primary-dark">Enabled</th>
-                                            </tr>
-                                            <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                            <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
-                                                <form th:action="@{/updateuser}"  th:id="form+${iter.index}" th:object="${user}" method="post">
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="usernamefilter" name="username" type="text"
+                                                       placeholder="" maxlength="64" required>
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="rolefilter" name="role"
+                                                            class="width110">
+                                                        <option value="ALL">ALL</option>
+                                                        <option name="role" th:each="role : ${listaRuoli}"
+                                                                th:value="${role.roleName}"
+                                                                th:text="${role.roleName}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="namefilter" name="name" type="text"
+                                                       placeholder="" maxlength="32" required>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="surnamefilter" name="surname" type="text"
+                                                       placeholder="" maxlength="64" required>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="descriptionfilter" name="description"
+                                                       type="text" placeholder="" maxlength="128" required>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="emailfilter" name="email" type="email"
+                                                       placeholder="" maxlength="128" required>
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="teamfilter" name="team" class="width110">
+                                                        <option value="ALL">ALL</option>
+                                                        <option th:each="team : ${listaTeams}"
+                                                                th:value="${team.teamName}"
+                                                                th:text="${team.teamName}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-right" th:id="costfilter" name="cost"
+                                                       type="number" placeholder="" required>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="timefilter" name="time" type="text"
+                                                       placeholder="" minlength="5" maxlength="5" required>
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="enabledfilter" name="enabled" class="width80">
+                                                        <option value="ALL">BOTH</option>
+                                                        <option value="true">yes</option>
+                                                        <option value="false">no</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="checkboxCol has-text-primary-dark"></th>
+                                            <th class="usernameCol has-text-primary-dark">Username</th>
+                                            <th class="roleCol has-text-primary-dark">Role</th>
+                                            <th class="nameCol has-text-primary-dark">Name</th>
+                                            <th class="surnameCol has-text-primary-dark">Surname</th>
+                                            <th class="descriptionCol has-text-primary-dark">Description</th>
+                                            <th class="emailCol has-text-primary-dark">Email</th>
+                                            <th class="teamCol has-text-primary-dark">Team</th>
+                                            <th class="costCol has-text-primary-dark">Cost</th>
+                                            <th class="timeCol has-text-primary-dark">Time</th>
+                                            <th class="enabledCol has-text-primary-dark">Enabled</th>
+                                        </tr>
+                                        <!--/*@thymesVar id="listaUtenti" type=""*/-->
+                                        <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
+                                            <form th:action="@{/updateuser}" th:id="form+${iter.index}"
+                                                  th:object="${user}" method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
-                                                    <input type="hidden" th:id="pass + ${iter.index}" name="passwordHash" value="fake">
-                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
+                                                    <input type="hidden" th:id="pass + ${iter.index}"
+                                                           name="passwordHash" value="fake">
+                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
                                                     <input class="input has-background-primary-light has-text-primary has-text-weight-semibold"
-                                                           th:id="username + ${iter.index}" name="username" type="text" th:value="${user.username}"
-                                                           th:placeholder="${user.username}" maxlength="64" required readonly>
+                                                           th:id="username + ${iter.index}" name="username" type="text"
+                                                           th:value="${user.username}"
+                                                           th:placeholder="${user.username}" maxlength="64" required
+                                                           readonly>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="role + ${iter.index}" name="role" th:selected="${user.role.roleName}" class="width110">
-                                                            <option name="role" th:each="role : ${listaRuoli}" th:selected="${user.role.roleName == role.roleName}" th:value="${role.roleName}" th:text="${role.roleName}"></option>
+                                                        <select th:id="role + ${iter.index}" name="role"
+                                                                th:selected="${user.role.roleName}" class="width110">
+                                                            <option name="role" th:each="role : ${listaRuoli}"
+                                                                    th:selected="${user.role.roleName == role.roleName}"
+                                                                    th:value="${role.roleName}"
+                                                                    th:text="${role.roleName}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="name + ${iter.index}" name="name" type="text" th:value="${user.name}" th:placeholder="${user.name}" maxlength="32" required>
+                                                    <input class="input" th:id="name + ${iter.index}" name="name"
+                                                           type="text" th:value="${user.name}"
+                                                           th:placeholder="${user.name}" maxlength="32" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="surname + ${iter.index}" name="surname" type="text" th:value="${user.surname}" th:placeholder="${user.surname}" maxlength="64" required>
+                                                    <input class="input" th:id="surname + ${iter.index}" name="surname"
+                                                           type="text" th:value="${user.surname}"
+                                                           th:placeholder="${user.surname}" maxlength="64" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="description + ${iter.index}" name="description" type="text" th:value="${user.description}" th:placeholder="${user.description}" maxlength="128" required>
+                                                    <input class="input" th:id="description + ${iter.index}"
+                                                           name="description" type="text" th:value="${user.description}"
+                                                           th:placeholder="${user.description}" maxlength="128"
+                                                           required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="email + ${iter.index}" name="email" type="email" th:value="${user.email}" th:placeholder="${user.email}" maxlength="128" required>
+                                                    <input class="input" th:id="email + ${iter.index}" name="email"
+                                                           type="email" th:value="${user.email}"
+                                                           th:placeholder="${user.email}" maxlength="128" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="team + ${iter.index}" name="team" th:selected="${user.team.teamName}" class="width110">
-                                                            <option th:each="team : ${listaTeams}" th:selected="${user.team.teamName == team.teamName}" th:value="${team.teamName}" th:text="${team.teamName}"></option>
+                                                        <select th:id="team + ${iter.index}" name="team"
+                                                                th:selected="${user.team.teamName}" class="width110">
+                                                            <option th:each="team : ${listaTeams}"
+                                                                    th:selected="${user.team.teamName == team.teamName}"
+                                                                    th:value="${team.teamName}"
+                                                                    th:text="${team.teamName}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input class="input has-text-right" th:id="cost + ${iter.index}" name="cost" type="number" th:value="${user.cost}" th:placeholder="${user.cost}" required>
+                                                    <input class="input has-text-right" th:id="cost + ${iter.index}"
+                                                           name="cost" type="number" th:value="${user.cost}"
+                                                           th:placeholder="${user.cost}" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="time + ${iter.index}" name="time" type="text" th:value="${user.time}" th:placeholder="${user.time}" minlength="5" maxlength="5" required>
+                                                    <input class="input" th:id="time + ${iter.index}" name="time"
+                                                           type="text" th:value="${user.time}"
+                                                           th:placeholder="${user.time}" minlength="5" maxlength="5"
+                                                           required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="enabled + ${iter.index}" name="enabled" class="width80">
-                                                            <option th:selected="${user.enabled}" value="true">yes</option>
-                                                            <option th:selected="${!user.enabled}" value="false">no</option>
+                                                        <select th:id="enabled + ${iter.index}" name="enabled"
+                                                                class="width80">
+                                                            <option th:selected="${user.enabled}" value="true">yes
+                                                            </option>
+                                                            <option th:selected="${!user.enabled}" value="false">no
+                                                            </option>
                                                         </select>
                                                     </div>
                                                 </td>
-                                                </form>
-                                            </tr>
-                                            <!--new user form-->
-                                            <tr id="row99999">
-                                                <form th:action="@{/adduser}"  id="form99999" th:object="${user}" method="post">
-                                                    <td style="text-align:center; vertical-align:middle;">
-                                                        <input type="hidden" th:id="passadduser" name="passwordHash" value="fake">
-                                                        <input id="checkboxadduser" th:onclick="'selectTableRow(\'99999\');'" type="checkbox" class="tablecheckbox">
-                                                    </td>
-                                                    <td>
-                                                        <input class="input has-text-primary has-text-weight-semibold"
-                                                               th:id="usernameadduser" name="username" type="text" placeholder="" maxlength="64" required>
-                                                    </td>
-                                                    <td>
-                                                        <div class="select">
-                                                            <select th:id="roleadduser" name="role" th:selected="USER" class="width110">
-                                                                <option name="role" th:each="role : ${listaRuoli}" th:selected="USER" th:value="${role.roleName}" th:text="${role.roleName}"></option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="nameadduser" name="name" type="text" placeholder="" maxlength="32" required>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="surnameadduser" name="surname" type="text" placeholder="" maxlength="64" required>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="descriptionadduser" name="description" type="text" placeholder="" maxlength="128" required>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="emailadduser" name="email" type="email" placeholder="" maxlength="128" required>
-                                                    </td>
-                                                    <td>
-                                                        <div class="select">
-                                                            <select th:id="teamadduser" name="team" class="width110">
-                                                                <option th:each="team : ${listaTeams}" th:value="${team.teamName}" th:text="${team.teamName}"></option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input has-text-right" th:id="costadduser" name="cost" type="number" placeholder="" required>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="timeadduser" name="time" type="text" placeholder="" minlength="5" maxlength="5" required>
-                                                    </td>
-                                                    <td>
-                                                        <div class="select">
-                                                            <select th:id="enabledadduser" name="enabled" class="width80">
-                                                                <option value="true">yes</option>
-                                                                <option value="false">no</option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                </form>
-                                            </tr>
-                                        </table>
-                                    </div>
+                                            </form>
+                                        </tr>
+                                        <!--new user form-->
+                                        <tr id="row99999">
+                                            <form th:action="@{/adduser}" id="form99999" th:object="${user}"
+                                                  method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" th:id="passadduser" name="passwordHash"
+                                                           value="fake">
+                                                    <input id="checkboxadduser"
+                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-primary has-text-weight-semibold"
+                                                           th:id="usernameadduser" name="username" type="text"
+                                                           placeholder="" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="roleadduser" name="role" th:selected="USER"
+                                                                class="width110">
+                                                            <option name="role" th:each="role : ${listaRuoli}"
+                                                                    th:selected="USER" th:value="${role.roleName}"
+                                                                    th:text="${role.roleName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="nameadduser" name="name" type="text"
+                                                           placeholder="" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="surnameadduser" name="surname"
+                                                           type="text" placeholder="" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="descriptionadduser" name="description"
+                                                           type="text" placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="emailadduser" name="email" type="email"
+                                                           placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="teamadduser" name="team" class="width110">
+                                                            <option th:each="team : ${listaTeams}"
+                                                                    th:value="${team.teamName}"
+                                                                    th:text="${team.teamName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-right" th:id="costadduser" name="cost"
+                                                           type="number" placeholder="" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="timeadduser" name="time" type="text"
+                                                           placeholder="" minlength="5" maxlength="5" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="enabledadduser" name="enabled" class="width80">
+                                                            <option value="true">yes</option>
+                                                            <option value="false">no</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </article>
-                </div>
+                    </div>
+                </article>
             </div>
         </div>
+    </div>
 </section>
 
 <div class="modal" id="modal-cancella-utenti">
@@ -366,11 +484,15 @@
         <!--/*@thymesVar id="user" type=""*/-->
         <form th:action="@{/deleteuser}" th:object="${user}" method="post">
             <section class="modal-card-body">
-                <p>Sei sicuro di voler eliminare gli utenti selezionati?<p>
-                <p class="has-text-medium has-text-danger">Questa operazione sarà irreversibile e cancellerà tutti i dati legati all'utente.</p>
+                <p>Sei sicuro di voler eliminare gli utenti selezionati?
+                <p>
+                <p class="has-text-medium has-text-danger">Questa operazione sarà irreversibile e cancellerà tutti i
+                    dati legati all'utente.</p>
             </section>
             <footer class="modal-card-foot">
-                <button class="button is-danger" th:onclick="'hideModal(\'modal-cancella-utenti\'), deleteUsers()'">Cancella Utenti</button>
+                <button class="button is-danger" th:onclick="'hideModal(\'modal-cancella-utenti\'), deleteUsers()'">
+                    Cancella Utenti
+                </button>
                 <button class="button" th:onclick="'hideModal(\'modal-cancella-utenti\');'">Annulla</button>
             </footer>
         </form>

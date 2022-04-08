@@ -16,6 +16,9 @@
 	<description>Project Activity Tracker Rationence</description>
 	<properties>
 		<java.version>11</java.version>
+		<src.dir>src/main/java</src.dir>
+		<src.dir>src/main/resources/public</src.dir>
+		<src.dir>src/main/resources/templates</src.dir>
 	</properties>
 	<dependencies>
 		<dependency>

@@ -108,7 +108,7 @@ th.costCol{width:80px; !important}
 .width110{width:110px; !important}
 .width80{width:80px; !important}
 .hide{display:none;}
-.tabecheckbox:checked{
+.tablecheckbox:checked{
     background-color:#4FA9BAFF;
 }
 
