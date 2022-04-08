@@ -4,7 +4,6 @@ import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.service.RoleService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +27,6 @@ public class RoleController {
     @PostMapping("/addRole")
     public ResponseEntity<String> addRole(@Valid Role role) {
         try {
-            System.out.println(role);
             roleService.saveRole(role);
             return ResponseEntity.ok("Role '" + role.getRoleName() + "' saved.");
         } catch (Exception e) {

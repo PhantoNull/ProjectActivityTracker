@@ -9,7 +9,7 @@
 		<version>2.6.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>eu.Rationence</groupId>
+	<groupId>eu.rationence</groupId>
 	<artifactId>pat</artifactId>
 	<version>1.0</version>
 	<name>pat</name>

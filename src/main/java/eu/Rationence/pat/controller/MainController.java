@@ -49,7 +49,7 @@ public class MainController {
         return "login";
     }
 
-    @RequestMapping(value="/logout", method = RequestMethod.GET)
+    @GetMapping(value="/logout")
     public String logoutPage (HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null){
@@ -139,9 +139,6 @@ public class MainController {
                 .enabled(true)
                 .build();
         userService.saveUser(marcon);
-
-        //devTeam.setAdministrator(luca);
-        //ammTeam.setAdministrator(marcon);
 
         teamService.saveTeam(devTeam);
         teamService.saveTeam(ammTeam);

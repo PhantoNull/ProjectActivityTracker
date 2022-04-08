@@ -1,7 +1,7 @@
 package eu.Rationence.pat.service;
 
-import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.repository.RoleRepository;
+import eu.Rationence.pat.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
