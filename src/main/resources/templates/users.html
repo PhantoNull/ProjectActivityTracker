@@ -142,6 +142,43 @@
             }
         }
     }
+
+    function sortTable(column, order) {
+        let table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("sortableTable");
+        switching = true;
+        i = 3;
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 3; i < (rows.length - 2); i++) {
+                shouldSwitch = false;
+                x = document.getElementById(column + (i-3));
+                y = document.getElementById(column + (i-2));
+                console.log(x);
+                console.log(y);
+                if (order === 'asc') {
+                    if (x.value.toLowerCase() > y.value.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                else if(order === 'desc'){
+                    if(x.value.toLowerCase() < y.value.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                let row1 = document.getElementById("row" + (i-3));
+                let row2 = document.getElementById("row" + (i-2));
+                console.log("SWAPPATO: " + row2 + "<- " + row1);
+                row1.parentNode.insertBefore(row2, row1);
+                switching = true;
+            }
+        }
+    }
 </script>
 
 <section class="">
@@ -250,7 +287,7 @@
                             <div class="column">
 
                                 <div class="table__wrapper">
-                                    <table>
+                                    <table id="sortableTable">
                                         <!-- Search Filter -->
                                         <tr>
                                             <th></th>
@@ -332,7 +369,17 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="usernameCol has-text-primary-dark table-header">Username</th>
+                                            <th class="usernameCol has-text-primary-dark table-header">
+                                                Username
+                                                <span class="icon has-text-primary is-clickable"
+                                                      data-tooltip="Order Ascending" th:onclick="'sortTable(\'username\',\'asc\');'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable"
+                                                      data-tooltip="Order Descending" th:onclick="'sortTable(\'username\',\'desc\');'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
                                             <th class="roleCol has-text-primary-dark table-header">Role</th>
                                             <th class="nameCol has-text-primary-dark table-header">Name</th>
                                             <th class="surnameCol has-text-primary-dark table-header">Surname</th>
