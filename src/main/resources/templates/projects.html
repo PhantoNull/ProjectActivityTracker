@@ -156,22 +156,22 @@
                                                         <input th:onclick="'selezionaRigaTabella(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
                                                     </td>
                                                     <td>
-                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="project + ${iter.index}" name="project" type="text" th:value="${project.project}" th:placeholder="${project.project}" maxlength="16" required readonly>
+                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="project + ${iter.index}" name="project" type="text" th:value="${project.getProjectKey}" th:placeholder="${project.getProjectKey}" maxlength="16" required readonly>
                                                     </td>
                                                     <td>
                                                         <input class="input" th:id="desc + ${iter.index}" name="description" type="text" th:value="${project.description}" th:placeholder="${project.description}" maxlength="64" required>
                                                     </td>
                                                     <td>
                                                         <div class="select">
-                                                            <select th:id="client + ${iter.index}" name="client" th:selected="${project.client.client}" class="width110">
-                                                                <option th:each="client : ${listaClienti}" th:selected="${project.client.client == client.client}" th:value="${client.client}" th:text="${client.client}"></option>
+                                                            <select th:id="client + ${iter.index}" name="client" th:selected="${project.client.getClientKey}" class="width110">
+                                                                <option th:each="client : ${listaClienti}" th:selected="${project.client.getClientKey == client.getClientKey}" th:value="${client.getClientKey}" th:text="${client.getClientKey}"></option>
                                                             </select>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div class="select">
-                                                             <select th:id="type + ${iter.index}" name="projectType" th:selected="${project.projectType.projectType}" class="width110">
-                                                                 <option th:each="projectType : ${listaTipoProgetti}" th:selected="${project.projectType.projectType == projectType.projectType}" th:value="${projectType.projectType}" th:text="${projectType.projectType}"></option>
+                                                             <select th:id="type + ${iter.index}" name="projectType" th:selected="${project.projectType.getProjectTypeKey}" class="width110">
+                                                                 <option th:each="projectType : ${listaTipoProgetti}" th:selected="${project.projectType.getProjectTypeKey == projectType.getProjectTypeKey}" th:value="${projectType.getProjectTypeKey}" th:text="${projectType.getProjectTypeKey}"></option>
                                                              </select>
                                                         </div>
                                                     </td>

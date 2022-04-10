@@ -1,7 +1,9 @@
 package eu.Rationence.pat.controller;
 
 import eu.Rationence.pat.model.Role;
+import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.service.RoleService;
+import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 
 @Controller
@@ -17,10 +20,16 @@ import javax.validation.Valid;
 public class RoleController {
     @Autowired
     private final RoleService roleService;
+    @Autowired
+    private final UserService userService;
 
     @GetMapping("/roles")
-    public String roles(Model model) {
+    public String roles(Model model, Principal principal) {
         model.addAttribute("listaRuoli", roleService.findAll());
+        String username = principal.getName();
+        User userRepo = userService.findUserByUsername(username);
+        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "roles";
     }
 

@@ -35,11 +35,15 @@ public class UserController {
     private final RoleService roleService;
 
     @GetMapping ("/users")
-    public String utenti(Model model) {
+    public String utenti(Model model, Principal principal) {
         model.addAttribute("listaUtenti", userService.findAll());
         model.addAttribute("listaTeams", teamService.findAll());
         model.addAttribute("listaRuoli", roleService.findAll());
         model.addAttribute("pageTitle", "PAT Prova");
+        String username = principal.getName();
+        User userRepo = userService.findUserByUsername(username);
+        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "users";
     }
 

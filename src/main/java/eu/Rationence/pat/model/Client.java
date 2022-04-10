@@ -19,7 +19,7 @@ public class Client implements Serializable {
 
     @Id
     @Column(name="c_Client", length=16, unique = true, nullable = false)
-    private String client;
+    private String clientKey;
 
     @Column(name="x_Client", length=64, nullable = false)
     private String clientDesc;
@@ -33,7 +33,7 @@ public class Client implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Client utente = (Client) o;
-        return client != null && Objects.equals(client, utente.client);
+        return clientKey != null && Objects.equals(clientKey, utente.clientKey);
     }
 
     @Override

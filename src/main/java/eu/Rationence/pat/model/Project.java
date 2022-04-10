@@ -20,7 +20,7 @@ import java.util.Objects;
 
      @Id
      @Column(name="c_Project", length=16, unique = true, nullable = false)
-     private String project;
+     private String projectKey;
 
      @Column(name="x_Project", nullable = false, length=32)
      private String projectDesc;
@@ -61,7 +61,7 @@ import java.util.Objects;
          if (this == o) return true;
          if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
          Project user = (Project) o;
-         return project != null && Objects.equals(project, user.project);
+         return projectKey != null && Objects.equals(projectKey, user.projectKey);
      }
 
      @Override

@@ -9,11 +9,11 @@ import java.util.List;
 
 @Repository
 public interface ProjectRepository extends CrudRepository<Project, String> {
-    Project getProjectByProject(String string);
+    Project getProjectByProjectKey(String string);
     List<Project> findAll();
     Project save(Project project);
     @Transactional
-    void deleteProjectByProject(String string);
+    void deleteProjectByProjectKey(String string);
 }
 
 

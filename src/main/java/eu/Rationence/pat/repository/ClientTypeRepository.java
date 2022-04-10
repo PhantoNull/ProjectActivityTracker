@@ -8,11 +8,11 @@ import java.util.List;
 
 @Repository
 public interface ClientTypeRepository extends CrudRepository<ClientType, String> {
-    ClientType getClientTypeByClientType(String string);
+    ClientType getClientTypeByClientTypeKey(String string);
     List<ClientType> findAll();
     ClientType save(ClientType client);
     @Transactional
-    void deleteClientTypeByClientType(String string);
+    void deleteClientTypeByClientTypeKey(String string);
 }
 
 

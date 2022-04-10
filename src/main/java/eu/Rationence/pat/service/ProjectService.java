@@ -16,7 +16,7 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Project findProjectByProject(String string){return projectRepository.getProjectByProject(string);
+    public Project findProjectByProject(String string){return projectRepository.getProjectByProjectKey(string);
     }
     public List<Project> findAll() {
         return projectRepository.findAll();
@@ -24,5 +24,5 @@ public class ProjectService {
 
     public Project saveProject(Project client){ return projectRepository.save(client);};
 
-    public void deleteProjectByProject(String client){ projectRepository.deleteProjectByProject(client);}
+    public void deleteProjectByProject(String client){ projectRepository.deleteProjectByProjectKey(client);}
 }

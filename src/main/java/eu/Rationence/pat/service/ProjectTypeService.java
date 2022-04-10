@@ -15,7 +15,7 @@ public class ProjectTypeService {
     @Autowired
     private ProjectTypeRepository projectTypeRepository;
 
-    public ProjectType findProjectTypeByProjectType(String string){return projectTypeRepository.getProjectTypeByProjectType(string);
+    public ProjectType findProjectTypeByProjectType(String string){return projectTypeRepository.getProjectTypeByProjectTypeKey(string);
     }
     public List<ProjectType> findAll() {
         return projectTypeRepository.findAll();

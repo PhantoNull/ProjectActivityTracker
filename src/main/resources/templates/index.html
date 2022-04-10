@@ -6,7 +6,6 @@
 </head>
 
 
-
 <body>
 <script src="/js/mainjs.js"></script>
 <script>
@@ -14,7 +13,7 @@
         let error_log = "";
 
         let data = new FormData(document.getElementById("changePassword"));
-        if(!checkPasswordValidity(document.getElementById("inputPassword").value)){
+        if (!checkPasswordValidity(document.getElementById("inputPassword").value)) {
             document.getElementById("error-log").classList.remove('has-text-success');
             document.getElementById("error-log").classList.add('has-text-danger');
             return document.getElementById("error-log").innerHTML = "ERROR: Password does not match minimum requirements";
@@ -23,11 +22,10 @@
             .then(response => response.text())
             .then(body => {
                 error_log += body + "<br>";
-                if(body.includes("ERROR")){
+                if (body.includes("ERROR")) {
                     document.getElementById("error-log").classList.remove('has-text-success');
                     document.getElementById("error-log").classList.add('has-text-danger');
-                }
-                else{
+                } else {
                     document.getElementById("error-log").classList.remove('has-text-danger');
                     document.getElementById("error-log").classList.add('has-text-success');
                 }
@@ -37,7 +35,7 @@
         document.getElementById("error-log").innerHTML = error_log;
     }
 
-    function checkPasswordValidity(pass){
+    function checkPasswordValidity(pass) {
         var passw = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,64}$/;
         return pass.match(passw);
 
@@ -45,7 +43,7 @@
 </script>
 
 <section> <!--class="hero is-fullheight"-->
-    <div > <!--class="hero-body"-->
+    <div> <!--class="hero-body"-->
         <div class="container mt-6">
             <div class="columns is-centered">
                 <div class="column">
@@ -54,7 +52,7 @@
 
                     <div class="level mt-5">
                         <div class="level-left">
-                            <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
+                            <nav class="breadcrumb is-medium level-item" aria-label="breadcrumbs">
                                 <ul>
                                     <li>
                                         <a href="/">
@@ -69,11 +67,10 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Change Password" th:onclick="'showModal(\'modal-change-password\');'">
+                                <span class="icon is-large has-text-primary is-clickable" data-tooltip="Change Password"
+                                      th:onclick="'showModal(\'modal-change-password\');'">
                                   <i class="fas fa-key fa-2x table-button"></i>
                                 </span>
-                            </div>
-                            <div class="level-item">
                                 <a th:href="@{/logout}">
                                     <span class="icon is-large has-text-primary is-clickable" data-tooltip="Logout">
                                       <i class="fas fa-sign-out-alt fa-2x table-button"></i>
@@ -86,14 +83,15 @@
 
                     <article sec:authorize="hasAuthority('ADMIN')" class="message is-primary ">
                         <div class="message-header">
-                            <p class="subtitle has-text-white has-text-weight-semibold m-auto">Administrative Functions</p>
+                            <p class="subtitle has-text-white has-text-weight-semibold m-auto">Administrative
+                                Functions</p>
                         </div>
                         <div class="message-body">
                             <div class="columns is-0-mobile is-centered is-mobile">
                                 <div class="column">
                                     <a th:href="@{/teams}">
-                                        <figure th:onclick="'clickImg(\'teamsimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="teamsimg" src="/images/team3.png" class="menu-item">
+                                        <figure th:onclick="'clickImg(\'teamsimg\')'" class="image is-128x128 m-auto">
+                                            <img id="teamsimg" src="/images/team3.png" class="menu-item">
                                         </figure>
                                     </a>
 
@@ -107,8 +105,10 @@
                                 </div>
                                 <div class="column">
                                     <a th:href="@{/standardactivities}">
-                                        <figure th:onclick="'clickImg(\'standardactivityimg\')'" class="image is-128x128 m-auto">
-                                            <img id="standardactivityimg" src="images/standardactivity3.png" class="menu-item">
+                                        <figure th:onclick="'clickImg(\'standardactivityimg\')'"
+                                                class="image is-128x128 m-auto">
+                                            <img id="standardactivityimg" src="images/standardactivity3.png"
+                                                 class="menu-item">
                                         </figure>
                                     </a>
                                 </div>
@@ -125,15 +125,15 @@
                             <div class="columns is-0-mobile is-centered is-mobile">
                                 <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/users}">
-                                        <figure th:onclick="'clickImg(\'userimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="userimg" src="images/user3.png" class="menu-item">
+                                        <figure th:onclick="'clickImg(\'userimg\')'" class="image is-128x128 m-auto">
+                                            <img id="userimg" src="images/user3.png" class="menu-item">
                                         </figure>
                                     </a>
                                 </div>
                                 <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/projects}">
-                                        <figure th:onclick="'clickImg(\'projimg\')'"  class="image is-128x128 m-auto">
-                                            <img  id="projimg" src="images/project3.png" class="menu-item">
+                                        <figure th:onclick="'clickImg(\'projimg\')'" class="image is-128x128 m-auto">
+                                            <img id="projimg" src="images/project3.png" class="menu-item">
                                         </figure>
                                     </a>
                                 </div>
@@ -157,36 +157,42 @@
         <div class="modal-card">
             <header class="modal-card-head">
                 <p class="modal-card-title has-text-primary">User Password Manager</p>
-                <button class="delete" aria-label="close" th:onclick="'hideModal(\'modal-change-password\'), document.getElementById(\'error-log\').innerHTML = \'\';'"></button>
+                <button class="delete" aria-label="close"
+                        th:onclick="'hideModal(\'modal-change-password\'), document.getElementById(\'error-log\').innerHTML = \'\';'"></button>
             </header>
 
             <!--/*@thymesVar id="user" type=""*/-->
 
-                <section class="modal-card-body">
-                    <p class="mb-4">Here you can change your user password.</p>
-                    <p class="mb-2">Password security requirements:</p>
-                    <ul class="list">
-                        <li>• At least 8 characters long</li>
-                        <li>• Must contain at least one number</li>
-                        <li>• Must contain at least one uppercase letter</li>
-                        <li>• Must contain at least one lowercase letter</li>
-                        <li>• Must contain at least one symbol</li>
-                    </ul>
-                    <p>
-                    <p class="mb-2 mt-5">Insert your new password: <p>
-                    <form th:action="@{/change}" id="changePassword">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <label>
-                            <input id="inputPassword" class="input" type="password" name="password" maxlength="64" required />
-                        </label>
-                    </form>
-                    <div id="error-log" class="is-text m-auto">
-                    </div>
-                </section>
-                <footer class="modal-card-foot">
-                    <button class="button is-primary" th:onclick="'changePassword()'">Change Password</button>
-                    <button class="button" th:onclick="'hideModal(\'modal-change-password\'), document.getElementById(\'error-log\').innerHTML = \'\';'">Cancel</button>
-                </footer>
+            <section class="modal-card-body">
+                <p class="mb-4">Here you can change your user password.</p>
+                <p class="mb-2">Password security requirements:</p>
+                <ul class="list">
+                    <li>• At least 8 characters long</li>
+                    <li>• Must contain at least one number</li>
+                    <li>• Must contain at least one uppercase letter</li>
+                    <li>• Must contain at least one lowercase letter</li>
+                    <li>• Must contain at least one symbol</li>
+                </ul>
+                <p>
+                <p class="mb-2 mt-5">Insert your new password:
+                <p>
+                <form th:action="@{/change}" id="changePassword">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <label>
+                        <input id="inputPassword" class="input" type="password" name="password" maxlength="64"
+                               required/>
+                    </label>
+                </form>
+                <div id="error-log" class="is-text m-auto">
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-primary" th:onclick="'changePassword()'">Change Password</button>
+                <button class="button"
+                        th:onclick="'hideModal(\'modal-change-password\'), document.getElementById(\'error-log\').innerHTML = \'\';'">
+                    Cancel
+                </button>
+            </footer>
 
         </div>
     </div>

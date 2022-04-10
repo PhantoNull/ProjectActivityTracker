@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 
 @Controller
@@ -29,12 +30,16 @@ public class ProjectController {
 
 
     @GetMapping ("/projects")
-    public String projects(Model model) {
+    public String projects(Model model, Principal principal) {
         model.addAttribute("listaUtenti", userService.findAll());
         model.addAttribute("listaTeams", teamService.findAll());
         model.addAttribute("listaProgetti", projectService.findAll());
         model.addAttribute("listaTipoProgetti", projectTypeService.findAll());
         model.addAttribute("listaClienti", clientService.findAll());
+        String username = principal.getName();
+        User userRepo = userService.findUserByUsername(username);
+        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "projects";
     }
 
@@ -45,13 +50,13 @@ public class ProjectController {
                                              @RequestParam(value="client") String clientKey,
                                              @RequestParam(value="projectType") String projectTypeKey){
         try{
-            if(projectService.findProjectByProject(project.getProject()) != null)
-                return ResponseEntity.status(409).body("ERROR: " + project.getProject() + " has been already created");
+            if(projectService.findProjectByProject(project.getProjectKey()) != null)
+                return ResponseEntity.status(409).body("ERROR: " + project.getProjectKey() + " has been already created");
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
             if(validityError != null)
                 return validityError;
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
-            return ResponseEntity.ok("Project '" + project.getProject() + "' saved.");
+            return ResponseEntity.ok("Project '" + project.getProjectKey() + "' saved.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -69,9 +74,9 @@ public class ProjectController {
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
             if(validityError != null)
                 return validityError;
-            Project projectRepo = projectService.findProjectByProject(project.getProject());
+            Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
-            return ResponseEntity.ok("Project '" + project.getProject() + "' updated.");
+            return ResponseEntity.ok("Project '" + project.getProjectKey() + "' updated.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -82,11 +87,11 @@ public class ProjectController {
     @PostMapping("/deleteProject")
     public ResponseEntity<String> deleteProject(@Valid Project project){
         try{
-            Project projectRepo = projectService.findProjectByProject(project.getProject());
+            Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
             if(projectRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Cannot delete '" + project.getProject() + "' project. (Project does not exists)");
-            projectService.deleteProjectByProject(projectRepo.getProject());
-            return ResponseEntity.ok("Project '" + projectRepo.getProject() + "' deleted.");
+                return ResponseEntity.status(409).body("ERROR: Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
+            projectService.deleteProjectByProject(projectRepo.getProjectKey());
+            return ResponseEntity.ok("Project '" + projectRepo.getProjectKey() + "' deleted.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

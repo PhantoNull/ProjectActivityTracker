@@ -22,7 +22,7 @@ public class ProjectType implements Serializable {
 
     @Id
     @Column(name="c_ProjectType", length=4, unique = true, nullable = false)
-    private String projectType;
+    private String projectTypeKey;
 
     @Column(name="x_ProjectType", length=64, nullable = false)
     private String projectTypeDesc;
@@ -32,7 +32,7 @@ public class ProjectType implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         ProjectType utente = (ProjectType) o;
-        return projectType != null && Objects.equals(projectType, utente.projectType);
+        return projectTypeKey != null && Objects.equals(projectTypeKey, utente.projectTypeKey);
     }
 
     @Override

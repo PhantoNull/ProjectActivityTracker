@@ -22,14 +22,14 @@ public class ClientType implements Serializable {
 
     @Id
     @Column(name="c_ClientType", length=16, unique = true, nullable = false)
-    private String clientType;
+    private String clientTypeKey;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         ClientType utente = (ClientType) o;
-        return clientType != null && Objects.equals(clientType, utente.clientType);
+        return clientTypeKey != null && Objects.equals(clientTypeKey, utente.clientTypeKey);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,11 @@ public class MainController {
 
 
     @GetMapping ("/")
-    public String index() {
+    public String index(Model model, Principal principal) {
+        String username = principal.getName();
+        User userRepo = userService.findUserByUsername(username);
+        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "index";
     }
 
@@ -144,22 +149,22 @@ public class MainController {
         teamService.saveTeam(ammTeam);
 
         ProjectType projCons = ProjectType.builder()
-                .projectType("CONS")
+                .projectTypeKey("CONS")
                 .projectTypeDesc("Consulenza")
                 .build();
 
         ProjectType projDevp = ProjectType.builder()
-                .projectType("DEVP")
+                .projectTypeKey("DEVP")
                 .projectTypeDesc("Development")
                 .build();
 
         ProjectType projTrng = ProjectType.builder()
-                .projectType("TRNG")
+                .projectTypeKey("TRNG")
                 .projectTypeDesc("Training")
                 .build();
 
         ProjectType projServ = ProjectType.builder()
-                .projectType("SERV")
+                .projectTypeKey("SERV")
                 .projectTypeDesc("Service")
                 .build();
         projectTypeService.saveProjectType(projCons);
@@ -168,13 +173,13 @@ public class MainController {
         projectTypeService.saveProjectType(projServ);
 
         ClientType clientDirect = ClientType.builder()
-                .clientType("DIRECT")
+                .clientTypeKey("DIRECT")
                 .build();
         ClientType clientPartner = ClientType.builder()
-                .clientType("PARTNER")
+                .clientTypeKey("PARTNER")
                 .build();
         ClientType clientInternal = ClientType.builder()
-                .clientType("INTERNAL")
+                .clientTypeKey("INTERNAL")
                 .build();
 
         clientTypeService.saveClientType(clientDirect);
@@ -182,7 +187,7 @@ public class MainController {
         clientTypeService.saveClientType(clientInternal);
 
         Client clientBPER = Client.builder()
-                .client("BPER")
+                .clientKey("BPER")
                 .clientDesc("Banca Popolare Emilia Romagna")
                 .clientType(clientDirect)
                 .build();

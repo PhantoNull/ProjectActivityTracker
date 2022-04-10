@@ -16,7 +16,7 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Client findClientByClient(String string){return clientRepository.getClientByClient(string);
+    public Client findClientByClient(String string){return clientRepository.getClientByClientKey(string);
     }
     public List<Client> findAll() {
         return clientRepository.findAll();
@@ -24,5 +24,5 @@ public class ClientService {
 
     public Client saveClient(Client client){ return clientRepository.save(client);};
 
-    public void deleteClientByClient(String client){ clientRepository.deleteClientByClient(client);}
+    public void deleteClientByClient(String client){ clientRepository.deleteClientByClientKey(client);}
 }
