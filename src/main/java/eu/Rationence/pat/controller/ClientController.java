@@ -53,11 +53,14 @@ public class ClientController {
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
             if(clientService.findClientByClientKey(client.getClientKey()) != null)
                 return ResponseEntity.status(409).body(ERROR_STR + client.getClientKey() + " has been already created");
+            else if(client.getClientKey().length() < 1)
+                return ResponseEntity.badRequest().body(ERROR_STR + "Client key can't be blank");
             else if(client.getClientDesc().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Description can't be blank");
+                return ResponseEntity.badRequest().body(ERROR_STR + "Client description can't be blank");
             ClientType clientTypeRepo = clientTypeService.findClientTypeByClientTypeKey(clientTypeKey);
             if(clientTypeRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + clientTypeKey + " is not a valid client type. (not found)");
+            client.setClientType(clientTypeRepo);
             clientService.saveClient(client);
             return ResponseEntity.ok("Client '" + client.getClientKey() + "' saved.");
         }
@@ -80,6 +83,7 @@ public class ClientController {
             Client clientRepo = clientService.findClientByClientKey(client.getClientKey());
             if(clientRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + client.getClientKey() + " does not exists");
+            client.setClientType(clientTypeRepo);
             clientService.saveClient(client);
             return ResponseEntity.ok("Client '" + client.getClientKey() + "' updated.");
         }
