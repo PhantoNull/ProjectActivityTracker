@@ -21,4 +21,6 @@ public class TeamService {
     }
 
     public Team saveTeam(Team team){ return teamRepository.save(team);};
+
+    public void deleteTeamByTeamName(String teamName){teamRepository.deleteTeamByTeamName(teamName);}
 }

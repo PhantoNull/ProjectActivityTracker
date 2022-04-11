@@ -30,9 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     .antMatchers("/", "/changePasswordUser").authenticated()
-                    .antMatchers("/users", "/teams", "/roles", "/addUser",
-                            "/updateUser", "/deleteUser", "/addRole", "/deleteRole",
-                            "/projects", "/addProject", "/updateProject", "/deleteProject").hasAuthority("ADMIN")
+                    .antMatchers("/users","/projects","/clients","/standardactivities", "/teams").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()

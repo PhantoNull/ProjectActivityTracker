@@ -13,6 +13,7 @@ function deClickImg(img){
 function showModal(id){
     document.getElementById(id).classList.add('is-active');
 }
+
 function hideModal(id){
     document.getElementById(id).classList.remove('is-active');
 }
@@ -30,7 +31,6 @@ function selectTableRow(id){
     }
 
 }
-
 
 mybutton = document.getElementById("button-back-top");
 window.onscroll = function() {scrollFunction()};

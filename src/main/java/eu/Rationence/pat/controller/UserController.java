@@ -47,7 +47,7 @@ public class UserController {
         return "users";
     }
 
-    @PostMapping("/addUser")
+    @PostMapping("/users")
     public ResponseEntity<String> addUser(@Valid User user,
                                           @RequestParam(value="team") String teamKey,
                                           @RequestParam(value="role") String roleKey,
@@ -76,7 +76,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/updateUser")
+    @PutMapping("/users")
     public ResponseEntity<String> updateUser(@Valid User user,
                                           @RequestParam(value="team") String teamKey,
                                           @RequestParam(value="role") String roleKey,
@@ -151,7 +151,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/deleteUser")
+    @DeleteMapping("/users")
     public ResponseEntity<String> deleteUser(@Valid User user,
                                                     @RequestParam(value="team") String teamKey,
                                                     @RequestParam(value="role") String roleKey,
@@ -183,9 +183,9 @@ public class UserController {
     private boolean isNumericString(String string){
         for (int i=0; i< string.length(); i++){
             if("0123456789".indexOf(string.charAt(i)) == -1)
-                return true;
+                return false;
         }
-        return false;
+        return true;
     }
 
     private ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
@@ -193,9 +193,9 @@ public class UserController {
             return ResponseEntity.status(409).body(ERROR_STR + user.getEmail() + " is already used by another user");
         if(!EmailValidator.getInstance().isValid(user.getEmail()))
             return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
-        if(isNumericString(user.getTime()) || user.getTime().length() != 5)
+        if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
             return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
-        if(isNumericString(cost))
+        if(!isNumericString(cost))
             return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s cost '" + cost + "' is not valid");
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         Role roleRepo = roleService.findRoleByRoleName(roleKey);

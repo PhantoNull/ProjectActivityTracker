@@ -113,7 +113,7 @@ public class ProjectController {
             return ResponseEntity.badRequest().body("ERROR: Team '" + teamKey + "' not found");
         else if(userService.findUserByUsername(projectManagerKey) == null)
             return ResponseEntity.badRequest().body("ERROR: ProjectManager '" + projectManagerKey + "' not found");
-        else if(clientService.findClientByClient(clientKey) == null)
+        else if(clientService.findClientByClientKey(clientKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Client '" + clientKey + "' not found");
         else if(projectTypeService.findProjectTypeByProjectType(projectTypeKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Project Type '" + projectTypeKey + "' not found");
@@ -127,7 +127,7 @@ public class ProjectController {
                                    @RequestParam("projectType") String projectTypeKey) {
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         User userRepo = userService.findUserByUsername(projectManagerKey);
-        Client clientRepo = clientService.findClientByClient(clientKey);
+        Client clientRepo = clientService.findClientByClientKey(clientKey);
         ProjectType projectTypeRepo = projectTypeService.findProjectTypeByProjectType(projectTypeKey);
         project.setProjectManager(userRepo);
         project.setTeam(teamRepo);

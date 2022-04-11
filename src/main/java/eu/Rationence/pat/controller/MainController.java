@@ -43,12 +43,6 @@ public class MainController {
         return "index";
     }
 
-    @GetMapping ("/teams")
-    public String teams(Model model) {
-        model.addAttribute("listaTeams", teamService.findAll());
-        return "teams";
-    }
-
     @GetMapping("/login")
     public String login() {
         return "login";
