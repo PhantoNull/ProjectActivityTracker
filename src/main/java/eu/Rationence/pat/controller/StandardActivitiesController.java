@@ -95,7 +95,6 @@ public class StandardActivitiesController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleBadRequestException(Exception e) {
-        System.out.println(e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ERROR_STR + "Empty input or mismatched input type");
