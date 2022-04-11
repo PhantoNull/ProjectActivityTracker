@@ -164,7 +164,7 @@ public class UserController {
             if(userRepo == null)
                 return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
             userService.deleteUserByUsername(user.getUsername());
-            return ResponseEntity.ok("'" + user.getUsername() + "' succesfully deleted.");
+            return ResponseEntity.ok("'" + user.getUsername() + "' successfully deleted.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

@@ -79,7 +79,7 @@ public class TeamController {
             if(teamRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
             teamService.saveTeam(team);
-            return ResponseEntity.ok("Team '" + team.getTeamName() + "' saved.");
+            return ResponseEntity.ok("Team '" + team.getTeamName() + "' updated.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -97,7 +97,7 @@ public class TeamController {
             if(teamRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
             teamService.deleteTeamByTeamName(team.getTeamName());
-            return ResponseEntity.ok("Team '" + team.getTeamName() + "' succesfully deleted.");
+            return ResponseEntity.ok("Team '" + team.getTeamName() + "' successfully deleted.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -108,7 +108,6 @@ public class TeamController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleBadRequestException(Exception e) {
-        System.out.println(e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ERROR_STR + "Empty input or mismatched input type");
