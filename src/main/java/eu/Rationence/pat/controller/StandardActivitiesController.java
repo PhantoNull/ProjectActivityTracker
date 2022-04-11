@@ -84,7 +84,7 @@ public class StandardActivitiesController {
             if(stdActRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
             standardActivityService.deleteStandardActivityByStandardActivityKey(stdAct.getActivityKey());
-            return ResponseEntity.ok("Team '" + stdAct.getActivityKey() + "' succesfully deleted.");
+            return ResponseEntity.ok("Team '" + stdAct.getActivityKey() + "' successfully deleted.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
