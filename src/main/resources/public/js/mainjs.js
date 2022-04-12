@@ -18,20 +18,6 @@ function hideModal(id){
     document.getElementById(id).classList.remove('is-active');
 }
 
-var tableRowList = [];
-function selectTableRow(id){
-    tableRowList[id] = !tableRowList[id];
-    if(tableRowList[id]){
-        document.getElementById("row"+id).classList.add('is-selected');
-        console.log("attivata "+ id);
-    }
-    else{
-        document.getElementById("row"+id).classList.remove('is-selected');
-        console.log("disattivata " +id);
-    }
-
-}
-
 mybutton = document.getElementById("button-back-top");
 window.onscroll = function() {scrollFunction()};
 

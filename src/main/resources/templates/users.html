@@ -5,6 +5,7 @@
 
 <body>
 <script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
     async function action(actionString) {
@@ -94,7 +95,9 @@
         errorelement.innerHTML = error_log;
         showErrorLog(true);
         if (tableChanged === true)
-            setTimeout(function () {window.location.reload(true)}, 3000);
+            setTimeout(function () {
+                window.location.reload(true)
+            }, 3000);
     }
 
     function showConfirm(bool) {
@@ -117,7 +120,7 @@
     }
 
     function filterTableRow() {
-        for (let i = 0; i < 99998; i++) {
+        for (let i = 0; i < 99999; i++) {
             let row = document.getElementById("row" + i);
             if (row != null)
                 row.classList.remove('hidden');
@@ -142,42 +145,7 @@
         }
     }
 
-    function sortTable(column, order) {
-        let table, rows, switching, i, x, y, shouldSwitch;
-        table = document.getElementById("sortableTable");
-        switching = true;
-        i = 3;
-        while (switching) {
-            switching = false;
-            rows = table.rows;
-            for (i = 3; i < (rows.length - 2); i++) {
-                shouldSwitch = false;
-                x = document.getElementById(column + (i-3));
-                y = document.getElementById(column + (i-2));
-                console.log(x);
-                console.log(y);
-                if (order === 'asc') {
-                    if (x.value.toLowerCase() > y.value.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-                else if(order === 'desc'){
-                    if(x.value.toLowerCase() < y.value.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldSwitch) {
-                let row1 = document.getElementById("row" + (i-3));
-                let row2 = document.getElementById("row" + (i-2));
-                console.log("SWAPPATO: " + row2 + "<- " + row1);
-                row1.parentNode.insertBefore(row2, row1);
-                switching = true;
-            }
-        }
-    }
+    let columnList = ["checkbox", "username", "role", "name", "surname", "email", "description", "team", "cost", "time", "enabled"];
 </script>
 
 <section class="">
@@ -370,35 +338,127 @@
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
                                             <th class="usernameCol has-text-primary-dark table-header">
                                                 Username
-                                                <span class="icon has-text-primary is-clickable"
-                                                      data-tooltip="Order Ascending" th:onclick="'sortTable(\'username\',\'asc\');'">
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'username\',\'asc\',columnList);'">
                                                     <i class="fas fa-long-arrow-alt-up table-button"></i>
                                                 </span>
-                                                <span class="icon has-text-primary is-clickable"
-                                                      data-tooltip="Order Descending" th:onclick="'sortTable(\'username\',\'desc\');'">
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'username\',\'desc\', columnList);'">
                                                     <i class="fas fa-long-arrow-alt-down table-button"></i>
                                                 </span>
                                             </th>
-                                            <th class="roleCol has-text-primary-dark table-header">Role</th>
-                                            <th class="nameCol has-text-primary-dark table-header">Name</th>
-                                            <th class="surnameCol has-text-primary-dark table-header">Surname</th>
-                                            <th class="descriptionCol has-text-primary-dark table-header">Description
+                                            <th class="roleCol has-text-primary-dark table-header">Role
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                  data-tooltip="Order Ascending"
+                                                  th:onclick="'sortTable(\'role\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                  data-tooltip="Order Descending"
+                                                  th:onclick="'sortTable(\'role\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
                                             </th>
-                                            <th class="emailCol has-text-primary-dark table-header">Email</th>
-                                            <th class="teamCol has-text-primary-dark table-header">Team</th>
-                                            <th class="costCol has-text-primary-dark table-header">Cost</th>
-                                            <th class="timeCol has-text-primary-dark table-header">Time</th>
-                                            <th class="enabledCol has-text-primary-dark table-header">Enabled</th>
+                                            <th class="nameCol has-text-primary-dark table-header">Name
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'name\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'name\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+                                            <th class="surnameCol has-text-primary-dark table-header">Surname
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'surname\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'surname\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+                                            <th class="descriptionCol has-text-primary-dark table-header">Description
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'description\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'description\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+                                            <th class="emailCol has-text-primary-dark table-header">Email
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'email\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'email\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+                                            <th class="teamCol has-text-primary-dark table-header">Team
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'team\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'team\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+                                            <th class="costCol has-text-primary-dark table-header">Cost
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'cost\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'cost\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
+
+                                            <th class="timeCol has-text-primary-dark table-header">Time
+                                            </th>
+                                            <th class="enabledCol has-text-primary-dark table-header">Enabled
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Ascending"
+                                                      th:onclick="'sortTable(\'enabled\',\'asc\',columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-up table-button"></i>
+                                                </span>
+                                                <span class="icon has-text-primary is-clickable sort-icon"
+                                                      data-tooltip="Order Descending"
+                                                      th:onclick="'sortTable(\'enabled\',\'desc\', columnList);'">
+                                                    <i class="fas fa-long-arrow-alt-down table-button"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                         <!-- Data rows -->
                                         <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                        <form th:each="user,iter : ${listaUtenti}"  th:action="@{/updateuser}" th:id="form+${iter.index}"
-                                              th:object="${user}" method="post">
-                                            <tr th:id="row+${iter.index}">
+                                        <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
+                                            <form th:action="@{/updateuser}" th:id="form+${iter.index}"
+                                                  th:object="${user}" method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" th:id="pass + ${iter.index}"
                                                            name="passwordHash" value="fake">
-                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
@@ -479,8 +539,9 @@
                                                         </select>
                                                     </div>
                                                 </td>
+                                            </form>
                                         </tr>
-                                        </form>
+
                                         <!--new user form-->
                                         <tr id="row99999">
                                             <form th:action="@{/adduser}" id="form99999" th:object="${user}"
