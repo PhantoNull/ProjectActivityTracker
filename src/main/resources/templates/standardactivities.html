@@ -13,7 +13,7 @@
         if (tableRowList.every(v => v === false))
             return 1;
         switch (actionString) {
-            case 'saveTeams':
+            case 'saveStandardActivities':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
 
@@ -23,7 +23,7 @@
                         }
                         console.log(data);
                         if (index !== "99999")
-                            await fetch("/teams", {method: 'PUT', body: data})
+                            await fetch("/standardactivities", {method: 'PUT', body: data})
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
@@ -35,7 +35,7 @@
                                 })
                                 .catch(error => console.log(error));
                         else
-                            await fetch("/teams", {method: 'POST', body: data})
+                            await fetch("/standardactivities", {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
@@ -51,12 +51,12 @@
                     }
                 }
                 break;
-            case 'deleteTeams':
+            case 'deleteStandardActivities':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
                         if (index != "99999")
-                            await fetch("/teams", {method: 'DELETE', body: data})
+                            await fetch("/standardactivities", {method: 'DELETE', body: data})
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
@@ -107,14 +107,14 @@
             else
                 break;
         }
-        let tableColumnList = ["TeamName", "TeamDesc", "TeamAdmin"];
+        let tableColumnList = ["StdActivityKey", "Internal", "Waged"];
         for (let columnKey of tableColumnList) {
             let columnInputs = document.getElementsByClassName("f" + columnKey);
             let filterValue = document.getElementById(columnKey + "filter").value;
             for (let columnInput of columnInputs) {
                 let parentTableRow;
                 //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "TeamAdmin")
+                if (columnKey === "Internal" || columnKey === "Waged")
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;
@@ -146,11 +146,11 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="/teams">
+                                    <a href="/standardactivities">
                                     <span class="icon is-medium">
-                                      <i class="fas fa-users" aria-hidden="true"></i>
+                                      <i class="fas fa-calendar-check" aria-hidden="true"></i>
                                     </span>
-                                        <span>Teams</span>
+                                        <span>StandardActivities</span>
                                     </a>
                                 </li>
                             </ul>
@@ -159,7 +159,7 @@
                     <div class="level-right">
                         <div class="level-item">
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
-                                  th:onclick="'action(\'saveTeams\');'">
+                                  th:onclick="'action(\'saveStandardActivities\');'">
                                   <i class="fas fa-save fa-2x table-button"></i>
                                 </span>
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
@@ -194,7 +194,7 @@
                     <div class="level m-0">
                         <div class="level-left">
                             <div class="level-item">
-                                <p>Do you really want to delete selected teams?</p>
+                                <p>Do you really want to delete selected Standard-Activities?</p>
                             </div>
                         </div>
                     </div>
@@ -202,13 +202,13 @@
                         <div class="level-left">
                             <div class="level-item">
                                 <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
-                                    and will erase all team-related data.</p>
+                                    and will erase all Standard-Activity related data.</p>
                             </div>
                         </div>
                         <div class="level-right">
                             <div class="level-item">
                                 <button class="button is-danger"
-                                        th:onclick="'action(\'deleteTeams\'), showConfirm(false);'">Continue
+                                        th:onclick="'action(\'deleteStandardActivities\'), showConfirm(false);'">Continue
                                 </button>
                                 <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                             </div>
@@ -219,14 +219,14 @@
 
                 <article class="message is-primary">
                     <div class="message-header">
-                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Team Management</p>
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Standard Activities Management</p>
                     </div>
                     <div class="message-body">
                         <div class="columns is-centered">
                             <div class="column">
 
                                 <div class="table__wrapper">
-                                    <table id="sortableTable" class="mx-auto">
+                                    <table id="sortableTable">
                                         <!-- Search Filter -->
                                         <tr>
                                             <th></th>
@@ -238,23 +238,27 @@
                                             </td>
                                             <td>
                                                 <input class="input has-text-primary has-text-weight-semibold"
-                                                       th:id="TeamNamefilter" name="teamName" type="text"
-                                                       placeholder="" maxlength="5" required
-                                                       th:onkeyup="'filterTableRow()'">
-                                            </td>
-                                            <td>
-                                                <input class="input fteamDesc" id="TeamDescfilter" name="teamDesc"
-                                                       type="text" placeholder="" maxlength="32" required
+                                                       th:id="StdActivityKeyfilter" name="StdActivityKey" type="text"
+                                                       placeholder="" maxlength="32" required
                                                        th:onkeyup="'filterTableRow()'">
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="TeamAdminfilter" name="teamAdmin"
-                                                            class="width200 fTeamAdmin" th:onchange="'filterTableRow()'">
-                                                        <option th:value="ALL">ALL</option>
-                                                        <option th:each="user : ${userList}"
-                                                                th:value="${user.username}"
-                                                                th:text="${user.username}"></option>
+                                                    <select th:id="Internalfilter" name="Internal" class="width80"
+                                                            th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option value="true">yes</option>
+                                                        <option value="false">no</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Wagedfilter" name="Waged" class="width80"
+                                                            th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option value="true">yes</option>
+                                                        <option value="false">no</option>
                                                     </select>
                                                 </div>
                                             </td>
@@ -262,38 +266,44 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="teamNameCol has-text-primary-dark table-header">Team Key</th>
-                                            <th class="teamDescCol has-text-primary-dark table-header">Description</th>
-                                            <th class="surnameCol has-text-primary-dark table-header">Team Admin</th>
+                                            <th class="emailCol has-text-primary-dark table-header">Standard Activity</th>
+                                            <th class="enabledCol has-text-primary-dark table-header">Waged</th>
+                                            <th class="enabledCol has-text-primary-dark table-header">Internal</th>
                                         </tr>
                                         <!-- Data rows -->
-                                        <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
-                                            <form th:action="@{/updateteam}" th:id="form+${iter.index}"
-                                                  th:object="${team}" method="post">
+                                        <tr th:each="activity,iter : ${stdActivityList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/standardactivities}" th:id="form+${iter.index}"
+                                                  th:object="${stdAct}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
-                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fTeamName"
-                                                           th:id="teamName + ${iter.index}" name="teamName" type="text"
-                                                           th:value="${team.teamName}"
-                                                           th:placeholder="${team.teamName}" maxlength="5" required
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fStdActivityKey"
+                                                           th:id="stdActivityKey + ${iter.index}" name="activityKey" type="text"
+                                                           th:value="${activity.activityKey}"
+                                                           th:placeholder="${activity.activityKey}" maxlength="32" required
                                                            readonly>
                                                 </td>
                                                 <td>
-                                                    <input class="input fTeamDesc" th:id="teamDesc + ${iter.index}" name="teamDesc"
-                                                           type="text" th:value="${team.teamDesc}"
-                                                           th:placeholder="${team.teamDesc}" maxlength="32" required>
+                                                    <div class="select">
+                                                        <select th:id="stdActivityInternal + ${iter.index}" name="internal"
+                                                                class="width80 fInternal">
+                                                            <option th:selected="${activity.internal}" value="true">yes
+                                                            </option>
+                                                            <option th:selected="${!activity.internal}" value="false">no
+                                                            </option>
+                                                        </select>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="teamAdmin + ${iter.index}" name="teamAdmin"
-                                                                class="width200 fTeamAdmin">
-                                                            <option name="teamAdmin" th:each="user : ${userList}"
-                                                                    th:selected="${team.teamAdmin == user.username}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
+                                                        <select th:id="stdActivityWaged + ${iter.index}" name="waged"
+                                                                class="width80 fWaged">
+                                                            <option th:selected="${activity.waged}" value="true">yes
+                                                            </option>
+                                                            <option th:selected="${!activity.waged}" value="false">no
+                                                            </option>
                                                         </select>
                                                     </div>
                                                 </td>
@@ -301,8 +311,10 @@
                                         </tr>
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/addTeam}" id="form99999" th:object="${team}"
+                                            <!--/*@thymesVar id="stdAct" type=""*/-->
+                                            <form th:action="@{/standardactivities}" id="form99999" th:object="${stdAct}"
                                                   method="post">
+
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input id="checkboxadd"
                                                            th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
@@ -310,19 +322,22 @@
                                                 </td>
                                                 <td>
                                                     <input class="input has-text-primary has-text-weight-semibold"
-                                                           th:id="usernameaddteam" name="teamName" type="text"
-                                                           placeholder="" maxlength="5" required>
-                                                </td>
-                                                <td>
-                                                    <input class="input" th:id="descaddteam" name="teamDesc" type="text"
-                                                           placeholder="" maxlength="128" required>
+                                                           th:id="activityKeyaddStdActivity" name="activityKey" type="text"
+                                                           placeholder="" maxlength="32" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="teamAdminaddteam" name="teamAdmin" class="width200">
-                                                            <option th:each="user : ${userList}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
+                                                        <select th:id="internaladdstdactivity" name="internal" class="width80">
+                                                            <option value="true">yes</option>
+                                                            <option value="false">no</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="wagedaddstdactivity" name="waged" class="width80">
+                                                            <option value="true">yes</option>
+                                                            <option value="false">no</option>
                                                         </select>
                                                     </div>
                                                 </td>
