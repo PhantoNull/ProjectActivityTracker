@@ -392,9 +392,9 @@
                                         </tr>
                                         <!-- Data rows -->
                                         <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                        <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
-                                            <form th:action="@{/updateuser}" th:id="form+${iter.index}"
-                                                  th:object="${user}" method="post">
+                                        <form th:each="user,iter : ${listaUtenti}"  th:action="@{/updateuser}" th:id="form+${iter.index}"
+                                              th:object="${user}" method="post">
+                                            <tr th:id="row+${iter.index}">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" th:id="pass + ${iter.index}"
                                                            name="passwordHash" value="fake">
@@ -479,8 +479,8 @@
                                                         </select>
                                                     </div>
                                                 </td>
-                                            </form>
                                         </tr>
+                                        </form>
                                         <!--new user form-->
                                         <tr id="row99999">
                                             <form th:action="@{/adduser}" id="form99999" th:object="${user}"

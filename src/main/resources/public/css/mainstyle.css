@@ -100,7 +100,8 @@ th.usernameCol{width:180px; !important}
 th.nameCol, th.teamNameCol{width:100px; !important}
 th.surnameCol{width:120px; !important}
 th.descriptionCol{width:220px; !important}
-th.emailCol, th.teamDescCol{width:300px; !important}
+th.emailCol{width: 300px; !important}
+th.teamDescCol{width: 350px; !important}
 th.timeCol{width:80px; !important}
 th.roleCol, th.teamCol, th.costCol{width:80px; !important}
 .width110{width:110px; !important}

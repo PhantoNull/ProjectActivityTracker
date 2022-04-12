@@ -29,17 +29,17 @@ public class StandardActivitiesController {
 
     @GetMapping ("/standardactivities")
     public String teams(Model model, Principal principal) {
-        model.addAttribute("stdActivitiesList", standardActivityService.findAll());
+        model.addAttribute("stdActivityList", standardActivityService.findAll());
         String username = principal.getName();
         User userRepo = userService.findUserByUsername(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
-        return "teams";
+        return "standardactivities";
     }
 
     @PostMapping("/standardactivities")
-    public ResponseEntity<String> addTeam(@Valid StandardActivity stdAct,
-                                          BindingResult result){
+    public ResponseEntity<String> addStdActivity(@Valid StandardActivity stdAct,
+                                                BindingResult result){
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
@@ -57,8 +57,8 @@ public class StandardActivitiesController {
     }
 
     @PutMapping("/standardactivities")
-    public ResponseEntity<String> updateTeam(@Valid StandardActivity stdAct,
-                                             BindingResult result){
+    public ResponseEntity<String> updateStdActivity(@Valid StandardActivity stdAct,
+                                                    BindingResult result){
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
@@ -75,8 +75,8 @@ public class StandardActivitiesController {
     }
 
     @DeleteMapping("/standardactivities")
-    public ResponseEntity<String> deleteTeam(@Valid StandardActivity stdAct,
-                                             BindingResult result){
+    public ResponseEntity<String> deleteStdActivity(@Valid StandardActivity stdAct,
+                                                    BindingResult result){
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());

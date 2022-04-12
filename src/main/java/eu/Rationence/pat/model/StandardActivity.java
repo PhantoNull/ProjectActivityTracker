@@ -18,7 +18,7 @@ import java.util.Objects;
  public class StandardActivity implements Serializable {
 
      @Id
-     @Column(name="c_Activity", length=16, unique = true, nullable = false)
+     @Column(name="c_Activity", length=32, unique = true, nullable = false)
      private String activityKey;
 
      @Column(name="f_Internal", nullable = false)
