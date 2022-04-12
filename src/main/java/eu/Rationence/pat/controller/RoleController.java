@@ -58,5 +58,4 @@ public class RoleController {
                     .body("ERROR : " + e.getMessage());
         }
     }
-
 }

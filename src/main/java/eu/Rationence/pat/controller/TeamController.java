@@ -42,9 +42,6 @@ public class TeamController {
                                           @RequestParam(value="teamAdmin") String teamAdminKey,
                                           BindingResult result){
         try{
-            System.out.println("____________________");
-            System.out.println(team);
-            System.out.println("____________________");
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
             else if(team.getTeamName().length() < 1)
