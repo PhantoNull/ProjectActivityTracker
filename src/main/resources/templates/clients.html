@@ -5,6 +5,7 @@
 
 <body>
 <script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
     async function action(actionString) {
@@ -16,7 +17,6 @@
             case 'saveClients':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
-
                         let data = new FormData(document.getElementById("form" + index));
                         for (let value of data.values()) {
                             console.log(value);

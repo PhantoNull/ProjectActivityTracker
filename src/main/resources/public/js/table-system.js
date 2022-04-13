@@ -1,6 +1,7 @@
 
 var tableRowList = [];
 tableRowList['add'] = false;
+
 function selectTableRow(id){
     tableRowList[id] = !tableRowList[id];
     if(tableRowList[id]){
@@ -66,7 +67,7 @@ function showConfirm(bool) {
     let elem = document.getElementById("confirm-delete");
     if (bool && !tableRowList.every(v => v === false)) {
         tableRowList['99999'] = false;
-        document.getElementById("checkboxadduser").checked = false;
+        document.getElementById("checkboxadd").checked = false;
         if (!tableRowList.every(v => v === false))
             elem.style.display = "block";
     } else
