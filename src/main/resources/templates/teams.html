@@ -17,7 +17,6 @@
             case 'saveTeams':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
-
                         let data = new FormData(document.getElementById("form" + index));
                         for (let value of data.values()) {
                             console.log(value);
@@ -79,25 +78,6 @@
         showErrorLog(true);
         if (tableChanged === true)
             setTimeout(function () {window.location.reload(true)}, 3000);
-    }
-
-    function showConfirm(bool) {
-        let elem = document.getElementById("confirm-delete");
-        if (bool && !tableRowList.every(v => v === false)) {
-            tableRowList['99999'] = false;
-            document.getElementById("checkboxadd").checked = false;
-            if (!tableRowList.every(v => v === false))
-                elem.style.display = "block";
-        } else
-            elem.style.display = "none";
-    }
-
-    function showErrorLog(bool) {
-        let elem = document.getElementById("error-log");
-        if (bool)
-            elem.style.display = "block";
-        else
-            elem.style.display = "none";
     }
 
     function filterTableRow() {

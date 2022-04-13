@@ -81,25 +81,6 @@
             setTimeout(function () {window.location.reload(true)}, 3000);
     }
 
-    function showConfirm(bool) {
-        let elem = document.getElementById("confirm-delete");
-        if (bool && !tableRowList.every(v => v === false)) {
-            tableRowList['99999'] = false;
-            document.getElementById("checkboxadd").checked = false;
-            if (!tableRowList.every(v => v === false))
-                elem.style.display = "block";
-        } else
-            elem.style.display = "none";
-    }
-
-    function showErrorLog(bool) {
-        let elem = document.getElementById("error-log");
-        if (bool)
-            elem.style.display = "block";
-        else
-            elem.style.display = "none";
-    }
-
     function filterTableRow() {
         for (let i = 0; i < 99998; i++) {
             let row = document.getElementById("row" + i);
@@ -227,7 +208,7 @@
                             <div class="column">
 
                                 <div class="table__wrapper">
-                                    <table id="sortableTable">
+                                    <table id="sortableTable" class="mx-auto">
                                         <!-- Search Filter -->
                                         <tr>
                                             <th></th>

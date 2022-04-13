@@ -62,3 +62,21 @@ function sortTable(column, order, columnList) {
         }
     }
 }
+function showConfirm(bool) {
+    let elem = document.getElementById("confirm-delete");
+    if (bool && !tableRowList.every(v => v === false)) {
+        tableRowList['99999'] = false;
+        document.getElementById("checkboxadduser").checked = false;
+        if (!tableRowList.every(v => v === false))
+            elem.style.display = "block";
+    } else
+        elem.style.display = "none";
+}
+
+function showErrorLog(bool) {
+    let elem = document.getElementById("error-log");
+    if (bool)
+        elem.style.display = "block";
+    else
+        elem.style.display = "none";
+}
