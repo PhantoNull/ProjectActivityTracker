@@ -271,7 +271,8 @@
                                             <form th:action="@{/updateclient}" th:id="form+${iter.index}"
                                                   th:object="${client}" method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
-                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>

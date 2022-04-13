@@ -8,6 +8,8 @@
 <script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
+    let columnList = ["checkbox", "teamName", "teamDesc", "teamAdmin"];
+
     async function action(actionString) {
         let error_log = "";
         let tableChanged = false;
@@ -252,7 +254,8 @@
                                             <form th:action="@{/updateteam}" th:id="form+${iter.index}"
                                                   th:object="${team}" method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
-                                                    <input th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
