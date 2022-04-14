@@ -284,8 +284,8 @@
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
-                                            <form th:action="@{/updateteam}" th:id="form+${iter.index}"
-                                                  th:object="${team}" method="post">
+                                            <form th:action="@{/teams}" th:id="form+${iter.index}"
+                                                  th:object="${team}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
@@ -318,7 +318,7 @@
                                         </tr>
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/addTeam}" id="form99999" th:object="${team}"
+                                            <form th:action="@{/teams}" id="form99999" th:object="${team}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input id="checkboxadd"
