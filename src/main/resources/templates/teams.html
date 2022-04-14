@@ -245,9 +245,42 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="teamNameCol has-text-primary-dark table-header">Team Key</th>
-                                            <th class="teamDescCol has-text-primary-dark table-header">Description</th>
-                                            <th class="surnameCol has-text-primary-dark table-header">Team Admin</th>
+                                            <th class="teamNameCol has-text-primary-dark table-header">Team Key
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamName\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamName\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="teamDescCol has-text-primary-dark table-header">Description
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamDesc\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamDesc\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="surnameCol has-text-primary-dark table-header">Team Admin
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamAdmin\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamAdmin\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
