@@ -8,6 +8,8 @@
 <script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
+    let columnList = ["checkbox", "stdActivityKey", "stdActivityWaged", "stdActivityInternal"];
+
     async function action(actionString) {
         let error_log = "";
         let tableChanged = false;
@@ -89,14 +91,14 @@
             else
                 break;
         }
-        let tableColumnList = ["StdActivityKey", "Internal", "Waged"];
+        let tableColumnList = ["StdActivityKey", "Waged", "Internal"];
         for (let columnKey of tableColumnList) {
             let columnInputs = document.getElementsByClassName("f" + columnKey);
             let filterValue = document.getElementById(columnKey + "filter").value;
             for (let columnInput of columnInputs) {
                 let parentTableRow;
                 //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "Internal" || columnKey === "Waged")
+                if (columnKey === "Waged" || columnKey === "Internal")
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;
@@ -226,7 +228,7 @@
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="Internalfilter" name="Internal" class="width80"
+                                                    <select th:id="Wagedfilter" name="Waged" class="width80"
                                                             th:onchange="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option value="true">yes</option>
@@ -236,7 +238,7 @@
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="Wagedfilter" name="Waged" class="width80"
+                                                    <select th:id="Internalfilter" name="Internal" class="width80"
                                                             th:onchange="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option value="true">yes</option>
@@ -244,13 +246,47 @@
                                                     </select>
                                                 </div>
                                             </td>
+
                                         </tr>
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="emailCol has-text-primary-dark table-header">Standard Activity</th>
-                                            <th class="enabledCol has-text-primary-dark table-header">Waged</th>
-                                            <th class="enabledCol has-text-primary-dark table-header">Internal</th>
+                                            <th class="emailCol has-text-primary-dark table-header">Standard Activity
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityKey\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityKey\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="enabledCol has-text-primary-dark table-header">Waged
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityWaged\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityWaged\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="enabledCol has-text-primary-dark table-header">Internal
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Ascending">
+                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityInternal\',\'asc\',columnList);'"></i>
+                                                </span>
+                                                <span class="icon has-text-primary sort-icon"
+                                                      data-tooltip="Order Descending">
+                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
+                                                       th:onclick="'sortTable(\'stdActivityInternal\',\'desc\',columnList);'"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="activity,iter : ${stdActivityList}" th:id="row+${iter.index}">
@@ -270,22 +306,22 @@
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="stdActivityInternal + ${iter.index}" name="internal"
-                                                                class="width80 fInternal">
-                                                            <option th:selected="${activity.internal}" value="true">yes
+                                                        <select th:id="stdActivityWaged + ${iter.index}" name="waged"
+                                                                class="width80 fWaged">
+                                                            <option th:selected="${activity.waged}" value="true">yes
                                                             </option>
-                                                            <option th:selected="${!activity.internal}" value="false">no
+                                                            <option th:selected="${!activity.waged}" value="false">no
                                                             </option>
                                                         </select>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="stdActivityWaged + ${iter.index}" name="waged"
-                                                                class="width80 fWaged">
-                                                            <option th:selected="${activity.waged}" value="true">yes
+                                                        <select th:id="stdActivityInternal + ${iter.index}" name="internal"
+                                                                class="width80 fInternal">
+                                                            <option th:selected="${activity.internal}" value="true">yes
                                                             </option>
-                                                            <option th:selected="${!activity.waged}" value="false">no
+                                                            <option th:selected="${!activity.internal}" value="false">no
                                                             </option>
                                                         </select>
                                                     </div>
