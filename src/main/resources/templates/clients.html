@@ -265,39 +265,24 @@
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
                                             <th class="clientKeyCol has-text-primary-dark table-header">Client Key
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Ascending">
-                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientKey\',\'asc\',columnList);'"></i>
-                                                </span>
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Descending">
-                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientKey\',\'desc\',columnList);'"></i>
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientKey\',columnList);'"></i>
                                                 </span>
                                             </th>
                                             <th class="clientDescCol has-text-primary-dark table-header">Description
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Ascending">
-                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientDesc\',\'asc\',columnList);'"></i>
-                                                </span>
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Descending">
-                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientDesc\',\'desc\',columnList);'"></i>
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientDesc\',columnList);'"></i>
                                                 </span>
                                             </th>
                                             <th class="clientTypeCol has-text-primary-dark table-header">Client Type
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Ascending">
-                                                    <i class="fas fa-long-arrow-alt-up table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientType\',\'asc\',columnList);'"></i>
-                                                </span>
-                                                <span class="icon has-text-primary sort-icon"
-                                                      data-tooltip="Order Descending">
-                                                    <i class="fas fa-long-arrow-alt-down table-button is-clickable"
-                                                       th:onclick="'sortTable(\'clientType\',\'desc\',columnList);'"></i>
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientType\',columnList);'"></i>
                                                 </span>
                                             </th>
                                         </tr>

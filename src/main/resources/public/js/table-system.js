@@ -14,8 +14,8 @@ function selectTableRow(id){
     }
 
 }
-
-function sortTable(column, order, columnList) {
+let currentOrder = 'desc';
+function sortTable(column, columnList) {
     tableRowList = [];
     let table, rows, switching, i, x, y, shouldSwitch;
     table = document.getElementById("sortableTable");
@@ -29,10 +29,10 @@ function sortTable(column, order, columnList) {
             shouldSwitch = false;
             x = document.getElementById(column + (i - 3));
             y = document.getElementById(column + (i - 2));
-            if (order === 'asc') {
+            if (currentOrder === 'asc') {
                 if (x.value.toLowerCase() > y.value.toLowerCase())
                     shouldSwitch = true;
-            } else if (order === 'desc') {
+            } else if (currentOrder === 'desc') {
                 if (x.value.toLowerCase() < y.value.toLowerCase())
                     shouldSwitch = true;
             }
@@ -62,6 +62,10 @@ function sortTable(column, order, columnList) {
             }
         }
     }
+    if (currentOrder === 'asc')
+        currentOrder = 'desc';
+    else
+        currentOrder = 'asc';
 }
 function showConfirm(bool) {
     let elem = document.getElementById("confirm-delete");
