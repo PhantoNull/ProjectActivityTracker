@@ -31,11 +31,11 @@ public class ProjectController {
 
     @GetMapping ("/projects")
     public String projects(Model model, Principal principal) {
-        model.addAttribute("listaUtenti", userService.findAll());
-        model.addAttribute("listaTeams", teamService.findAll());
-        model.addAttribute("listaProgetti", projectService.findAll());
-        model.addAttribute("listaTipoProgetti", projectTypeService.findAll());
-        model.addAttribute("listaClienti", clientService.findAll());
+        model.addAttribute("userList", userService.findAll());
+        model.addAttribute("teamList", teamService.findAll());
+        model.addAttribute("projectList", projectService.findAll());
+        model.addAttribute("projectTypeList", projectTypeService.findAll());
+        model.addAttribute("clientList", clientService.findAll());
         String username = principal.getName();
         User userRepo = userService.findUserByUsername(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());

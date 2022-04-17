@@ -130,11 +130,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="/teams">
-                                    <span class="icon is-medium">
-                                      <i class="fas fa-users" aria-hidden="true"></i>
-                                    </span>
-                                        <span>Teams</span>
+                                    <a href="/projects">
+                                        <span>Projects</span>
                                     </a>
                                 </li>
                             </ul>
@@ -255,57 +252,75 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="teamNameCol has-text-primary-dark table-header">Team Key
+                                            <th class="teamNameCol has-text-primary-dark table-header">Project Key
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'teamName\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'projectKey\',columnList);'"></i>
                                                 </span>
                                             </th>
                                             <th class="teamDescCol has-text-primary-dark table-header">Description
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'teamDesc\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'projectDesc\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="surnameCol has-text-primary-dark table-header">Team Admin
+                                            <th class="surnameCol has-text-primary-dark table-header">Client
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'teamAdmin\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'client\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="surnameCol has-text-primary-dark table-header">Project Type
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'projectTypeKey\',columnList);'"></i>
                                                 </span>
                                             </th>
                                         </tr>
                                         <!-- Data rows -->
-                                        <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
-                                            <form th:action="@{/teams}" th:id="form+${iter.index}"
-                                                  th:object="${team}" method="put">
+                                        <tr th:each="project,iter : ${projectList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/projects}" th:id="form+${iter.index}"
+                                                  th:object="${project}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
-                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fTeamName"
-                                                           th:id="teamName + ${iter.index}" name="teamName" type="text"
-                                                           th:value="${team.teamName}"
-                                                           th:placeholder="${team.teamName}" maxlength="5" required
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectKey"
+                                                           th:id="projectKey + ${iter.index}" name="projectKey" type="text"
+                                                           th:value="${project.projectKey}"
+                                                           th:placeholder="${project.projectKey}" maxlength="16" required
                                                            readonly>
                                                 </td>
                                                 <td>
-                                                    <input class="input fTeamDesc" th:id="teamDesc + ${iter.index}" name="teamDesc"
-                                                           type="text" th:value="${team.teamDesc}"
-                                                           th:placeholder="${team.teamDesc}" maxlength="32" required>
+                                                    <input class="input fProjectDesc" th:id="projectDesc + ${iter.index}" name="projectDesc"
+                                                           type="text" th:value="${project.projectDesc}"
+                                                           th:placeholder="${project.projectDesc}" maxlength="32" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="teamAdmin + ${iter.index}" name="teamAdmin"
-                                                                class="width200 fTeamAdmin">
-                                                            <option name="teamAdmin" th:each="user : ${userList}"
-                                                                    th:selected="${team.teamAdmin == user.username}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
+                                                        <select th:id="client + ${iter.index}" name="client"
+                                                                class="width200 fClient">
+                                                            <option name="client" th:each="client : ${clientList}"
+                                                                    th:selected="${project.client == client.clientKey}"
+                                                                    th:value="${client.clientKey}"
+                                                                    th:text="${client.clientKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="projectType + ${iter.index}" name="projectType"
+                                                                class="width200 fProjectType">
+                                                            <option name="projectType" th:each="projectType : ${projectTypeList}"
+                                                                    th:selected="${project.projectType == projectType.projectTypeKey}"
+                                                                    th:value="${projectType.projectTypeKey}"
+                                                                    th:text="${projectType.projectTypeKey}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
@@ -313,7 +328,7 @@
                                         </tr>
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/teams}" id="form99999" th:object="${team}"
+                                            <form th:action="@{/projects}" id="form99999" th:object="${project}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input id="checkboxadd"
@@ -322,19 +337,28 @@
                                                 </td>
                                                 <td>
                                                     <input class="input has-text-primary has-text-weight-semibold"
-                                                           th:id="usernameaddteam" name="teamName" type="text"
-                                                           placeholder="" maxlength="5" required>
+                                                           th:id="projectKeyaddProject" name="projectKey" type="text"
+                                                           placeholder="" maxlength="16" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="descaddteam" name="teamDesc" type="text"
-                                                           placeholder="" maxlength="128" required>
+                                                    <input class="input" th:id="descaddProject" name="projectDesc" type="text"
+                                                           placeholder="" maxlength="32" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="teamAdminaddteam" name="teamAdmin" class="width200">
-                                                            <option th:each="user : ${userList}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
+                                                        <select th:id="clientaddProject" name="client" class="width200">
+                                                            <option th:each="client : ${clientList}"
+                                                                    th:value="${client.clientKey}"
+                                                                    th:text="${client.clientKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="projectTypeaddProject" name="projectType" class="width200">
+                                                            <option th:each="projectType : ${projectTypeList}"
+                                                                    th:value="${projectType.projectTypeKey}"
+                                                                    th:text="${projectType.projectTypeKey}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
