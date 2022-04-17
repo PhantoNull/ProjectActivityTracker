@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head th:include="fragments/headFragment.html :: headFragment">
-    <title id="pageTitle">Login Rationence</title>
 </head>
 
 <body>
@@ -9,179 +8,344 @@
 <script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
-    async function saveProjects(){
-        if(tableRowList.every(v => v === false))
+    let columnList = ["checkbox", "teamName", "teamDesc", "teamAdmin"];
+
+    async function action(actionString) {
+        let error_log = "";
+        let tableChanged = false;
+        if (tableRowList.every(v => v === false))
             return 1;
-        for (let index in tableRowList){
-            if(tableRowList[index]){
-                let data = new FormData(document.getElementById("form"+index));
-                for (let value of data.values()) {
-                    console.log(value);
+        switch (actionString) {
+            case 'saveProjects':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        console.log(data);
+                        if (index !== "99999")
+                            await fetch("/projects", {method: 'PUT', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                        else
+                            await fetch("/projects", {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                    }
                 }
-                if (index != "addProject")
-                    await fetch("/updateProject", {method: 'POST', body: data})
-                          .then(response => response.text())
-                        .catch(error => console.log(error));
-                else
-                    await fetch("/addProject", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .catch(error => console.log(error));
-            }
+                break;
+            case 'deleteProjects':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        if (index != "99999")
+                            await fetch("/projects", {method: 'DELETE', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+
+                    }
+                }
+                return window.location.reload(true)
+                break;
         }
-        window.location.reload(true);
+        let errorelement = document.getElementById("error-log-text");
+        errorelement.innerHTML = error_log;
+        showErrorLog(true);
+        if (tableChanged === true)
+            setTimeout(function () {window.location.reload(true)}, 3000);
     }
 
-    async function deleteProjects(){
-        if(tableRowList.every(v => v === false))
-            return 1;
-        for (let index in tableRowList){
-            if(tableRowList[index]){
-                let data = new FormData(document.getElementById("form"+index));
-                for (let value of data.values()) {
-                    console.log(value);
+    function filterTableRow() {
+        for (let i = 0; i < 99998; i++) {
+            let row = document.getElementById("row" + i);
+            if (row != null)
+                row.classList.remove('hidden');
+            else
+                break;
+        }
+        let tableColumnList = ["ProjectKey", "ProjectDesc", "Client", "ProjectType", "DateStart", "DateEnd", "DateClose",
+                                "Team", "ProjectManager", "Value"];
+        for (let columnKey of tableColumnList) {
+            let columnInputs = document.getElementsByClassName("f" + columnKey);
+            let filterValue = document.getElementById(columnKey + "filter").value;
+            for (let columnInput of columnInputs) {
+                let parentTableRow;
+                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
+                if (columnKey === "ProjectType" || columnKey === "Team" || columnKey === "ProjectManager")
+                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                else
+                    parentTableRow = columnInput.parentNode.parentNode;
+                if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
+                    parentTableRow.classList.add('hidden');
                 }
-                if(index != 'addproject')
-                    await fetch("/deleteProject", {method: 'POST', body: data})
-                        .then(response => response.text())
-                        .catch(error => console.log(error));
             }
         }
-        window.location.reload(true);
     }
 </script>
 
-<section class=""> <!--hero is-fullheight-->
-    <div class=""> <!--hero-body-->
-        <div class="container mt-6">
-            <div class="columns">
-                <div class="column">
+<section class="">
+    <div class="container mt-6">
+        <div class="columns">
+            <div class="column" style="min-width:685px;">
 
-                    <div th:include="fragments/authbar.html :: authbar"></div>
+                <div th:include="fragments/authbar.html :: authbar"></div>
 
-                    <div class="level mt-5">
-                        <div class="level-left">
-                            <nav class="breadcrumb is-medium" aria-label="breadcrumbs">
-                                <ul>
-                                    <li>
-                                        <a href="/">
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb has-arrow-separator is-medium level-item" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
                                     <span class="icon is-medium">
                                       <i class="fas fa-home" aria-hidden="true"></i>
                                     </span>
-                                            <span>Home</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/projects">
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/teams">
                                     <span class="icon is-medium">
-                                      <i class="fas fa-sheet-plastic" aria-hidden="true"></i>
+                                      <i class="fas fa-users" aria-hidden="true"></i>
                                     </span>
-                                            <span>Projects</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <span>Teams</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
+                                  th:onclick="'action(\'saveProjects\');'">
+                                  <i class="fas fa-save fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
+                                  th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hidden notification has-background-primary-light">
+                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected teams?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all team-related data.</p>
+                            </div>
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Salva" th:onclick="'saveProjects();'">
-                                  <i class="fas fa-save fa-2x"></i>
-                                </span>
-                                <span class="icon is-large has-text-primary-dark is-clickable" data-tooltip="Elimina" th:onclick="'showConfirm(true);'">
-                                  <i class="fas fa-trash-alt fa-2x"></i>
-                                </span>
+                                <button class="button is-danger"
+                                        th:onclick="'action(\'deleteProjects\'), showConfirm(false);'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                             </div>
                         </div>
                     </div>
-
-                    <div id="confirm-delete" class="hidden notification is-primary">
-                        <button class="delete" th:onclick="'showConfirm(false)'"></button>
-                        <div class="level m-0">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <p>Confermi di voler cancellare i progetti selezionati?</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <p class="has-text-weight-semibold is-underlined ml-2"> Questa operazione sarà irreversibile e cancellerà tutti i dati legati ai progetti.</p>
-                                </div>
-                            </div>
-                            <div class="level-right">
-                                <div class="level-item">
-                                    <button class="button is-danger" th:onclick="'deleteProjects(), showConfirm(false);'">Prosegui</button>
-                                    <button class="button ml-3" th:onclick="'showConfirm(false);'">Annulla</button>
-                                </div>
-
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    <article class="message is-primary ">
-                        <div class="message-header">
-                            <p>Users Control Panel</p>
-                        </div>
-                        <div class="message-body">
-                            <div class="columns is-centered">
-                                <div class="column">
-                                    <div class="table__wrapper">
-                                        <table>
-                                            <tr >
-                                                <th class="checkboxCol"></th>
-                                                <th class="projectCol">Project</th>
-                                                <th class="projectDescCol">Description</th>
-                                                <th class="clientCol">Client</th>
-                                                <th class="projectTypeCol">Type</th>
-                                                <th class="dateCol">Start</th>
-                                                <th class="dateCol">End</th>
-                                                <th class="dateCol">Close</th>
-                                                <th class="teamCol">Team</th>
-                                                <th class="usernameCol">Project Manager</th>
-                                                <th class="projectValueCol">Value</th>
-                                            </tr>
-                                            <!--/*@thymesVar id="listaUtenti" type=""*/-->
-                                            <tr th:each="project,iter : ${listaProgetti}" th:id="riga+${iter.index}">
-                                                <form th:action="@{/updateproject}"  th:id="form+${iter.index}" th:object="${project}" method="post">
-                                                    <td style="text-align:center; vertical-align:middle;">
-                                                        <input th:onclick="'selezionaRigaTabella(\'' + ${iter.index} + '\');'" type="checkbox" class="tablecheckbox">
-                                                    </td>
-                                                    <td>
-                                                        <input class="input has-background-success-light has-text-primary is-primary" th:id="project + ${iter.index}" name="project" type="text" th:value="${project.getProjectKey}" th:placeholder="${project.getProjectKey}" maxlength="16" required readonly>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input" th:id="desc + ${iter.index}" name="description" type="text" th:value="${project.description}" th:placeholder="${project.description}" maxlength="64" required>
-                                                    </td>
-                                                    <td>
-                                                        <div class="select">
-                                                            <select th:id="client + ${iter.index}" name="client" th:selected="${project.client.getClientKey}" class="width110">
-                                                                <option th:each="client : ${listaClienti}" th:selected="${project.client.getClientKey == client.getClientKey}" th:value="${client.getClientKey}" th:text="${client.getClientKey}"></option>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="select">
-                                                             <select th:id="type + ${iter.index}" name="projectType" th:selected="${project.projectType.getProjectTypeKey}" class="width110">
-                                                                 <option th:each="projectType : ${listaTipoProgetti}" th:selected="${project.projectType.getProjectTypeKey == projectType.getProjectTypeKey}" th:value="${projectType.getProjectTypeKey}" th:text="${projectType.getProjectTypeKey}"></option>
-                                                             </select>
-                                                        </div>
-                                                    </td>
-
-                                                </form>
-                                            </tr>
-                                            <!--new project form-->
-
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-
                 </div>
+
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Project Management</p>
+                    </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
+                                <div class="table__wrapper">
+                                    <table id="sortableTable" class="mx-auto">
+                                        <!-- Search Filter -->
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter">
+                                            <td style="text-align:center; vertical-align:middle;">
+
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="ProjectKeyfilter" name="projectKey" type="text"
+                                                       placeholder="" maxlength="16" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input fteamDesc" id="ProjectDescfilter" name="projectDesc"
+                                                       type="text" placeholder="" maxlength="32" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Clientfilter" name="client"
+                                                            class="width200 fClient" th:onchange="'filterTableRow()'">
+                                                        <option th:value="ALL">ALL</option>
+                                                        <option th:each="client : ${clientList}"
+                                                                th:value="${client.clientKey}"
+                                                                th:text="${client.clientKey}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="ProjectTypefilter" name="projectType"
+                                                            class="width200 fProjectType" th:onchange="'filterTableRow()'">
+                                                        <option th:value="ALL">ALL</option>
+                                                        <option th:each="projectType : ${projectTypeList}"
+                                                                th:value="${projectType.projectTypeKey}"
+                                                                th:text="${projectType.projectTypeKey}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- header table -->
+                                        <tr class="table-header">
+                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="teamNameCol has-text-primary-dark table-header">Team Key
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamName\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="teamDescCol has-text-primary-dark table-header">Description
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamDesc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="surnameCol has-text-primary-dark table-header">Team Admin
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'teamAdmin\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                        </tr>
+                                        <!-- Data rows -->
+                                        <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/teams}" th:id="form+${iter.index}"
+                                                  th:object="${team}" method="put">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fTeamName"
+                                                           th:id="teamName + ${iter.index}" name="teamName" type="text"
+                                                           th:value="${team.teamName}"
+                                                           th:placeholder="${team.teamName}" maxlength="5" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input fTeamDesc" th:id="teamDesc + ${iter.index}" name="teamDesc"
+                                                           type="text" th:value="${team.teamDesc}"
+                                                           th:placeholder="${team.teamDesc}" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="teamAdmin + ${iter.index}" name="teamAdmin"
+                                                                class="width200 fTeamAdmin">
+                                                            <option name="teamAdmin" th:each="user : ${userList}"
+                                                                    th:selected="${team.teamAdmin == user.username}"
+                                                                    th:value="${user.username}"
+                                                                    th:text="${user.username}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        <!--new team form-->
+                                        <tr id="row99999">
+                                            <form th:action="@{/teams}" id="form99999" th:object="${team}"
+                                                  method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input id="checkboxadd"
+                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-primary has-text-weight-semibold"
+                                                           th:id="usernameaddteam" name="teamName" type="text"
+                                                           placeholder="" maxlength="5" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="descaddteam" name="teamDesc" type="text"
+                                                           placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="teamAdminaddteam" name="teamAdmin" class="width200">
+                                                            <option th:each="user : ${userList}"
+                                                                    th:value="${user.username}"
+                                                                    th:text="${user.username}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             </div>
         </div>
     </div>
