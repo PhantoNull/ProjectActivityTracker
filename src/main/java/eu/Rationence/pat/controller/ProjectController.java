@@ -43,16 +43,18 @@ public class ProjectController {
         return "projects";
     }
 
-    @PostMapping("/addProject")
-    public ResponseEntity<String> addProject(@Valid Project project,
+    @PostMapping("/projects")
+    public ResponseEntity<String> addProject(Project project,
                                              @RequestParam(value="team") String teamKey ,
                                              @RequestParam(value="projectManager") String projectManagerKey,
                                              @RequestParam(value="client") String clientKey,
-                                             @RequestParam(value="projectType") String projectTypeKey){
+                                             @RequestParam(value="projectType") String projectTypeKey,
+                                             @RequestParam(value="value") String value){
         try{
+            System.out.println(project);
             if(projectService.findProjectByProject(project.getProjectKey()) != null)
                 return ResponseEntity.status(409).body("ERROR: " + project.getProjectKey() + " has been already created");
-            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
+            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
@@ -64,17 +66,21 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/updateProject")
+    @PutMapping("/projects")
     public ResponseEntity<String> updateProject(@Valid Project project,
                                                 @RequestParam(value="team") String teamKey ,
                                                 @RequestParam(value="projectManager") String projectManagerKey,
                                                 @RequestParam(value="client") String clientKey,
-                                                @RequestParam(value="projectType") String projectTypeKey){
+                                                @RequestParam(value="projectType") String projectTypeKey,
+                                                @RequestParam(value="value") String value){
         try{
-            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
+            System.out.println(project);
+            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
             Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
+            if(projectRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Cannot update '" + project.getProjectKey() + "' project. (Project does not exists)");
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
             return ResponseEntity.ok("Project '" + project.getProjectKey() + "' updated.");
         }
@@ -84,7 +90,7 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/deleteProject")
+    @DeleteMapping("/projects")
     public ResponseEntity<String> deleteProject(@Valid Project project){
         try{
             Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
@@ -108,7 +114,9 @@ public class ProjectController {
     }
 
     private ResponseEntity<String> checkProjectValidity(Project project, String teamKey, String projectManagerKey,
-                                                        String clientKey, String projectTypeKey){
+                                                        String clientKey, String projectTypeKey, String value){
+        if(!isNumericString(value))
+            return ResponseEntity.badRequest().body("ERROR: Value must be numeric");
         if(teamService.findTeamByTeamName(teamKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Team '" + teamKey + "' not found");
         else if(userService.findUserByUsername(projectManagerKey) == null)
@@ -134,5 +142,13 @@ public class ProjectController {
         project.setClient(clientRepo);
         project.setProjectType(projectTypeRepo);
         projectService.saveProject(project);
+    }
+
+    private boolean isNumericString(String string){
+        for (int i=0; i< string.length(); i++){
+            if("0123456789".indexOf(string.charAt(i)) == -1)
+                return false;
+        }
+        return true;
     }
 }

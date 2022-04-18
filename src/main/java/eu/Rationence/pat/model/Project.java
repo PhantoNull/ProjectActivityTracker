@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
  @Entity(name = "Project")
@@ -33,17 +34,20 @@ import java.util.Objects;
      @JoinColumn(name = "c_ProjectType", nullable = false, foreignKey = @ForeignKey(name = "fk_ProjectType_Project"))
      private ProjectType projectType;
 
-     @Column(name="d_Start", nullable = false)
-     @DateTimeFormat
-     private String dateStart;
+     @Column(name="d_Start", nullable = false, length=16)
+     @Temporal(TemporalType.DATE)
+     @DateTimeFormat(pattern="yyyy-MM-dd")
+     private Date dateStart;
 
      @Column(name="d_End")
-     @DateTimeFormat
-     private String dateEnd;
+     @Temporal(TemporalType.DATE)
+     @DateTimeFormat(pattern="yyyy-MM-dd")
+     private Date dateEnd;
 
      @Column(name="d_Close")
-     @DateTimeFormat
-     private String dateClose;
+     @Temporal(TemporalType.DATE)
+     @DateTimeFormat(pattern="yyyy-MM-dd")
+     private Date dateClose;
 
      @ManyToOne(fetch=FetchType.LAZY)
      @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_Project"))
@@ -54,7 +58,7 @@ import java.util.Objects;
      private User projectManager;
 
      @Column(name="i_Value", nullable = false)
-     private double value;
+     private int value;
 
      @Override
      public boolean equals(Object o) {

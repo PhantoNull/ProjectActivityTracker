@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Controller
@@ -32,6 +33,8 @@ public class MainController {
     private final ClientTypeService clientTypeService;
     @Autowired
     private final ClientService clientService;
+    @Autowired
+    private final StandardActivityService standardActivityService;
 
 
     @GetMapping ("/")
@@ -59,6 +62,17 @@ public class MainController {
 
     @GetMapping("/initialize")
     public String initialize(){
+        String[] stdNames = {"Stage","Ferie","Rol","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
+                            "Attività Interne", "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
+                            "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
+        boolean[] stdInternal = {true, false, true, false, false, true, true, true, true, false, false, true, true, false, false, false, false, false, false,
+                                 false, false};
+        boolean[] stdWaged = {true, false, true, true, false, true, true, true, false, false, true, false, false, true, false, false, true, true, false, false, false};
+        for(int i = 0; i < stdNames.length; i++){
+            StandardActivity std = StandardActivity.builder().
+                    activityKey(stdNames[i]).internal(stdInternal[i]).waged(stdWaged[i]).build();
+            standardActivityService.saveStdActivity(std);
+        }
 
         Role roleUser = Role.builder()
                 .roleName("USER")
