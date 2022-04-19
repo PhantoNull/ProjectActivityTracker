@@ -21,5 +21,5 @@ public class ProjectTypeService {
         return projectTypeRepository.findAll();
     }
 
-    public ProjectType saveProjectType(ProjectType p){ return projectTypeRepository.save(p);};
+    public ProjectType saveProjectType(ProjectType p){ return projectTypeRepository.save(p);}
 }

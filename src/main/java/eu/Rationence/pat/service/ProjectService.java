@@ -22,7 +22,7 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Project saveProject(Project client){ return projectRepository.save(client);};
+    public Project saveProject(Project client){ return projectRepository.save(client);}
 
     public void deleteProjectByProject(String client){ projectRepository.deleteProjectByProjectKey(client);}
 }
