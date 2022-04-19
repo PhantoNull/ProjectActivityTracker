@@ -24,7 +24,7 @@ public class ActivityService {
 
     public Activity saveActivity(Activity activity){ return activityRepository.save(activity);}
 
-    public void deleteActivityByActitivyKeyAndProject(String string, Project project){
+    public void deleteActivityByActivityKeyAndProject(String string, Project project){
         activityRepository.deleteActivityByActivityKeyAndProject(string, project);
     }
 }
