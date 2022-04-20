@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 
 
 @Controller
@@ -27,6 +28,8 @@ public class ProjectController {
     private final ProjectTypeService projectTypeService;
     @Autowired
     private final ClientService clientService;
+    @Autowired
+    private final ActivityService activityService;
 
 
     @GetMapping ("/projects")
@@ -36,6 +39,11 @@ public class ProjectController {
         model.addAttribute("projectList", projectService.findAll());
         model.addAttribute("projectTypeList", projectTypeService.findAll());
         model.addAttribute("clientList", clientService.findAll());
+        ArrayList<Project> projectList = (ArrayList<Project>) projectService.findAll();
+        for (Project project:projectList) {
+            int activitiesNumber = activityService.findActivitiesByProject(project).size();
+            model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
+        }
         String username = principal.getName();
         User userRepo = userService.findUserByUsername(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());

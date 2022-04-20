@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @AllArgsConstructor
@@ -35,6 +36,12 @@ public class MainController {
     private final ClientService clientService;
     @Autowired
     private final StandardActivityService standardActivityService;
+    @Autowired
+    private final ProjectService projectService;
+    @Autowired
+    private final ActivityTypeService activityTypeService;
+    @Autowired
+    private final ActivityService activityService;
 
 
     @GetMapping ("/")
@@ -61,7 +68,7 @@ public class MainController {
     }
 
     @GetMapping("/initialize")
-    public String initialize(){
+    public String initialize() throws ParseException {
         String[] stdNames = {"Stage","Ferie","Rol","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
                             "Attività Interne", "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
                             "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
@@ -200,8 +207,44 @@ public class MainController {
                 .clientType(clientDirect)
                 .build();
         clientService.saveClient(clientBPER);
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Project orchBPER = Project.builder()
+                .projectKey("BPERORCH22")
+                .projectDesc("Orchestratore BPER")
+                .projectType(projDevp)
+                .client(clientBPER)
+                .projectManager(marcon)
+                .team(devTeam)
+                .dateStart(sdf.parse("2022-04-01"))
+                .dateEnd(sdf.parse("2023-04-01"))
+                .dateClose(sdf.parse("2024-04-01"))
+                .value(15000)
+                .build();
+        projectService.saveProject(orchBPER);
+
+        String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO"};
+        String[] actTypeDescList = {"Project Management", "Analytics", "Development", "Testing", "Bug-Fixing", "Support",
+                                    "Documenting", "Quality", "Application Maintenance", "Training", "Tutoring"};
+        for(int i = 0; i < actTypeKeyList.length; i++){
+            ActivityType aT = ActivityType.builder()
+                    .activityTypeKey(actTypeKeyList[i]).activityTypeDesc(actTypeDescList[i]).build();
+            activityTypeService.saveActivityType(aT);
+        }
+        ActivityType devp = ActivityType.builder().activityTypeKey("DEV").activityTypeDesc("Development").build();
+
+        Activity att = Activity.builder()
+                .projectId(orchBPER.getProjectKey())
+                .project(orchBPER)
+                .activityKey("DEV-22")
+                .activityType(devp)
+                .charged(true)
+                .manDays(500)
+                .dateStart(sdf.parse("2022-04-01"))
+                .build();
+        activityService.saveActivity(att);
         return "login";
     }
-
 
 }

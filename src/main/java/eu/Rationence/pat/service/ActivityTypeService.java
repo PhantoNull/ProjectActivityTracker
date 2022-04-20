@@ -21,5 +21,5 @@ public class ActivityTypeService {
         return activityTypeRepository.findAll();
     }
 
-    public ActivityType saveProjectType(ActivityType a){ return activityTypeRepository.save(a);}
+    public ActivityType saveActivityType(ActivityType a){ return activityTypeRepository.save(a);}
 }

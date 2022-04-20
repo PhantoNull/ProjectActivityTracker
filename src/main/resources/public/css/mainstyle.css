@@ -101,6 +101,7 @@ th.nameCol, th.valueCol{width:120px; !important}
 th.surnameCol{width:120px; !important}
 th.descriptionCol{width:200px; !important}
 th.emailCol, th.teamDescCol, th.clientDescCol{width:300px; !important}
+th.projectDescCol{width:200px; !important}
 th.timeCol{width:80px; !important}
 th.roleCol, th.teamCol, th.costCol{width:80px; !important}
 th.teamNameCol{width: 110px; !important}
