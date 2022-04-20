@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:include="fragments/headFragment.html :: headFragment">
+</head>
+
+<body>
+<script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
+
+
+<section>
+    <div th:each="activity : ${activityList}">
+        <div th:text="${activity}"></div>
+    </div>
+</section>
+
+</body>
+
+</html>
