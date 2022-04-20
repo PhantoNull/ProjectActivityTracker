@@ -39,8 +39,7 @@ public class ProjectController {
         model.addAttribute("projectList", projectService.findAll());
         model.addAttribute("projectTypeList", projectTypeService.findAll());
         model.addAttribute("clientList", clientService.findAll());
-        ArrayList<Project> projectList = (ArrayList<Project>) projectService.findAll();
-        for (Project project:projectList) {
+        for (Project project:projectService.findAll()) {
             int activitiesNumber = activityService.findActivitiesByProject(project).size();
             model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
         }

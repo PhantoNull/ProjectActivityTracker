@@ -211,7 +211,7 @@ public class MainController {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Project orchBPER = Project.builder()
-                .projectKey("BPERORCH22")
+                .projectKey("BPER-ORCH-22")
                 .projectDesc("Orchestratore BPER")
                 .projectType(projDevp)
                 .client(clientBPER)
@@ -244,6 +244,17 @@ public class MainController {
                 .dateStart(sdf.parse("2022-04-01"))
                 .build();
         activityService.saveActivity(att);
+
+        Activity att2 = Activity.builder()
+                .projectId(orchBPER.getProjectKey())
+                .project(orchBPER)
+                .activityKey("DEV-23")
+                .activityType(devp)
+                .charged(true)
+                .manDays(500)
+                .dateStart(sdf.parse("2023-04-01"))
+                .build();
+        activityService.saveActivity(att2);
         return "login";
     }
 

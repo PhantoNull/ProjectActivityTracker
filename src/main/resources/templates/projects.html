@@ -454,8 +454,7 @@
                                                     <a th:href="'/projects/' + ${project.projectKey}">
                                                         <span class="icon has-text-primary mt-2 ml-2" th:data-tooltip="${project.projectKey} + ' Activities'">
                                                             <i class="fas fa-arrow-alt-square-right fa-lg table-button is-clickable"></i>
-                                                            <!--<i class="" th:text="${#{__${project.projectKey}__}+'Activities'}"></i>-->
-                                                            <!--<i th:text="#{__${project.projectKey}__}+'Activities'"></i>-->
+                                                            <i class="ml-1" th:text="${#vars.getVariable('__${project.projectKey}__Activities')}"></i>
                                                         </span>
                                                     </a>
                                                 </td>
