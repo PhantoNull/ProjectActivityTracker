@@ -37,7 +37,7 @@
                                 })
                                 .catch(error => console.log(error));
                         else
-                            await fetch("/projects" + projectKey, {method: 'POST', body: data})
+                            await fetch("/projects/" + projectKey, {method: 'POST', body: data})
                                 .then(response => response.text())
                                 .then(body => {
                                     let span;
@@ -112,7 +112,7 @@
 <section class="">
     <div class="container mt-6">
         <div class="columns">
-            <div class="column" style="min-width:1500px;">
+            <div class="column" style="min-width:970px;">
 
                 <div th:include="fragments/authbar.html :: authbar"></div>
 
@@ -144,7 +144,8 @@
                     <div class="level-right">
                         <div class="level-item">
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
-                                  th:onclick="'action(\'saveActivities\',\'' + ${projectKey} + '\');'">
+                                  th:data-projectKey="${projectKey}"
+                                  th:onclick="action('saveActivities',this.getAttribute('data-projectKey'))">
                                   <i class="fas fa-save fa-2x table-button"></i>
                                 </span>
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
@@ -193,7 +194,8 @@
                         <div class="level-right">
                             <div class="level-item">
                                 <button class="button is-danger"
-                                        th:onclick="'action(\'deleteActivities\',\'' + ${projectKey} + '\');'">Continue
+                                        th:attr="onclick=|action('deleteActivities','${projectKey}')|">
+                                    Continue
                                 </button>
                                 <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                             </div>
@@ -248,7 +250,7 @@
                                             </td>
                                             <td>
                                                 <div class="select">
-                                                    <select th:id="Chargedfilter" name="charged" class="width80"
+                                                    <select th:id="Chargedfilter" name="charged" class="width110"
                                                             th:onchange="'filterTableRow()'">
                                                         <option value="ALL">ALL</option>
                                                         <option value="true">yes</option>
@@ -257,7 +259,7 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <input class="input" id="ManDaysfilter" name="manDays"
+                                                <input class="input has-text-right" id="ManDaysfilter" name="manDays"
                                                        type="number" placeholder="" required
                                                        th:onkeyup="'filterTableRow()'">
                                             </td>
@@ -266,18 +268,18 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="projectKeyCol has-text-primary-dark table-header">Activity
+                                            <th class="activityKeyCol has-text-primary-dark table-header">Activity
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'projectKey\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'activityKey\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="activityTypeCol has-text-primary-dark table-header">Activity Type
+                                            <th class="activityTypeCol has-text-primary-dark table-header">Type
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'activityTypeKey\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'activityType\',columnList);'"></i>
                                                 </span>
                                             </th>
                                             <th class="dateCol has-text-primary-dark table-header">Start Date
@@ -294,14 +296,14 @@
                                                        th:onclick="'sortTable(\'dateEnd\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="usernameCol has-text-primary-dark table-header">Charged
+                                            <th class="chargedCol has-text-primary-dark table-header">Charged
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'charged\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="valueCol has-text-primary-dark table-header">Man Days
+                                            <th class="manDaysCol has-text-primary-dark table-header">Man Days
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
@@ -313,8 +315,9 @@
                                         <!-- Data rows -->
                                         <tr th:each="activity,iter : ${activityList}" th:id="row+${iter.index}">
                                             <form th:action="@{/projects}" th:id="form+${iter.index}"
-                                                  th:object="${project}" method="put">
+                                                  th:object="${activity}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" name="project" th:value="${projectKey}">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
@@ -347,25 +350,37 @@
                                                            th:placeholder="${activity.dateEnd}" required>
                                                 </td>
                                                 <td>
+                                                    <div class="select">
+                                                        <select th:id="charged + ${iter.index}" name="charged"
+                                                                class="width110 fCharged">
+                                                            <option th:selected="${activity.charged}" value="true">yes
+                                                            </option>
+                                                            <option th:selected="${!activity.charged}" value="false">no
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
                                                     <input class="input has-text-right fManDays" th:id="manDays + ${iter.index}" name="manDays"
                                                            type="number" th:value="${activity.manDays}"
                                                            th:placeholder="${activity.manDays}" required>
                                                 </td>
                                                 <td>
                                                     <a th:href="'/projects/' + ${projectKey} + '/'+${activity.activityKey}">
-                                                        <span class="icon has-text-primary mt-2 ml-2" th:data-tooltip="${activity.activityKey} + ' Resources'">
-                                                            <i class="fas fa-arrow-alt-square-right fa-lg table-button is-clickable"></i>
-                                                            <i class="ml-1" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${activity.activityKey} + ' Resources'">
+                                                            <i class="fas fa-arrow-alt-square-right fa-lg is-clickable table-button"></i>
+                                                            <!--<i class="ml-1 has-text-weight-semibold table-button" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>-->
                                                         </span>
                                                     </a>
                                                 </td>
                                             </form>
                                         </tr>
-                                        <!--new team form-->
+                                        <!--new activity form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/projects}" id="form99999" th:object="${project}"
+                                            <form th:action="@{/projects}" id="form99999" th:object="${activity}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" name="project" th:value="${projectKey}">
                                                     <input id="checkboxadd"
                                                            th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
                                                            class="tablecheckbox">
@@ -377,7 +392,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="activityTypeaddProject" name="projectType">
+                                                        <select th:id="activityTypeaddProject" name="activityType">
                                                             <option th:each="activityType : ${activityTypeList}"
                                                                     th:value="${activityType.activityTypeKey}"
                                                                     th:text="${activityType.activityTypeKey}"></option>
@@ -393,29 +408,15 @@
                                                            type="date" required>
                                                 </td>
                                                 <td>
-                                                    <input class="input" th:id="dateCloseaddProject" name="dateClose"
-                                                           type="date" required>
-                                                </td>
-                                                <td>
                                                     <div class="select">
-                                                        <select th:id="teamaddProject" name="team" class="width110">
-                                                            <option th:each="team : ${teamList}"
-                                                                    th:value="${team.teamName}"
-                                                                    th:text="${team.teamName}"></option>
+                                                        <select th:id="chargedAddActivity" name="charged" class="width110">
+                                                            <option value="true">yes</option>
+                                                            <option value="false">no</option>
                                                         </select>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="select width180">
-                                                        <select th:id="projectManageraddProject" name="projectManager">
-                                                            <option th:each="user : ${userList}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <input class="input" th:id="valueaddProject" name="value"
+                                                    <input class="input has-text-right" th:id="manDaysaddProject" name="manDays"
                                                            type="number" required>
                                                 </td>
                                             </form>

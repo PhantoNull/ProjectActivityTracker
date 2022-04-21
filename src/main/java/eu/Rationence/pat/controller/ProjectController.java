@@ -113,7 +113,7 @@ public class ProjectController {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
+    public ResponseEntity<String> handleBadRequestException() {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("ERROR: Empty input or mismatched input type");

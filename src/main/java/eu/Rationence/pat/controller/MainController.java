@@ -208,6 +208,27 @@ public class MainController {
                 .build();
         clientService.saveClient(clientBPER);
 
+        Client clientKNIME = Client.builder()
+                .clientKey("KNIME")
+                .clientDesc("Konstanz Information Miner")
+                .clientType(clientPartner)
+                .build();
+        clientService.saveClient(clientKNIME);
+
+        Client clientCATT = Client.builder()
+                .clientKey("CATT")
+                .clientDesc("Cattolica")
+                .clientType(clientDirect)
+                .build();
+        clientService.saveClient(clientCATT);
+
+        Client clientMICRO = Client.builder()
+                .clientKey("MICRO")
+                .clientDesc("Microstrategy")
+                .clientType(clientPartner)
+                .build();
+        clientService.saveClient(clientMICRO);
+
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Project orchBPER = Project.builder()
@@ -218,11 +239,23 @@ public class MainController {
                 .projectManager(marcon)
                 .team(devTeam)
                 .dateStart(sdf.parse("2022-04-01"))
-                .dateEnd(sdf.parse("2023-04-01"))
-                .dateClose(sdf.parse("2024-04-01"))
+                .dateEnd(sdf.parse("2022-08-01"))
+                .dateClose(sdf.parse("2022-08-21"))
                 .value(15000)
                 .build();
         projectService.saveProject(orchBPER);
+
+        Project bohKNIME = Project.builder()
+                .projectKey("KNIME-BOH-22")
+                .projectDesc("Progetto boh")
+                .projectType(projDevp)
+                .client(clientBPER)
+                .projectManager(disabled)
+                .team(anaTeam)
+                .dateStart(sdf.parse("2022-03-11"))
+                .value(12000)
+                .build();
+        projectService.saveProject(bohKNIME);
 
         String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO"};
         String[] actTypeDescList = {"Project Management", "Analytics", "Development", "Testing", "Bug-Fixing", "Support",
@@ -232,7 +265,8 @@ public class MainController {
                     .activityTypeKey(actTypeKeyList[i]).activityTypeDesc(actTypeDescList[i]).build();
             activityTypeService.saveActivityType(aT);
         }
-        ActivityType devp = ActivityType.builder().activityTypeKey("DEV").activityTypeDesc("Development").build();
+        ActivityType devp = activityTypeService.findActivityTypeByActivityType("DEV");
+        ActivityType ana = activityTypeService.findActivityTypeByActivityType("ANA");
 
         Activity att = Activity.builder()
                 .projectId(orchBPER.getProjectKey())
@@ -248,13 +282,36 @@ public class MainController {
         Activity att2 = Activity.builder()
                 .projectId(orchBPER.getProjectKey())
                 .project(orchBPER)
-                .activityKey("DEV-23")
+                .activityKey("DEV-22b")
                 .activityType(devp)
                 .charged(true)
-                .manDays(500)
-                .dateStart(sdf.parse("2023-04-01"))
+                .manDays(300)
+                .dateStart(sdf.parse("2022-06-01"))
                 .build();
         activityService.saveActivity(att2);
+
+        Activity att3 = Activity.builder()
+                .projectId(orchBPER.getProjectKey())
+                .project(orchBPER)
+                .activityKey("ANA-22")
+                .activityType(ana)
+                .charged(false)
+                .manDays(120)
+                .dateStart(sdf.parse("2022-05-01"))
+                .build();
+        activityService.saveActivity(att3);
+
+        Activity attKNIME = Activity.builder()
+                .projectId(bohKNIME.getProjectKey())
+                .project(bohKNIME)
+                .activityKey("ANA-22")
+                .activityType(ana)
+                .charged(false)
+                .manDays(150)
+                .dateStart(sdf.parse("2022-05-01"))
+                .build();
+        activityService.saveActivity(attKNIME);
+
         return "login";
     }
 
