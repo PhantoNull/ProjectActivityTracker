@@ -7,10 +7,427 @@
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
 
+<script type="text/javascript">
+    let columnList = ["checkbox", "activityKey", "activityType", "dateStart", "dateEnd", "charged", "manDays"];
 
-<section>
-    <div th:each="activity : ${activityList}">
-        <div th:text="${activity}"></div>
+    async function action(actionString, projectKey) {
+        let error_log = "";
+        let tableChanged = false;
+        if (tableRowList.every(v => v === false))
+            return 1;
+        switch (actionString) {
+            case 'saveActivities':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        console.log(data);
+                        if (index !== "99999")
+                            await fetch("/projects/"+ projectKey, {method: 'PUT', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                        else
+                            await fetch("/projects" + projectKey, {method: 'POST', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                    }
+                }
+                break;
+            case 'deleteActivities':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        if (index != "99999")
+                            await fetch("/projects/" + projectKey, {method: 'DELETE', body: data})
+                                .then(response => response.text())
+                                .then(body => {
+                                    let span;
+                                    if (body.includes("ERROR"))
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+
+                    }
+                }
+                return window.location.reload(true)
+                break;
+        }
+        let errorelement = document.getElementById("error-log-text");
+        errorelement.innerHTML = error_log;
+        showErrorLog(true);
+        if (tableChanged === true)
+            setTimeout(function () {window.location.reload(true)}, 3000);
+    }
+
+    function filterTableRow() {
+        for (let i = 0; i < 99998; i++) {
+            let row = document.getElementById("row" + i);
+            if (row != null)
+                row.classList.remove('hidden');
+            else
+                break;
+        }
+        let tableColumnList = ["ActivityKey", "ActivityType", "DateStart", "DateEnd", "Charged", "ManDays"];
+        for (let columnKey of tableColumnList) {
+            let columnInputs = document.getElementsByClassName("f" + columnKey);
+            let filterValue = document.getElementById(columnKey + "filter").value;
+            for (let columnInput of columnInputs) {
+                let parentTableRow;
+                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
+                if (columnKey === "ActivityType")
+                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                else
+                    parentTableRow = columnInput.parentNode.parentNode;
+                if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
+                    parentTableRow.classList.add('hidden');
+                }
+            }
+        }
+    }
+</script>
+
+<section class="">
+    <div class="container mt-6">
+        <div class="columns">
+            <div class="column" style="min-width:1500px;">
+
+                <div th:include="fragments/authbar.html :: authbar"></div>
+
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb has-arrow-separator is-medium level-item" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/projects">
+                                        <span>Projects</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="'/projects/' + ${projectKey}">
+                                        <span th:text="${projectKey}"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
+                                  th:onclick="'action(\'saveActivities\',\'' + ${projectKey} + '\');'">
+                                  <i class="fas fa-save fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
+                                  th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hidden notification has-background-primary-light">
+                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected activities?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all activities-related data.</p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button class="button is-danger"
+                                        th:onclick="'action(\'deleteActivities\',\'' + ${projectKey} + '\');'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Activities Management</p>
+                    </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
+                                <div class="table__wrapper">
+                                    <table id="sortableTable" class="mx-auto">
+                                        <!-- Search Filter -->
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter">
+                                            <td style="text-align:center; vertical-align:middle;">
+
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="ActivityKeyfilter" name="activityKey" type="text"
+                                                       placeholder="" maxlength="16" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="ActivityTypefilter" name="activityType"
+                                                            class="" th:onchange="'filterTableRow()'">
+                                                        <option th:value="ALL">ALL</option>
+                                                        <option th:each="activityType : ${activityTypeList}"
+                                                                th:value="${activityType.activityTypeKey}"
+                                                                th:text="${activityType.activityTypeKey}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input" id="DateStartfilter" name="dateStart"
+                                                       type="date" placeholder="" required
+                                                       th:onchange="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input" id="DateEndfilter" name="dateEnd"
+                                                       type="date" placeholder="" required
+                                                       th:onchange="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Chargedfilter" name="charged" class="width80"
+                                                            th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option value="true">yes</option>
+                                                        <option value="false">no</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input" id="ManDaysfilter" name="manDays"
+                                                       type="number" placeholder="" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <!-- header table -->
+                                        <tr class="table-header">
+                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="projectKeyCol has-text-primary-dark table-header">Activity
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'projectKey\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="activityTypeCol has-text-primary-dark table-header">Activity Type
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'activityTypeKey\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="dateCol has-text-primary-dark table-header">Start Date
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'dateStart\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="dateCol has-text-primary-dark table-header">End Date
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'dateEnd\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="usernameCol has-text-primary-dark table-header">Charged
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'charged\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="valueCol has-text-primary-dark table-header">Man Days
+                                                <span class="icon has-text-primary"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'manDays\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                        <!-- Data rows -->
+                                        <tr th:each="activity,iter : ${activityList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/projects}" th:id="form+${iter.index}"
+                                                  th:object="${project}" method="put">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fActivityKey"
+                                                           th:id="activityKey + ${iter.index}" name="activityKey" type="text"
+                                                           th:value="${activity.activityKey}"
+                                                           th:placeholder="${activity.activityKey}" maxlength="16" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="activityType + ${iter.index}" name="activityType" class="fActivityType">
+                                                            <option name="activityType" th:each="activityType : ${activityTypeList}"
+                                                                    th:selected="${activity.activityType.activityTypeKey == activityType.activityTypeKey}"
+                                                                    th:value="${activityType.activityTypeKey}"
+                                                                    th:text="${activityType.activityTypeKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input dateCol fDateStart" th:id="dateStart + ${iter.index}" name="dateStart"
+                                                           type="date" th:value="${activity.dateStart}"
+                                                           th:placeholder="${activity.dateStart}" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input dateCol fDateEnd" th:id="dateEnd + ${iter.index}" name="dateEnd"
+                                                           type="date" th:value="${activity.dateEnd}"
+                                                           th:placeholder="${activity.dateEnd}" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-right fManDays" th:id="manDays + ${iter.index}" name="manDays"
+                                                           type="number" th:value="${activity.manDays}"
+                                                           th:placeholder="${activity.manDays}" required>
+                                                </td>
+                                                <td>
+                                                    <a th:href="'/projects/' + ${projectKey} + '/'+${activity.activityKey}">
+                                                        <span class="icon has-text-primary mt-2 ml-2" th:data-tooltip="${activity.activityKey} + ' Resources'">
+                                                            <i class="fas fa-arrow-alt-square-right fa-lg table-button is-clickable"></i>
+                                                            <i class="ml-1" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>
+                                                        </span>
+                                                    </a>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        <!--new team form-->
+                                        <tr id="row99999">
+                                            <form th:action="@{/projects}" id="form99999" th:object="${project}"
+                                                  method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input id="checkboxadd"
+                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-primary has-text-weight-semibold"
+                                                           th:id="activityKeyaddProject" name="activityKey" type="text"
+                                                           placeholder="" maxlength="16" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="activityTypeaddProject" name="projectType">
+                                                            <option th:each="activityType : ${activityTypeList}"
+                                                                    th:value="${activityType.activityTypeKey}"
+                                                                    th:text="${activityType.activityTypeKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="dateStartaddProject" name="dateStart"
+                                                           type="date" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="dateEndaddProject" name="dateEnd"
+                                                           type="date" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="dateCloseaddProject" name="dateClose"
+                                                           type="date" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="teamaddProject" name="team" class="width110">
+                                                            <option th:each="team : ${teamList}"
+                                                                    th:value="${team.teamName}"
+                                                                    th:text="${team.teamName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="select width180">
+                                                        <select th:id="projectManageraddProject" name="projectManager">
+                                                            <option th:each="user : ${userList}"
+                                                                    th:value="${user.username}"
+                                                                    th:text="${user.username}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="valueaddProject" name="value"
+                                                           type="number" required>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
     </div>
 </section>
 

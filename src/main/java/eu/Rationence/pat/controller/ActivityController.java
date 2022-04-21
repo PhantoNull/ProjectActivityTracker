@@ -29,6 +29,7 @@ public class ActivityController {
         model.addAttribute("activityTypeList", activityTypeService.findAll());
         Project projectRepo = projectService.findProjectByProject(projectKey);
         model.addAttribute("activityList", activityService.findActivitiesByProject(projectRepo));
+        model.addAttribute("projectKey", projectKey);
         return "activities";
     }
 
