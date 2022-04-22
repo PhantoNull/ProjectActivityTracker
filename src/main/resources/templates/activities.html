@@ -234,7 +234,7 @@
                                                         <option th:value="ALL">ALL</option>
                                                         <option th:each="activityType : ${activityTypeList}"
                                                                 th:value="${activityType.activityTypeKey}"
-                                                                th:text="${activityType.activityTypeKey}"></option>
+                                                                th:text="${activityType.activityTypeDesc}"></option>
                                                     </select>
                                                 </div>
                                             </td>
@@ -335,7 +335,7 @@
                                                             <option name="activityType" th:each="activityType : ${activityTypeList}"
                                                                     th:selected="${activity.activityType.activityTypeKey == activityType.activityTypeKey}"
                                                                     th:value="${activityType.activityTypeKey}"
-                                                                    th:text="${activityType.activityTypeKey}"></option>
+                                                                    th:text="${activityType.activityTypeDesc}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
@@ -369,7 +369,7 @@
                                                     <a th:href="'/projects/' + ${projectKey} + '/'+${activity.activityKey}">
                                                         <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${activity.activityKey} + ' Resources'">
                                                             <i class="fas fa-arrow-alt-square-right fa-lg is-clickable table-button"></i>
-                                                            <!--<i class="ml-1 has-text-weight-semibold table-button" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>-->
+                                                            <i class="ml-1 has-text-weight-semibold table-button" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>
                                                         </span>
                                                     </a>
                                                 </td>
@@ -392,10 +392,10 @@
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="activityTypeaddProject" name="activityType">
+                                                        <select th:id="activityTypeaddActivity" name="activityType">
                                                             <option th:each="activityType : ${activityTypeList}"
                                                                     th:value="${activityType.activityTypeKey}"
-                                                                    th:text="${activityType.activityTypeKey}"></option>
+                                                                    th:text="${activityType.activityTypeDesc}"></option>
                                                         </select>
                                                     </div>
                                                 </td>

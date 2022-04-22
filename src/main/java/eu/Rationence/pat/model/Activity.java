@@ -21,7 +21,6 @@ import java.util.Set;
  @IdClass(ActivityCompositeKey.class)
  public class Activity implements Serializable {
 
-
      @Id
      @Column(name = "c_Project", nullable = false, length=16)
      private String projectId;
