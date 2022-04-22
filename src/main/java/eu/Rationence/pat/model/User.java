@@ -7,9 +7,11 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-@Entity(name = "User")
+ @Entity(name = "User")
 @Table(name = "PAT_Users")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +33,9 @@ public class User implements Serializable {
     @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_User"))
     @JsonManagedReference
     private Team team;
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Activity> activities  = new HashSet<>();
 
     @Column(name="e_Email", unique = true, length=128, nullable = false)
     @Email
