@@ -29,12 +29,12 @@ public class ActivityController {
         Project projectRepo = projectService.findProjectByProject(projectKey);
         if(projectRepo == null)
             return "error";
-        for (Activity activity:activityService.findActivitiesByProject(projectRepo)) {
+        for (Activity activity:activityService.findActivitiesByProject(projectRepo.getProjectKey())) {
             int resourceNumber = activity.getUsers().size();
             model.addAttribute(activity.getActivityKey()+"Resources",resourceNumber);
         }
         model.addAttribute("activityTypeList", activityTypeService.findAll());
-        model.addAttribute("activityList", activityService.findActivitiesByProject(projectRepo));
+        model.addAttribute("activityList", activityService.findActivitiesByProject(projectRepo.getProjectKey()));
         model.addAttribute("projectKey", projectKey);
         return "activities";
     }
@@ -49,10 +49,10 @@ public class ActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectService.findProjectByProject(projectKey));
+            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
             if(activityRepo != null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " has been already created");
-            activity.setProjectId(projectKey);
+            activity.setProject(projectKey);
             activityService.saveActivity(activity);
             return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' saved.");
         }
@@ -72,10 +72,10 @@ public class ActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectService.findProjectByProject(projectKey));
+            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
             if(activityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " does not exits.");
-            activity.setProjectId(projectKey);
+            activity.setProject(projectKey);
             activityService.saveActivity(activity);
             return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' saved.");
         }
@@ -93,10 +93,10 @@ public class ActivityController {
             Project projectRepo = projectService.findProjectByProject(projectKey);
             if(projectRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Project " + projectKey + " does not exits.");
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectRepo);
+            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
             if(activityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " does not exits.");
-            activityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo);
+            activityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
             return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' successfully deleted.");
         }
         catch(Exception e){

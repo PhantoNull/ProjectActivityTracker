@@ -99,7 +99,7 @@
             for (let columnInput of columnInputs) {
                 let parentTableRow;
                 //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "ProjectType" || columnKey === "Team" || columnKey === "ProjectManager")
+                if (columnKey === "ProjectType" || columnKey === "Team" || columnKey === "ProjectManager" || columnKey == "Client")
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;

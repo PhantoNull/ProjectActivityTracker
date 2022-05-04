@@ -23,7 +23,7 @@ import java.util.Set;
 
      @Id
      @Column(name = "c_Project", nullable = false, length=16)
-     private String projectId;
+     private String project;
 
      @Id
      @Column(name="c_Activity", length=16, nullable = false)
@@ -31,7 +31,7 @@ import java.util.Set;
 
      @ManyToOne(fetch= FetchType.LAZY)
      @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_Activity"), insertable = false, updatable = false)
-     private Project project;
+     private Project c_Project;
 
      @ManyToMany(fetch= FetchType.LAZY)
      @JoinTable(name="PAT_UserActivities",

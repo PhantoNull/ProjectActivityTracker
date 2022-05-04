@@ -11,11 +11,11 @@ import java.util.List;
 
 @Repository
 public interface ActivityRepository extends CrudRepository<Activity, ActivityCompositeKey> {
-    Activity getActivityByActivityKeyAndProject(String string, Project project);
-    List<Activity> findActivitiesByProject(Project project);
+    Activity getActivityByActivityKeyAndProject(String activityKey, String projectKey);
+    List<Activity> findActivitiesByProject(String projectKey);
     Activity save(Activity activity);
     @Transactional
-    void deleteActivityByActivityKeyAndProject(String string, Project project);
+    void deleteActivityByActivityKeyAndProject(String activityKey, String projectKey);
 }
 
 

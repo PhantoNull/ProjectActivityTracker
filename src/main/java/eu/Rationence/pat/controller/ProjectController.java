@@ -39,7 +39,7 @@ public class ProjectController {
         model.addAttribute("projectTypeList", projectTypeService.findAll());
         model.addAttribute("clientList", clientService.findAll());
         for (Project project:projectService.findAll()) {
-            int activitiesNumber = activityService.findActivitiesByProject(project).size();
+            int activitiesNumber = activityService.findActivitiesByProject(project.getProjectKey()).size();
             model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
         }
         String username = principal.getName();
@@ -113,10 +113,10 @@ public class ProjectController {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException() {
+    public ResponseEntity<String> handleBadRequestException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("ERROR: Empty input or mismatched input type");
+                .body("ERROR: Empty input or mismatched input type" + "<br><br>" + e.toString());
     }
 
     private ResponseEntity<String> checkProjectValidity(Project project, String teamKey, String projectManagerKey,

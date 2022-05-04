@@ -15,16 +15,16 @@ public class ActivityService {
     @Autowired
     private ActivityRepository activityRepository;
 
-    public Activity findActivityByActivityKeyAndProject(String string, Project project){
+    public Activity findActivityByActivityKeyAndProject(String string, String project){
         return activityRepository.getActivityByActivityKeyAndProject(string, project);
     }
-    public List<Activity> findActivitiesByProject(Project project) {
+    public List<Activity> findActivitiesByProject(String project) {
         return activityRepository.findActivitiesByProject(project);
     }
 
     public Activity saveActivity(Activity activity){ return activityRepository.save(activity);}
 
-    public void deleteActivityByActivityKeyAndProject(String string, Project project){
+    public void deleteActivityByActivityKeyAndProject(String string, String project){
         activityRepository.deleteActivityByActivityKeyAndProject(string, project);
     }
 }

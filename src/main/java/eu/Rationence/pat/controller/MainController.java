@@ -269,8 +269,8 @@ public class MainController {
         ActivityType ana = activityTypeService.findActivityTypeByActivityType("ANA");
 
         Activity att = Activity.builder()
-                .projectId(orchBPER.getProjectKey())
-                .project(orchBPER)
+                .project(orchBPER.getProjectKey())
+                .c_Project(orchBPER)
                 .activityKey("DEV-22")
                 .activityType(devp)
                 .charged(true)
@@ -280,8 +280,8 @@ public class MainController {
         activityService.saveActivity(att);
 
         Activity att2 = Activity.builder()
-                .projectId(orchBPER.getProjectKey())
-                .project(orchBPER)
+                .project(orchBPER.getProjectKey())
+                .c_Project(orchBPER)
                 .activityKey("DEV-22b")
                 .activityType(devp)
                 .charged(true)
@@ -291,8 +291,8 @@ public class MainController {
         activityService.saveActivity(att2);
 
         Activity att3 = Activity.builder()
-                .projectId(orchBPER.getProjectKey())
-                .project(orchBPER)
+                .project(orchBPER.getProjectKey())
+                .c_Project(orchBPER)
                 .activityKey("ANA-22")
                 .activityType(ana)
                 .charged(false)
@@ -302,8 +302,8 @@ public class MainController {
         activityService.saveActivity(att3);
 
         Activity attKNIME = Activity.builder()
-                .projectId(bohKNIME.getProjectKey())
-                .project(bohKNIME)
+                .project(bohKNIME.getProjectKey())
+                .c_Project(bohKNIME)
                 .activityKey("ANA-22")
                 .activityType(ana)
                 .charged(false)

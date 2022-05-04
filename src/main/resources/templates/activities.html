@@ -97,7 +97,7 @@
             for (let columnInput of columnInputs) {
                 let parentTableRow;
                 //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "ActivityType")
+                if (columnKey === "ActivityType" || columnKey === "Charged")
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;
