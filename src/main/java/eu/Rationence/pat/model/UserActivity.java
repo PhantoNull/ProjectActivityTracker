@@ -18,16 +18,19 @@ public class UserActivity implements Serializable {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "c_Activity", referencedColumnName = "c_Activity", nullable = false, foreignKey = @ForeignKey(name = "fk_UserActivity_Activity"))
+    @JoinColumns({ @JoinColumn(name = "c_Activity", foreignKey = @ForeignKey(name = "fk_Activity_UserActivity")),
+                    @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_UserActivity")) })
     private Activity activity;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "c_Username", referencedColumnName = "c_Username", nullable = false, foreignKey = @ForeignKey(name = "fk_UserActivity_User"))
+    @JoinColumn(name = "c_Username",
+                                    nullable = false,
+                                    foreignKey = @ForeignKey(name = "fk_UserActivity_User"))
     private User user;
 
-    @Column(name="i_Rate", nullable = false)
-    private Integer rate;
+    @Column(name="i_DailyRate", nullable = false)
+    private Integer dailyRate;
 
     @Override
     public boolean equals(Object o) {

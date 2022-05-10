@@ -21,7 +21,7 @@ public class ActivityCompositeKey implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         ActivityCompositeKey act = (ActivityCompositeKey) o;
-        return act != null && Objects.equals(project, act.project) && Objects.equals(activityKey, act.activityKey);
+        return Objects.equals(project, act.project) && Objects.equals(activityKey, act.activityKey);
     }
 
     @Override

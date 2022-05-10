@@ -27,7 +27,7 @@ public class User implements Serializable {
     private String username;
 
      @OneToMany(mappedBy = "user")
-     private List<UserActivity> userActivities;
+     private Set<UserActivity> activities  = new HashSet<>();
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Role", nullable = false, foreignKey = @ForeignKey(name = "fk_Role_User"))
@@ -37,9 +37,6 @@ public class User implements Serializable {
     @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_User"))
     @JsonManagedReference
     private Team team;
-
-    @ManyToMany(mappedBy = "users")
-    private Set<Activity> activities  = new HashSet<>();
 
     @Column(name="e_Email", unique = true, length=128, nullable = false)
     @Email
