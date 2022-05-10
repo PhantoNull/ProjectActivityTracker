@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,6 +25,9 @@ public class User implements Serializable {
     @Id
     @Column(name="c_Username", length=64, unique = true, nullable = false)
     private String username;
+
+     @OneToMany(mappedBy = "user")
+     private List<UserActivity> userActivities;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "c_Role", nullable = false, foreignKey = @ForeignKey(name = "fk_Role_User"))

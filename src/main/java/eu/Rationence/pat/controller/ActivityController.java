@@ -30,7 +30,7 @@ public class ActivityController {
         if(projectRepo == null)
             return "error";
         for (Activity activity:activityService.findActivitiesByProject(projectRepo.getProjectKey())) {
-            int resourceNumber = activity.getUsers().size();
+            int resourceNumber = activity.getUserActivities().size();
             model.addAttribute(activity.getActivityKey()+"Resources",resourceNumber);
         }
         model.addAttribute("activityTypeList", activityTypeService.findAll());
