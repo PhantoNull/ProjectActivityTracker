@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 
 @Controller
@@ -39,8 +40,12 @@ public class UserActivityController {
         Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
         if(projectRepo == null || activityRepo == null)
             return "error";
-        model.addAttribute("userList", userService.findAll());
-        model.addAttribute("userActivityList", userActivityService.findUserActivitiesByProjectAndActivityKey(projectKey, activityKey));
+        List<User> availableUserList = userService.findAll();
+        List<UserActivity> userActivityList = userActivityService.findUserActivitiesByProjectAndActivityKey(projectKey, activityKey);
+        for(UserActivity ua : userActivityList)
+            availableUserList.remove(ua.getC_Username());
+        model.addAttribute("userList", availableUserList);
+        model.addAttribute("userActivityList", userActivityList);
         model.addAttribute("activityKey", activityKey);
         model.addAttribute("projectKey", projectKey);
 
@@ -63,20 +68,20 @@ public class UserActivityController {
                 return validityError;
             User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't assign " + username + " to activity " + activityKey + " (User does not exists)");
+                return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, userActivity.getC_Username().getUsername());
             if(userActivityRepo != null)
-                return ResponseEntity.status(409).body("ERROR: User " + userActivity.getC_Username().getUsername() + "has already been assigned to Activity " + activityKey);
+                return ResponseEntity.status(409).body("ERROR: User '" + userActivity.getC_Username().getUsername() + "' has already been assigned to Activity '" + activityKey + "'");
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.saveUserActivity(userActivity);
-            return ResponseEntity.ok("User " + userActivity.getC_Username().getUsername() + " has been assigned to Activity " + activityKey + " succesfully");
+            return ResponseEntity.ok("User '" + username + "' has been assigned to Activity '" + activityKey + "' successfully");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+                    .body("ERROR: Empty input or mismatched input type");
         }
     }
 
@@ -89,24 +94,24 @@ public class UserActivityController {
         try{
             UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
             if(userActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't update' " + username + " to activity " + activityKey + " (User is not assigned)");
+                return ResponseEntity.status(409).body("ERROR: Can't update '" + username + "' to activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
             User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't assign " + username + " to activity " + activityKey + " (User does not exists)");
+                return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.saveUserActivity(userActivity);
-            return ResponseEntity.ok("User " + userActivity.getC_Username().getUsername() + "assignment to activity " + activityKey + " updated succesfully.");
+            return ResponseEntity.ok("User '" + username + "' assignment to activity '" + activityKey + "' updated successfully.");
         }
         catch(Exception e){
             System.out.println(e);
             return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+                    .body("ERROR: Empty input or mismatched input type");
         }
     }
 
@@ -119,19 +124,19 @@ public class UserActivityController {
         try{
             UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
             if(userActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't remove' " + username + " from activity " + activityKey + " (User is not assigned)");
+                return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + "' from activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
             User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't remove " + username + " from activity " + activityKey + " (User does not exists)");
+                return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + " from activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.deleteUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
-            return ResponseEntity.ok("User " + userActivity.getC_Username().getUsername() + "removed from activity " + activityKey + " succesfully.");
+            return ResponseEntity.ok("User '" + username + "' removed from activity '" + activityKey + "' successfully.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

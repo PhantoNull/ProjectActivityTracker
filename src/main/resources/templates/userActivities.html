@@ -181,7 +181,7 @@
                     <div class="level m-0">
                         <div class="level-left">
                             <div class="level-item">
-                                <p>Do you really want to delete selected activities?</p>
+                                <p>Do you really want to remove selected users from this activity?</p>
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                         <div class="level-left">
                             <div class="level-item">
                                 <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
-                                    and will erase all activities-related data.</p>
+                                    and will prevent user from compiling this activity in monthly time sheet.</p>
                             </div>
                         </div>
                         <div class="level-right">
@@ -279,7 +279,7 @@
                                                 </td>
                                             </form>
                                         </tr>
-                                        <!--new activity form-->
+                                        <!--new user activity form-->
                                         <tr id="row99999">
                                             <form th:action="@{/projects}" id="form99999" th:object="${userActivity}"
                                                   method="post">
