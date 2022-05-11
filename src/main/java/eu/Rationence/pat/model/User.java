@@ -26,7 +26,7 @@ public class User implements Serializable {
     @Column(name="c_Username", length=64, unique = true, nullable = false)
     private String username;
 
-     @OneToMany(mappedBy = "user")
+     @OneToMany(mappedBy = "c_Username")
      private Set<UserActivity> activities  = new HashSet<>();
 
     @ManyToOne(fetch=FetchType.LAZY)

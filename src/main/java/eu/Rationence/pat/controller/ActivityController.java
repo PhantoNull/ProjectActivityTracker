@@ -18,6 +18,8 @@ import java.security.Principal;
 @AllArgsConstructor
 public class ActivityController {
     @Autowired
+    private final UserService userService;
+    @Autowired
     private final ProjectService projectService;
     @Autowired
     private final ActivityTypeService activityTypeService;
@@ -36,6 +38,10 @@ public class ActivityController {
         model.addAttribute("activityTypeList", activityTypeService.findAll());
         model.addAttribute("activityList", activityService.findActivitiesByProject(projectRepo.getProjectKey()));
         model.addAttribute("projectKey", projectKey);
+        String username = principal.getName();
+        User userRepo = userService.findUserByUsername(username);
+        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "activities";
     }
 
@@ -51,7 +57,7 @@ public class ActivityController {
                 return validityError;
             Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
             if(activityRepo != null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " has been already created");
+                return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " has already been created");
             activity.setProject(projectKey);
             activityService.saveActivity(activity);
             return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' saved.");
@@ -77,7 +83,7 @@ public class ActivityController {
                 return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " does not exits.");
             activity.setProject(projectKey);
             activityService.saveActivity(activity);
-            return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' saved.");
+            return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' updated.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

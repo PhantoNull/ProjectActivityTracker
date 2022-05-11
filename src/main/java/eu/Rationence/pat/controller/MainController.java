@@ -42,6 +42,8 @@ public class MainController {
     private final ActivityTypeService activityTypeService;
     @Autowired
     private final ActivityService activityService;
+    @Autowired
+    private final UserActivityService userActivityService;
 
 
     @GetMapping ("/")
@@ -289,6 +291,15 @@ public class MainController {
                 .dateStart(sdf.parse("2022-06-01"))
                 .build();
         activityService.saveActivity(att2);
+        UserActivity userAtt = UserActivity.builder()
+                .username(luca.getUsername())
+                .c_Username(luca)
+                .activityKey(att2.getActivityKey())
+                .c_Activity(att2)
+                .project(att2.getProject())
+                .dailyRate(100)
+                .build();
+        userActivityService.saveUserActivity(userAtt);
 
         Activity att3 = Activity.builder()
                 .project(orchBPER.getProjectKey())

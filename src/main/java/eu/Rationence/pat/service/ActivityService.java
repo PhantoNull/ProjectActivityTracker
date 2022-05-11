@@ -15,8 +15,8 @@ public class ActivityService {
     @Autowired
     private ActivityRepository activityRepository;
 
-    public Activity findActivityByActivityKeyAndProject(String string, String project){
-        return activityRepository.getActivityByActivityKeyAndProject(string, project);
+    public Activity findActivityByActivityKeyAndProject(String activityKey, String project){
+        return activityRepository.getActivityByActivityKeyAndProject(activityKey, project);
     }
     public List<Activity> findActivitiesByProject(String project) {
         return activityRepository.findActivitiesByProject(project);

@@ -31,7 +31,7 @@ import java.util.List;
      @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_Activity"), insertable = false, updatable = false)
      private Project c_Project;
 
-     @OneToMany(mappedBy = "activity")
+     @OneToMany(mappedBy = "c_Activity")
      private List<UserActivity> userActivities;
 
      /*
