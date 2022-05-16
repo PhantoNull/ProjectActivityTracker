@@ -16,8 +16,8 @@ import java.util.List;
  @Getter
  @Setter
  @ToString
- @IdClass(ActivityCompositeKey.class)
- public class Activity implements Serializable {
+ @IdClass(ProjectActivityCompositeKey.class)
+ public class ProjectActivity implements Serializable {
 
      @Id
      @Column(name = "c_Project", nullable = false, length=16)

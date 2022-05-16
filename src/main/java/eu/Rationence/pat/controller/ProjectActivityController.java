@@ -16,7 +16,7 @@ import java.security.Principal;
 
 @Controller
 @AllArgsConstructor
-public class ActivityController {
+public class ProjectActivityController {
     @Autowired
     private final UserService userService;
     @Autowired
@@ -24,19 +24,19 @@ public class ActivityController {
     @Autowired
     private final ActivityTypeService activityTypeService;
     @Autowired
-    private final ActivityService activityService;
+    private final ProjectActivityService projectActivityService;
 
     @GetMapping("/projects/{projectKey}")
     public String projectActivities(@PathVariable String projectKey, Model model, Principal principal){
         Project projectRepo = projectService.findProjectByProject(projectKey);
         if(projectRepo == null)
             return "error";
-        for (Activity activity:activityService.findActivitiesByProject(projectRepo.getProjectKey())) {
-            int resourceNumber = activity.getUserActivities().size();
-            model.addAttribute(activity.getActivityKey()+"Resources",resourceNumber);
+        for (ProjectActivity projectActivity : projectActivityService.findActivitiesByProject(projectRepo.getProjectKey())) {
+            int resourceNumber = projectActivity.getUserActivities().size();
+            model.addAttribute(projectActivity.getActivityKey()+"Resources",resourceNumber);
         }
         model.addAttribute("activityTypeList", activityTypeService.findAll());
-        model.addAttribute("activityList", activityService.findActivitiesByProject(projectRepo.getProjectKey()));
+        model.addAttribute("activityList", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()));
         model.addAttribute("projectKey", projectKey);
         String username = principal.getName();
         User userRepo = userService.findUserByUsername(username);
@@ -46,7 +46,7 @@ public class ActivityController {
     }
 
     @PostMapping("/projects/{projectKey}")
-    public ResponseEntity<String> addActivity(@Valid Activity activity,
+    public ResponseEntity<String> addActivity(@Valid ProjectActivity projectActivity,
                                               @RequestParam(value="manDays") String manDays,
                                               @RequestParam(value="activityKey") String activityKey,
                                               @RequestParam(value="activityType") String activityType,
@@ -55,12 +55,12 @@ public class ActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
-            if(activityRepo != null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " has already been created");
-            activity.setProject(projectKey);
-            activityService.saveActivity(activity);
-            return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' saved.");
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
+            if(projectActivityRepo != null)
+                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " has already been created");
+            projectActivity.setProject(projectKey);
+            projectActivityService.saveActivity(projectActivity);
+            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' saved.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -69,7 +69,7 @@ public class ActivityController {
     }
 
     @PutMapping("/projects/{projectKey}")
-    public ResponseEntity<String> updateActivity(@Valid Activity activity,
+    public ResponseEntity<String> updateActivity(@Valid ProjectActivity projectActivity,
                                               @RequestParam(value="manDays") String manDays,
                                               @RequestParam(value="activityKey") String activityKey,
                                               @RequestParam(value="activityType") String activityType,
@@ -78,12 +78,12 @@ public class ActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
-            if(activityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " does not exits.");
-            activity.setProject(projectKey);
-            activityService.saveActivity(activity);
-            return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' updated.");
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
+            if(projectActivityRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
+            projectActivity.setProject(projectKey);
+            projectActivityService.saveActivity(projectActivity);
+            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' updated.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()
@@ -92,18 +92,18 @@ public class ActivityController {
     }
 
     @DeleteMapping("/projects/{projectKey}")
-    public ResponseEntity<String> updateActivity(@Valid Activity activity,
+    public ResponseEntity<String> updateActivity(@Valid ProjectActivity projectActivity,
                                                  @RequestParam(value="activityKey") String activityKey,
                                                  @PathVariable String projectKey){
         try{
             Project projectRepo = projectService.findProjectByProject(projectKey);
             if(projectRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Project " + projectKey + " does not exits.");
-            Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
-            if(activityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + activity.getActivityKey() + " does not exits.");
-            activityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
-            return ResponseEntity.ok("Activity '" + activity.getActivityKey() + "' successfully deleted.");
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+            if(projectActivityRepo == null)
+                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
+            projectActivityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' successfully deleted.");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

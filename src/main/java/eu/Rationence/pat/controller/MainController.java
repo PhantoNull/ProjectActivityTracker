@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -41,7 +40,7 @@ public class MainController {
     @Autowired
     private final ActivityTypeService activityTypeService;
     @Autowired
-    private final ActivityService activityService;
+    private final ProjectActivityService projectActivityService;
     @Autowired
     private final UserActivityService userActivityService;
     @Autowired
@@ -272,7 +271,7 @@ public class MainController {
         ActivityType devp = activityTypeService.findActivityTypeByActivityType("DEV");
         ActivityType ana = activityTypeService.findActivityTypeByActivityType("ANA");
 
-        Activity att = Activity.builder()
+        ProjectActivity att = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
                 .c_Project(orchBPER)
                 .activityKey("DEV-22")
@@ -281,9 +280,9 @@ public class MainController {
                 .manDays(500)
                 .dateStart(sdf.parse("2022-04-01"))
                 .build();
-        activityService.saveActivity(att);
+        projectActivityService.saveActivity(att);
 
-        Activity att2 = Activity.builder()
+        ProjectActivity att2 = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
                 .c_Project(orchBPER)
                 .activityKey("DEV-22b")
@@ -292,7 +291,7 @@ public class MainController {
                 .manDays(300)
                 .dateStart(sdf.parse("2022-06-01"))
                 .build();
-        activityService.saveActivity(att2);
+        projectActivityService.saveActivity(att2);
         UserActivity userAtt = UserActivity.builder()
                 .username(luca.getUsername())
                 .c_Username(luca)
@@ -303,7 +302,7 @@ public class MainController {
                 .build();
         userActivityService.saveUserActivity(userAtt);
 
-        Activity att3 = Activity.builder()
+        ProjectActivity att3 = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
                 .c_Project(orchBPER)
                 .activityKey("ANA-22")
@@ -312,9 +311,9 @@ public class MainController {
                 .manDays(120)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
-        activityService.saveActivity(att3);
+        projectActivityService.saveActivity(att3);
 
-        Activity attKNIME = Activity.builder()
+        ProjectActivity attKNIME = ProjectActivity.builder()
                 .project(bohKNIME.getProjectKey())
                 .c_Project(bohKNIME)
                 .activityKey("ANA-22")
@@ -323,7 +322,7 @@ public class MainController {
                 .manDays(150)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
-        activityService.saveActivity(attKNIME);
+        projectActivityService.saveActivity(attKNIME);
 
         Location casa = Location.builder()
                 .locationName("CASA").build();

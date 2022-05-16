@@ -33,7 +33,7 @@ public class UserActivity implements Serializable {
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "c_Activity", foreignKey = @ForeignKey(name = "fk_Activity_UserActivity"), insertable = false, updatable = false),
                     @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_UserActivity"), insertable = false, updatable = false) })
-    private Activity c_Activity;
+    private ProjectActivity c_Activity;
 
     @ManyToOne
     @JoinColumn(name = "c_Username",

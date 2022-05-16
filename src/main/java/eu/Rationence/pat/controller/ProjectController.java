@@ -28,7 +28,7 @@ public class ProjectController {
     @Autowired
     private final ClientService clientService;
     @Autowired
-    private final ActivityService activityService;
+    private final ProjectActivityService projectActivityService;
 
 
     @GetMapping ("/projects")
@@ -39,7 +39,7 @@ public class ProjectController {
         model.addAttribute("projectTypeList", projectTypeService.findAll());
         model.addAttribute("clientList", clientService.findAll());
         for (Project project:projectService.findAll()) {
-            int activitiesNumber = activityService.findActivitiesByProject(project.getProjectKey()).size();
+            int activitiesNumber = projectActivityService.findActivitiesByProject(project.getProjectKey()).size();
             model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
         }
         String username = principal.getName();

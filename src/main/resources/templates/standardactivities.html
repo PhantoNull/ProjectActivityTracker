@@ -271,7 +271,7 @@
                                             </th>
                                         </tr>
                                         <!-- Data rows -->
-                                        <tr th:each="activity,iter : ${stdActivityList}" th:id="row+${iter.index}">
+                                        <tr th:each="projectActivity,iter : ${stdActivityList}" th:id="row+${iter.index}">
                                             <form th:action="@{/standardactivities}" th:id="form+${iter.index}"
                                                   th:object="${stdAct}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
@@ -282,17 +282,17 @@
                                                 <td>
                                                     <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fStdActivityKey"
                                                            th:id="stdActivityKey + ${iter.index}" name="activityKey" type="text"
-                                                           th:value="${activity.activityKey}"
-                                                           th:placeholder="${activity.activityKey}" maxlength="32" required
+                                                           th:value="${projectActivity.activityKey}"
+                                                           th:placeholder="${projectActivity.activityKey}" maxlength="32" required
                                                            readonly>
                                                 </td>
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="stdActivityWaged + ${iter.index}" name="waged"
                                                                 class="width80 fWaged">
-                                                            <option th:selected="${activity.waged}" value="true">yes
+                                                            <option th:selected="${projectActivity.waged}" value="true">yes
                                                             </option>
-                                                            <option th:selected="${!activity.waged}" value="false">no
+                                                            <option th:selected="${!projectActivity.waged}" value="false">no
                                                             </option>
                                                         </select>
                                                     </div>
@@ -301,9 +301,9 @@
                                                     <div class="select">
                                                         <select th:id="stdActivityInternal + ${iter.index}" name="internal"
                                                                 class="width80 fInternal">
-                                                            <option th:selected="${activity.internal}" value="true">yes
+                                                            <option th:selected="${projectActivity.internal}" value="true">yes
                                                             </option>
-                                                            <option th:selected="${!activity.internal}" value="false">no
+                                                            <option th:selected="${!projectActivity.internal}" value="false">no
                                                             </option>
                                                         </select>
                                                     </div>

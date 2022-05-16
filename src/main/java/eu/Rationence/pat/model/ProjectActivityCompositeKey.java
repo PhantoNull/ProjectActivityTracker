@@ -11,7 +11,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-public class ActivityCompositeKey implements Serializable {
+public class ProjectActivityCompositeKey implements Serializable {
 
     private String project;
     private String activityKey;
@@ -20,7 +20,7 @@ public class ActivityCompositeKey implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        ActivityCompositeKey act = (ActivityCompositeKey) o;
+        ProjectActivityCompositeKey act = (ProjectActivityCompositeKey) o;
         return Objects.equals(project, act.project) && Objects.equals(activityKey, act.activityKey);
     }
 

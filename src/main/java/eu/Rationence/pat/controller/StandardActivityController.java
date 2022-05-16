@@ -19,7 +19,7 @@ import java.security.Principal;
 
 @Controller
 @AllArgsConstructor
-public class StandardActivitiesController {
+public class StandardActivityController {
     private static final String ERROR_STR = "ERROR: ";
 
     @Autowired

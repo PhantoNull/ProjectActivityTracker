@@ -1,6 +1,6 @@
 package eu.Rationence.pat.controller;
 
-import eu.Rationence.pat.model.Activity;
+import eu.Rationence.pat.model.ProjectActivity;
 import eu.Rationence.pat.model.Project;
 import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.model.UserActivity;
@@ -28,7 +28,7 @@ public class UserActivityController {
     @Autowired
     private final ActivityTypeService activityTypeService;
     @Autowired
-    private final ActivityService activityService;
+    private final ProjectActivityService projectActivityService;
     @Autowired
     private final UserActivityService userActivityService;
 
@@ -37,8 +37,8 @@ public class UserActivityController {
                                         @PathVariable String activityKey,
                                         Model model, Principal principal){
         Project projectRepo = projectService.findProjectByProject(projectKey);
-        Activity activityRepo = activityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
-        if(projectRepo == null || activityRepo == null)
+        ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+        if(projectRepo == null || projectActivityRepo == null)
             return "error";
         List<User> availableUserList = userService.findAll();
         List<UserActivity> userActivityList = userActivityService.findUserActivitiesByProjectAndActivityKey(projectKey, activityKey);
@@ -151,7 +151,7 @@ public class UserActivityController {
             return ResponseEntity.badRequest().body("ERROR: Daily Rate value must be numeric");
         if(projectService.findProjectByProject(projectKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Project '" + projectKey + "' does not exits");
-        if(activityService.findActivityByActivityKeyAndProject(activityKey, projectKey) == null)
+        if(projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Activity '" + activityKey + "' for Project '" + projectKey + "' does not exits");
         else return null;
     }

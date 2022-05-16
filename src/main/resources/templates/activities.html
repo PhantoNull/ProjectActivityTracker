@@ -313,9 +313,9 @@
                                             <th></th>
                                         </tr>
                                         <!-- Data rows -->
-                                        <tr th:each="activity,iter : ${activityList}" th:id="row+${iter.index}">
+                                        <tr th:each="projectActivity,iter : ${activityList}" th:id="row+${iter.index}">
                                             <form th:action="@{/projects}" th:id="form+${iter.index}"
-                                                  th:object="${activity}" method="put">
+                                                  th:object="${projectActivity}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" name="project" th:value="${projectKey}">
                                                     <input th:id="checkbox+${iter.index}"
@@ -325,15 +325,15 @@
                                                 <td>
                                                     <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fActivityKey"
                                                            th:id="activityKey + ${iter.index}" name="activityKey" type="text"
-                                                           th:value="${activity.activityKey}"
-                                                           th:placeholder="${activity.activityKey}" maxlength="16" required
+                                                           th:value="${projectActivity.activityKey}"
+                                                           th:placeholder="${projectActivity.activityKey}" maxlength="16" required
                                                            readonly>
                                                 </td>
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="activityType + ${iter.index}" name="activityType" class="fActivityType">
                                                             <option name="activityType" th:each="activityType : ${activityTypeList}"
-                                                                    th:selected="${activity.activityType.activityTypeKey == activityType.activityTypeKey}"
+                                                                    th:selected="${projectActivity.activityType.activityTypeKey == activityType.activityTypeKey}"
                                                                     th:value="${activityType.activityTypeKey}"
                                                                     th:text="${activityType.activityTypeDesc}"></option>
                                                         </select>
@@ -341,43 +341,43 @@
                                                 </td>
                                                 <td>
                                                     <input class="input dateCol fDateStart" th:id="dateStart + ${iter.index}" name="dateStart"
-                                                           type="date" th:value="${activity.dateStart}"
-                                                           th:placeholder="${activity.dateStart}" required>
+                                                           type="date" th:value="${projectActivity.dateStart}"
+                                                           th:placeholder="${projectActivity.dateStart}" required>
                                                 </td>
                                                 <td>
                                                     <input class="input dateCol fDateEnd" th:id="dateEnd + ${iter.index}" name="dateEnd"
-                                                           type="date" th:value="${activity.dateEnd}"
-                                                           th:placeholder="${activity.dateEnd}" required>
+                                                           type="date" th:value="${projectActivity.dateEnd}"
+                                                           th:placeholder="${projectActivity.dateEnd}" required>
                                                 </td>
                                                 <td>
                                                     <div class="select">
                                                         <select th:id="charged + ${iter.index}" name="charged"
                                                                 class="width110 fCharged">
-                                                            <option th:selected="${activity.charged}" value="true">yes
+                                                            <option th:selected="${projectActivity.charged}" value="true">yes
                                                             </option>
-                                                            <option th:selected="${!activity.charged}" value="false">no
+                                                            <option th:selected="${!projectActivity.charged}" value="false">no
                                                             </option>
                                                         </select>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <input class="input has-text-right fManDays" th:id="manDays + ${iter.index}" name="manDays"
-                                                           type="number" th:value="${activity.manDays}"
-                                                           th:placeholder="${activity.manDays}" required>
+                                                           type="number" th:value="${projectActivity.manDays}"
+                                                           th:placeholder="${projectActivity.manDays}" required>
                                                 </td>
                                                 <td>
-                                                    <a th:href="'/projects/' + ${projectKey} + '/'+${activity.activityKey}">
-                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${activity.activityKey} + ' Resources'">
+                                                    <a th:href="'/projects/' + ${projectKey} + '/'+${projectActivity.activityKey}">
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${projectActivity.activityKey} + ' Resources'">
                                                             <i class="fas fa-arrow-alt-square-right fa-lg is-clickable table-button"></i>
-                                                            <i class="ml-1 has-text-weight-semibold table-button" th:text="${#vars.getVariable('__${activity.activityKey}__Resources')}"></i>
+                                                            <i class="ml-1 has-text-weight-semibold table-button" th:text="${#vars.getVariable('__${projectActivity.activityKey}__Resources')}"></i>
                                                         </span>
                                                     </a>
                                                 </td>
                                             </form>
                                         </tr>
-                                        <!--new activity form-->
+                                        <!--new projectActivity form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/projects}" id="form99999" th:object="${activity}"
+                                            <form th:action="@{/projects}" id="form99999" th:object="${projectActivity}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" name="project" th:value="${projectKey}">
