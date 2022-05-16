@@ -44,6 +44,8 @@ public class MainController {
     private final ActivityService activityService;
     @Autowired
     private final UserActivityService userActivityService;
+    @Autowired
+    private final LocationService locationService;
 
 
     @GetMapping ("/")
@@ -323,6 +325,15 @@ public class MainController {
                 .build();
         activityService.saveActivity(attKNIME);
 
+        Location casa = Location.builder()
+                .locationName("CASA").build();
+        Location sede = Location.builder()
+                .locationName("SEDE").build();
+        Location trasf = Location.builder()
+                .locationName("TRASFERTA").build();
+        locationService.saveLocation(casa);
+        locationService.saveLocation(sede);
+        locationService.saveLocation(trasf);
         return "login";
     }
 
