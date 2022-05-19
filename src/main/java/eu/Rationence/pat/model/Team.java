@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity(name = "Team")
-@Table(name = "PAT_Team")
+@Table(name = "PAT_Teams")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

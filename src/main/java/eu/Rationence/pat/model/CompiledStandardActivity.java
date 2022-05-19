@@ -52,7 +52,7 @@ import java.util.Date;
              foreignKey = @ForeignKey(name = "fk_CompiledStandardActivity_Location"), insertable = false, updatable = false)
      private Location c_Location;
 
-     @Column(name="i_Hours", nullable = false)
+     @Column(name="n_Hours", nullable = false)
      private int hours;
 
      @Override

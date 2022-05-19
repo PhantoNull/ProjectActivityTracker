@@ -330,9 +330,12 @@ public class MainController {
                 .locationName("SEDE").build();
         Location trasf = Location.builder()
                 .locationName("TRASFERTA").build();
+        Location cliente = Location.builder()
+                .locationName("CLIENTE").build();
         locationService.saveLocation(casa);
         locationService.saveLocation(sede);
         locationService.saveLocation(trasf);
+        locationService.saveLocation(cliente);
         return "login";
     }
 
