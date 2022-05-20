@@ -20,6 +20,7 @@
 		<src.dir>src/main/resources/public</src.dir>
 		<src.dir>src/main/resources/templates</src.dir>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

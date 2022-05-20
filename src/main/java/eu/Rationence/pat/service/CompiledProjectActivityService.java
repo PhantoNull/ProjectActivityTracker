@@ -21,7 +21,7 @@ public class CompiledProjectActivityService {
     public List<CompiledProjectActivity> findActivitiesByUsername(String username) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsername(username);
     }
-    public List<CompiledProjectActivity> findActivitiesByProject(String username, int month, int year) {
+    public List<CompiledProjectActivity> findActivitiesByUsernameAndMonthAndYear(String username, int month, int year) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsernameAndMonthAndYear(username, month, year);
     }
     public CompiledProjectActivity saveCompiledProjectActivity(CompiledProjectActivity compiledProjectActivity){

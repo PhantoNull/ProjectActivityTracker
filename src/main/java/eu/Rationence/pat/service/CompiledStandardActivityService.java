@@ -21,7 +21,7 @@ public class CompiledStandardActivityService {
     public List<CompiledStandardActivity> findActivitiesByUsername(String username) {
         return compiledStandardActivityRepository.findCompiledStandardActivitiesByUsername(username);
     }
-    public List<CompiledStandardActivity> findActivitiesByStandard(String username, int month, int year) {
+    public List<CompiledStandardActivity> findActivitiesByUsernameAndMonthAndYear(String username, int month, int year) {
         return compiledStandardActivityRepository.findCompiledStandardActivitiesByUsernameAndMonthAndYear(username, month, year);
     }
     public CompiledStandardActivity saveCompiledStandardActivity(CompiledStandardActivity compiledStandardActivity){

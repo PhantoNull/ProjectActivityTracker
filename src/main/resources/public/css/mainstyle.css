@@ -118,6 +118,7 @@ th.dateCol{width: 100px; !important}
 .width180{width: 180px; !important}
 .tablecheckbox:checked{ background-color:#4FA9BAFF; }
 .table-button:hover { color: #5598A8FF;}
+.a{text-decoration: none;}
 .menu-item {opacity: 0.8;}
 .menu-item:hover {opacity: 1.0;}
 .hidden{display: none;}
