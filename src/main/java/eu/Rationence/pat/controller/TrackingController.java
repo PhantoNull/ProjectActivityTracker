@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -72,27 +73,38 @@ public class TrackingController {
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
-        HashSet<ProjectActivity> projectActivityHashSet = new HashSet<>();
+        HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
-            projectActivityHashSet.add(projectActivityService.findActivityByActivityKeyAndProject(
-                    compiledProjectActivity.getActivityKey(), compiledProjectActivity.getProject()));
+            projectActivityHashSet.add(CompiledProjectActivityRow.builder()
+                    .project(compiledProjectActivity.getProject())
+                    .activityKey(compiledProjectActivity.getActivityKey())
+                    .location(compiledProjectActivity.getLocationName()).build());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(compiledProjectActivity.getDate());
             model.addAttribute(compiledProjectActivity.getProject() + "."
                                 + compiledProjectActivity.getActivityKey() + "."
-                                + compiledProjectActivity.getDate(), compiledProjectActivity.getHours());
+                                + compiledProjectActivity.getLocationName() + "."
+                                + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
         }
         model.addAttribute("projectActivityList", projectActivityHashSet);
+        System.out.println(projectActivityHashSet);
 
-        List<CompiledStandardActivity> compiledStandarfActivityList = compiledStandardActivityService
+        List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
-        HashSet<StandardActivity> standardActivityHashSet = new HashSet<>();
-        for(CompiledStandardActivity compiledStandardActivity : compiledStandarfActivityList){
-            standardActivityHashSet.add(standardActivityService.findStandardActivityByActivityKey(
-                    compiledStandardActivity.getActivityKey()));
+        HashSet<CompiledStandardActivityRow> standardActivityHashSet = new HashSet<>();
+        for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
+            standardActivityHashSet.add(CompiledStandardActivityRow.builder()
+                    .activityKey(compiledStandardActivity.getActivityKey())
+                    .location(compiledStandardActivity.getLocationName()).build());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(compiledStandardActivity.getDate());
             model.addAttribute("Standard."
                     + compiledStandardActivity.getActivityKey() + "."
-                    + compiledStandardActivity.getDate(), compiledStandardActivity.getHours());
+                    + compiledStandardActivity.getLocationName() + "."
+                    + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
         }
-
+        if(standardActivityHashSet != null)
+            model.addAttribute("standardActivityList", standardActivityHashSet);
 
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());

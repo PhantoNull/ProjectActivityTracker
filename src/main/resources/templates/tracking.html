@@ -8,7 +8,7 @@
 <script src="/js/table-system.js"></script>
 
 <script type="text/javascript">
-    let columnList = ["checkbox", "teamName", "teamDesc", "teamAdmin"];
+    let columnList = ["checkbox", "activity", "location"];
 
     async function action(actionString) {
         let error_log = "";
@@ -90,17 +90,12 @@
             else
                 break;
         }
-        let tableColumnList = ["TeamName", "TeamDesc", "TeamAdmin"];
+        let tableColumnList = ["Activity", "Location"];
         for (let columnKey of tableColumnList) {
             let columnInputs = document.getElementsByClassName("f" + columnKey);
             let filterValue = document.getElementById(columnKey + "filter").value;
             for (let columnInput of columnInputs) {
-                let parentTableRow;
-                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "TeamAdmin")
-                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
-                else
-                    parentTableRow = columnInput.parentNode.parentNode;
+                let parentTableRow = columnInput.parentNode.parentNode;
                 if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
                     parentTableRow.classList.add('hidden');
                 }
@@ -110,7 +105,7 @@
 </script>
 
 <section class="">
-    <div class="container mt-6">
+    <div class="container mt-6 is-fluid">
         <div class="columns">
             <div class="column" style="min-width:1600px;">
 
@@ -270,37 +265,41 @@
                                             </th>
                                         </tr>
                                         <!-- Data rows -->
-                                        <tr th:each="team,iter : ${teamList}" th:id="row+${iter.index}">
-                                            <form th:action="@{/teams}" th:id="form+${iter.index}"
-                                                  th:object="${team}" method="put">
+                                        <tr th:each="projectActivity,iter : ${projectActivityList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/tracking}" th:id="form+${iter.index}"
+                                                  th:object="${compiledProjectActivity}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
-                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fTeamName"
-                                                           th:id="teamName + ${iter.index}" name="teamName" type="text"
-                                                           th:value="${team.teamName}"
-                                                           th:placeholder="${team.teamName}" maxlength="5" required
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
+                                                           th:id="projectActivity + ${iter.index}" name="projectActivity" type="text"
+                                                           th:value="${projectActivity.getProject()} + ':' +${projectActivity.getActivityKey()}"
+                                                           th:placeholder="${projectActivity.getProject()} + ':' +${projectActivity.getActivityKey()}" required
                                                            readonly>
                                                 </td>
                                                 <td>
-                                                    <div class="select">
-                                                        <select th:id="location + ${iter.index}" name="locationName"
-                                                                class="width110 fLocationName">
-                                                            <option name="locationName" th:each="location : ${locationList}"
-                                                                    th:selected="${team.teamAdmin == user.username}"
-                                                                    th:value="${user.username}"
-                                                                    th:text="${user.username}"></option>
-                                                        </select>
-                                                    </div>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fLocation"
+                                                           th:id="location + ${iter.index}" name="location" type="text"
+                                                           th:value="${projectActivity.getLocation()}"
+                                                           th:placeholder="${projectActivity.getLocation()}" required
+                                                           readonly>
+                                                </td>
+                                                <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                                    <input class="input has-text-right"
+                                                           th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
+                                                           type="number"
+                                                           th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                           th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                           required>
                                                 </td>
                                             </form>
                                         </tr>
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/teams}" id="form99999" th:object="${team}"
+                                            <form th:action="@{/tracking}" id="form99999" th:object="${team}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input id="checkboxadd"
@@ -322,7 +321,7 @@
                                                     </div>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-right" th:id="hour+${i}" name="hour"
+                                                    <input class="input has-text-right" th:id="houradd+${i}" name="hour"
                                                            type="number" required>
                                                 </td>
                                                 <td>

@@ -57,7 +57,6 @@ public class ProjectController {
                                              @RequestParam(value="projectType") String projectTypeKey,
                                              @RequestParam(value="value") String value){
         try{
-            System.out.println(project);
             if(projectService.findProjectByProject(project.getProjectKey()) != null)
                 return ResponseEntity.status(409).body("ERROR: " + project.getProjectKey() + " has been already created");
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
@@ -80,7 +79,6 @@ public class ProjectController {
                                                 @RequestParam(value="projectType") String projectTypeKey,
                                                 @RequestParam(value="value") String value){
         try{
-            System.out.println(project);
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;

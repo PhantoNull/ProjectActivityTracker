@@ -156,13 +156,17 @@ public class UserController {
                                                     @RequestParam(value="team") String teamKey,
                                                     @RequestParam(value="role") String roleKey,
                                                     @RequestParam(value="cost") String cost,
-                                                    BindingResult result){
+                                                    BindingResult result,
+                                                    Principal principal){
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
             User userRepo = userService.findUserByUsername(user.getUsername());
             if(userRepo == null)
                 return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
+            String username = principal.getName();
+            if(userRepo.getUsername().equalsIgnoreCase(username))
+                return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete your account while logged in.");
             userService.deleteUserByUsername(user.getUsername());
             return ResponseEntity.ok("'" + user.getUsername() + "' successfully deleted.");
         }
