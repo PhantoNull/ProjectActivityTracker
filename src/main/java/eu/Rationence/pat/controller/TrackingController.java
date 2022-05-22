@@ -11,10 +11,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Controller
@@ -54,6 +56,15 @@ public class TrackingController {
         model.addAttribute("year", year);
         model.addAttribute("monthDays", passedDate.lengthOfMonth());
         model.addAttribute("monthName", passedDate.getMonth());
+
+        Set<Integer> weekendDaysSet = new HashSet<Integer>();
+        for(int i=1; i < passedDate.lengthOfMonth(); i++){
+            LocalDate cycleLocalDate = LocalDate.of(year, month, i);
+            if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY)
+                weekendDaysSet.add(i);
+        }
+        model.addAttribute("weekendDays", weekendDaysSet);
+
         int previousMonth = month-1, previousYear = year, nextMonth = month + 1, nextYear = year;
         if(month == 1) {
             previousMonth = 12;
@@ -74,6 +85,7 @@ public class TrackingController {
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
+        model.addAttribute("userActivityList", userRepo.getActivities());
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
             projectActivityHashSet.add(CompiledProjectActivityRow.builder()
                     .project(compiledProjectActivity.getProject())
@@ -87,11 +99,11 @@ public class TrackingController {
                                 + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
         }
         model.addAttribute("projectActivityList", projectActivityHashSet);
-        System.out.println(projectActivityHashSet);
 
         List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
         HashSet<CompiledStandardActivityRow> standardActivityHashSet = new HashSet<>();
+        model.addAttribute("allStandardList", standardActivityService.findAll());
         for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
             standardActivityHashSet.add(CompiledStandardActivityRow.builder()
                     .activityKey(compiledStandardActivity.getActivityKey())
@@ -103,12 +115,23 @@ public class TrackingController {
                     + compiledStandardActivity.getLocationName() + "."
                     + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
         }
-        if(standardActivityHashSet != null)
-            model.addAttribute("standardActivityList", standardActivityHashSet);
+        model.addAttribute("standardActivityList", standardActivityHashSet);
 
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "tracking";
+    }
+
+    @PostMapping ("/tracking/{year}/{month}")
+    public ResponseEntity<String> trackingMonthYear(@PathVariable int year,
+                                                    @PathVariable int month,
+                                                    @RequestParam String projectActivityKeys,
+                                                    @RequestParam String locationName,
+                                                    Principal principal) {
+        User userRepo = userService.findUserByUsername(principal.getName());
+        System.out.println(year + "\n" + month + "\n" + projectActivityKeys + "\n" + locationName);
+
+        return ResponseEntity.ok("Provaprova");
     }
 
     @ExceptionHandler(Exception.class)

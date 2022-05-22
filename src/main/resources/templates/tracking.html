@@ -10,7 +10,7 @@
 <script type="text/javascript">
     let columnList = ["checkbox", "activity", "location"];
 
-    async function action(actionString) {
+    async function action(actionString, year, month) {
         let error_log = "";
         let tableChanged = false;
         if (tableRowList.every(v => v === false))
@@ -24,32 +24,17 @@
                             console.log(value);
                         }
                         console.log(data);
-                        if (index !== "99999")
-                            await fetch("/tracking", {method: 'PUT', body: data})
-                                .then(response => response.text())
-                                .then(body => {
-                                    let span;
-                                    if (body.includes("ERROR"))
-                                        span = "<span class=\"has-text-danger\">";
-                                    else
-                                        span = "<span class=\"has-text-primary\">";
-                                    error_log += span + body + "</span><br>";
-                                })
-                                .catch(error => console.log(error));
-                        else
-                            await fetch("/tracking", {method: 'POST', body: data})
-                                .then(response => response.text())
-                                .then(body => {
-                                    let span;
-                                    if (body.includes("ERROR"))
-                                        span = "<span class=\"has-text-danger\">";
-                                    else {
-                                        span = "<span class=\"has-text-primary\">";
-                                        tableChanged = true;
-                                    }
-                                    error_log += span + body + "</span><br>";
-                                })
-                                .catch(error => console.log(error));
+                        await fetch("/tracking", {method: 'PUT', body: data})
+                            .then(response => response.text())
+                            .then(body => {
+                                let span;
+                                if (body.includes("ERROR"))
+                                    span = "<span class=\"has-text-danger\">";
+                                else
+                                    span = "<span class=\"has-text-primary\">";
+                                error_log += span + body + "</span><br>";
+                            })
+                            .catch(error => console.log(error));
                     }
                 }
                 break;
@@ -74,6 +59,27 @@
                 }
                 return window.location.reload(true)
                 break;
+            case 'addTracking':
+                console.log("mese e anno: " + month + " " + year);
+                let data = new FormData(document.getElementById("formadd"));
+                for (let value of data.values()) {
+                    console.log(value);
+                }
+                let inputActivity = document.getElementById("projectActivityAddactivity");
+                let inputLocation = document.getElementById("locationAddactivity");
+                await fetch("/tracking/"+year+"/"+month, {method: 'POST', body: data})
+                    .then(response => response.text())
+                    .then(body => {
+                        let span;
+                        if (body.includes("ERROR"))
+                            span = "<span class=\"has-text-danger\">";
+                        else {
+                            span = "<span class=\"has-text-primary\">";
+                            tableChanged = true;
+                        }
+                        error_log += span + body + "</span><br>";
+                    })
+                    .catch(error => console.log(error));
         }
         let errorelement = document.getElementById("error-log-text");
         errorelement.innerHTML = error_log;
@@ -288,7 +294,7 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-right"
+                                                    <input class="input has-text-right" th:classappend="${weekendDays.contains(i) ? 'has-background-grey':''}"
                                                            th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
                                                            type="number"
                                                            th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
@@ -297,36 +303,52 @@
                                                 </td>
                                             </form>
                                         </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td>Tot</td>
+                                            <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                                <input class="input has-text-right"
+                                                       th:id="hourTot+${i}"
+                                                       type="number"
+                                                       th:value="0"
+                                                       th:placeholder="0"
+                                                       required>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="mx-auto mt-4">
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/tracking}" id="form99999" th:object="${team}"
-                                                  method="post">
-                                                <td style="text-align:center; vertical-align:middle;">
-                                                    <input id="checkboxadd"
-                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
-                                                           class="tablecheckbox">
-                                                </td>
+                                            <form th:action="@{/tracking/}" id="formAddProjectActivity" method="post">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                                 <td>
-                                                    <input class="input has-text-primary has-text-weight-semibold"
-                                                           th:id="usernameaddteam" name="teamName" type="text"
-                                                           placeholder="" maxlength="5" required>
+                                                    <div class="select">
+                                                        <select th:id="projectActivityAddactivity" name="projectActivityKeys" class="has-text-primary has-text-weight-semibold">
+                                                            <option th:each="userActivity,iter : ${userActivityList}"
+                                                                    th:value="${userActivity.getProject()} + ':' +${userActivity.getActivityKey()}"
+                                                                    th:text="${userActivity.getProject()} + ': ' +${userActivity.getActivityKey()}"></option>
+                                                            <option th:each="standardActivity,iter : ${allStandardList}"
+                                                                    th:value="'Standard:' +${standardActivity.getActivityKey()}"
+                                                                    th:text="'Standard:' +${standardActivity.getActivityKey()}"></option>
+                                                        </select>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <div class="select">
-                                                        <select th:id="locationAddactivity" name="locationName" class="width110">
+                                                        <select th:id="locationAddactivity" name="locationName" class="has-text-primary has-text-weight-semibold">
                                                             <option th:each="location : ${locationList}"
                                                                     th:value="${location.locationName}"
                                                                     th:text="${location.locationName}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
-                                                <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-right" th:id="houradd+${i}" name="hour"
-                                                           type="number" required>
-                                                </td>
                                                 <td>
-                                                    <input class="input has-text-right" th:id="hour+${i}" name="hour"
-                                                           type="number" readonly>
+                                                    <button class="button is-primary"
+                                                            th:data-year="${year}"
+                                                            th:data-month="${month}"
+                                                            th:onclick="action('addTracking',this.getAttribute('data-year'), this.getAttribute('data-month'))">
+                                                        Add Activity</button>
                                                 </td>
                                             </form>
                                         </tr>
