@@ -54,11 +54,12 @@ public class TrackingController {
         boolean lastCompilableSheet = month == LocalDate.now().getMonthValue() && year == LocalDate.now().getYear();
         model.addAttribute("nextAvailable", lastCompilableSheet);
         model.addAttribute("year", year);
+        model.addAttribute("month", month);
         model.addAttribute("monthDays", passedDate.lengthOfMonth());
         model.addAttribute("monthName", passedDate.getMonth());
 
-        Set<Integer> weekendDaysSet = new HashSet<Integer>();
-        for(int i=1; i < passedDate.lengthOfMonth(); i++){
+        Set<Integer> weekendDaysSet = new HashSet<>();
+        for(int i=1; i <= passedDate.lengthOfMonth(); i++){
             LocalDate cycleLocalDate = LocalDate.of(year, month, i);
             if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY)
                 weekendDaysSet.add(i);

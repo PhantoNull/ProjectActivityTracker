@@ -29,7 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         };
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*").authenticated()
+                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*", "/tracking/*/*").authenticated()
                     .antMatchers("/users","/projects","/clients","/standardactivities", "/teams", "/projects/*").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()

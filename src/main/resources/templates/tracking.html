@@ -10,10 +10,43 @@
 <script type="text/javascript">
     let columnList = ["checkbox", "activity", "location"];
 
+    async function addTracking(actionString, year, month) {
+        let error_log = "";
+        let tableChanged = false;
+        if (tableRowList.every(v => v === false) && actionString !== "addTracking")
+            return 1;
+
+        console.log("mese e anno: " + month + " " + year);
+        let data = new FormData(document.getElementById("formAddProjectActivity"));
+        for (let value of data.values()) {
+            console.log(value);
+        }
+        let inputActivity = document.getElementById("projectActivityAddactivity");
+        let inputLocation = document.getElementById("locationAddactivity");
+        await fetch("/tracking/" + year + "/" + month, {method: 'POST', body: data})
+            .then(response => response.text())
+            .then(body => {
+                let span;
+                if (body.includes("ERROR"))
+                    span = "<span class=\"has-text-danger\">";
+                else {
+                    span = "<span class=\"has-text-primary\">";
+                    tableChanged = true;
+                }
+                error_log += span + body + "</span><br>";
+            })
+            .catch(error => console.log(error));
+        let errorelement = document.getElementById("error-log-text");
+        errorelement.innerHTML = error_log;
+        showErrorLog(true);
+        if (tableChanged === true)
+            setTimeout(function () {window.location.reload(true)}, 3000);
+    }
+
     async function action(actionString, year, month) {
         let error_log = "";
         let tableChanged = false;
-        if (tableRowList.every(v => v === false))
+        if (tableRowList.every(v => v === false) && actionString !== "addTracking")
             return 1;
         switch (actionString) {
             case 'saveTracking':
@@ -61,7 +94,7 @@
                 break;
             case 'addTracking':
                 console.log("mese e anno: " + month + " " + year);
-                let data = new FormData(document.getElementById("formadd"));
+                let data = new FormData(document.getElementById("formAddProjectActivity"));
                 for (let value of data.values()) {
                     console.log(value);
                 }
@@ -294,7 +327,7 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-right" th:classappend="${weekendDays.contains(i) ? 'has-background-grey':''}"
+                                                    <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                            th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
                                                            type="number"
                                                            th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
@@ -308,7 +341,7 @@
                                             <td></td>
                                             <td>Tot</td>
                                             <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                <input class="input has-text-right"
+                                                <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                        th:id="hourTot+${i}"
                                                        type="number"
                                                        th:value="0"
@@ -320,7 +353,7 @@
                                     <table class="mx-auto mt-4">
                                         <!--new team form-->
                                         <tr id="row99999">
-                                            <form th:action="@{/tracking/}" id="formAddProjectActivity" method="post">
+                                            <form id="formAddProjectActivity">
                                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                                 <td>
                                                     <div class="select">
@@ -345,9 +378,7 @@
                                                 </td>
                                                 <td>
                                                     <button class="button is-primary"
-                                                            th:data-year="${year}"
-                                                            th:data-month="${month}"
-                                                            th:onclick="action('addTracking',this.getAttribute('data-year'), this.getAttribute('data-month'))">
+                                                            th:onclick="'addTracking(\'addTracking\',' + ${year} + ',' + ${month} +');'">
                                                         Add Activity</button>
                                                 </td>
                                             </form>
