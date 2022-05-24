@@ -15,14 +15,17 @@ public class CompiledProjectActivityService {
     @Autowired
     private CompiledProjectActivityRepository compiledProjectActivityRepository;
 
-    public CompiledProjectActivity findActivityByActivityKeyAndProjectAndUsernameAndDate(String activityKey, String project, String username, Date date){
-        return compiledProjectActivityRepository.getCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndDate(activityKey, project, username, date);
+    public CompiledProjectActivity findActivityByActivityKeyAndProjectAndUsernameAndDate(String activityKey, String project, String username, String location, Date date){
+        return compiledProjectActivityRepository.getCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(activityKey, project, username, location, date);
     }
     public List<CompiledProjectActivity> findActivitiesByUsername(String username) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsername(username);
     }
     public List<CompiledProjectActivity> findActivitiesByUsernameAndMonthAndYear(String username, int month, int year) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsernameAndMonthAndYear(username, month, year);
+    }
+    public List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(String username, String location, int month, int year) {
+        return compiledProjectActivityRepository.findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, location, month, year);
     }
     public CompiledProjectActivity saveCompiledProjectActivity(CompiledProjectActivity compiledProjectActivity){
         return compiledProjectActivityRepository.save(compiledProjectActivity);

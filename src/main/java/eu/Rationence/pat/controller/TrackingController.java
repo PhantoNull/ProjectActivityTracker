@@ -11,12 +11,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -30,6 +31,8 @@ public class TrackingController {
     private final CompiledProjectActivityService compiledProjectActivityService;
     @Autowired
     private final CompiledStandardActivityService compiledStandardActivityService;
+    @Autowired
+    private final ProjectService projectService;
     @Autowired
     private final ProjectActivityService projectActivityService;
     @Autowired
@@ -95,9 +98,9 @@ public class TrackingController {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(compiledProjectActivity.getDate());
             model.addAttribute(compiledProjectActivity.getProject() + "."
-                                + compiledProjectActivity.getActivityKey() + "."
-                                + compiledProjectActivity.getLocationName() + "."
-                                + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
+                    + compiledProjectActivity.getActivityKey() + "."
+                    + compiledProjectActivity.getLocationName() + "."
+                    + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
         }
         model.addAttribute("projectActivityList", projectActivityHashSet);
 
@@ -128,16 +131,91 @@ public class TrackingController {
                                                     @PathVariable int month,
                                                     @RequestParam String projectActivityKeys,
                                                     @RequestParam String locationName,
-                                                    Principal principal) {
+                                                    Principal principal) throws ParseException {
+        String username = principal.getName();
+        LocalDate passedDate = LocalDate.of(year, month, 1);
         User userRepo = userService.findUserByUsername(principal.getName());
-        System.out.println(year + "\n" + month + "\n" + projectActivityKeys + "\n" + locationName);
+        String userTime = userRepo.getTime();
+        Pattern actPattern = Pattern.compile("Standard:.*");
+        Matcher matcher = actPattern.matcher(projectActivityKeys);
 
-        return ResponseEntity.ok("Provaprova");
+        if(matcher.find()){
+            List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                    .findCompiledStandardActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, locationName, month, year);
+            if(!compiledStandardActivityList.isEmpty())
+                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+            String[] list = projectActivityKeys.split(":");
+            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(list[1]);
+            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
+                String dateString = "" + i + "-" + month + "-" + year;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date dailyDate = dateFormat.parse(dateString);
+                CompiledStandardActivity csa = CompiledStandardActivity.builder()
+                        .activityKey(standardActivityRepo.getActivityKey())
+                        .c_Activity(standardActivityRepo)
+                        .username(username)
+                        .c_Username(userRepo)
+                        .locationName(locationName)
+                        .c_Location(locationService.findLocationByLocationName(locationName))
+                        .date(dailyDate)
+                        .hours(0)
+                        .build();
+                compiledStandardActivityService.saveCompiledStandardActivity(csa);
+            }
+        }
+        else{
+            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, locationName, month, year);
+            if(!compiledProjectActivityList.isEmpty())
+                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+            String[] list = projectActivityKeys.split(":");
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
+                String dateString = "" + i + "-" + month + "-" + year;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date dailyDate = dateFormat.parse(dateString);
+                LocalDate cycleLocalDate = LocalDate.of(year, month, i);
+                int pos = -1;
+                switch(cycleLocalDate.getDayOfWeek()){
+                    case MONDAY:
+                        pos = 0;
+                        break;
+                    case TUESDAY:
+                        pos = 1;
+                        break;
+                    case WEDNESDAY:
+                        pos = 2;
+                        break;
+                    case THURSDAY:
+                        pos = 3;
+                    case FRIDAY:
+                        pos = 4;
+                        break;
+                }
+                int hours = 0;
+                if(pos != -1)
+                    hours = Character.getNumericValue(userTime.charAt(pos));
+                CompiledProjectActivity cpa = CompiledProjectActivity.builder()
+                        .project(projectActivityRepo.getProject())
+                        .activityKey(projectActivityRepo.getActivityKey())
+                        .c_Activity(projectActivityRepo)
+                        .username(username)
+                        .c_Username(userRepo)
+                        .locationName(locationName)
+                        .c_Location(locationService.findLocationByLocationName(locationName))
+                        .date(dailyDate)
+                        .hours(hours)
+                        .build();
+                compiledProjectActivityService.saveCompiledProjectActivity(cpa);
+            }
+        }
+        return ResponseEntity.ok("Activity added to time sheet successfully.");
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleBadRequestException(Exception e) {
+        System.out.println(e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ERROR_STR + "Empty input or mismatched input type");

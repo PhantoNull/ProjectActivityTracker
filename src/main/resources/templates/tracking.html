@@ -21,9 +21,9 @@
         for (let value of data.values()) {
             console.log(value);
         }
-        let inputActivity = document.getElementById("projectActivityAddactivity");
-        let inputLocation = document.getElementById("locationAddactivity");
-        await fetch("/tracking/" + year + "/" + month, {method: 'POST', body: data})
+        let url = "/tracking/" + year + "/" + month;
+        event.preventDefault();
+        await fetch(url, {method: 'POST', body: data})
             .then(response => response.text())
             .then(body => {
                 let span;
@@ -336,6 +336,40 @@
                                                 </td>
                                             </form>
                                         </tr>
+                                        <tr th:each="standardActivity,iter : ${standardActivityList}" th:id="rowS+${iter.index}">
+                                            <form th:action="@{/tracking}" th:id="form+${iter.index}"
+                                                  th:object="${standardActivity}" method="put">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkboxS+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
+                                                           th:id="standardActivity + ${iter.index}" name="standardActivity" type="text"
+                                                           th:value="'Standard:' +${standardActivity.getActivityKey()}"
+                                                           th:placeholder="'Standard:' +${standardActivity.getActivityKey()}" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fLocation"
+                                                           th:id="Slocation + ${iter.index}" name="location" type="text"
+                                                           th:value="${standardActivity.getLocation()}"
+                                                           th:placeholder="${standardActivity.getLocation()}" required
+                                                           readonly>
+                                                </td>
+                                                <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                                    <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                           th:id="Shour+${standardActivity.getActivityKey()}+${i}" name="hour"
+                                                           type="number"
+                                                           th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                           th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                           required>
+                                                </td>
+                                            </form>
+                                        </tr>
+
+
                                         <tr>
                                             <td></td>
                                             <td></td>
@@ -363,7 +397,7 @@
                                                                     th:text="${userActivity.getProject()} + ': ' +${userActivity.getActivityKey()}"></option>
                                                             <option th:each="standardActivity,iter : ${allStandardList}"
                                                                     th:value="'Standard:' +${standardActivity.getActivityKey()}"
-                                                                    th:text="'Standard:' +${standardActivity.getActivityKey()}"></option>
+                                                                    th:text="'Standard: ' +${standardActivity.getActivityKey()}"></option>
                                                         </select>
                                                     </div>
                                                 </td>
@@ -376,12 +410,12 @@
                                                         </select>
                                                     </div>
                                                 </td>
+                                            </form>
                                                 <td>
                                                     <button class="button is-primary"
-                                                            th:onclick="'addTracking(\'addTracking\',' + ${year} + ',' + ${month} +');'">
+                                                            th:onclick="'action(\'addTracking\',' + ${year} + ',' + ${month} +');'">
                                                         Add Activity</button>
                                                 </td>
-                                            </form>
                                         </tr>
                                     </table>
                                 </div>

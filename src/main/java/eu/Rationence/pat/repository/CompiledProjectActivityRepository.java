@@ -12,15 +12,15 @@ import java.util.List;
 
 @Repository
 public interface CompiledProjectActivityRepository extends CrudRepository<CompiledProjectActivity, CompiledProjectActivityCompositeKey> {
-    CompiledProjectActivity getCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndDate(String activityKey, String projectKey, String username, Date date);
+    CompiledProjectActivity getCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(String activityKey, String projectKey, String username, String location, Date date);
 
     List<CompiledProjectActivity> findCompiledProjectActivitiesByUsername(String username);
 
     @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and DATEPART(month, d_Date) = ?2 and DATEPART(year, d_Date) = ?3", nativeQuery = true)
     List<CompiledProjectActivity> findCompiledProjectActivitiesByUsernameAndMonthAndYear(String username, int month, int year);
 
-    @Query(value = "SELECT DISTINCT c_Project, c_Activity FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and DATEPART(month, d_Date) = ?2 and DATEPART(year, d_Date) = ?3" , nativeQuery = true)
-    List<?> findCompiledProjectActivitiesListByUsernameAndMonthAndYear(String username, int month, int year);
+    @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and c_Location = ?2 and DATEPART(month, d_Date) = ?3 and DATEPART(year, d_Date) = ?4" , nativeQuery = true)
+    List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(String username, String location, int month, int year);
 
     CompiledProjectActivity save(CompiledProjectActivity compiledProjectActivity);
 
