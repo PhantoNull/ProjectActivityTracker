@@ -144,7 +144,7 @@ public class TrackingController {
         LocalDate passedDate = LocalDate.of(year, month, 1);
         User userRepo = userService.findUserByUsername(principal.getName());
         String userTime = userRepo.getTime();
-        Pattern actPattern = Pattern.compile("Standard:.*");
+        Pattern actPattern = Pattern.compile("Std:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
