@@ -24,8 +24,8 @@ public class CompiledStandardActivityService {
     public List<CompiledStandardActivity> findActivitiesByUsernameAndMonthAndYear(String username, int month, int year) {
         return compiledStandardActivityRepository.findCompiledStandardActivitiesByUsernameAndMonthAndYear(username, month, year);
     }
-    public List<CompiledStandardActivity> findCompiledStandardActivitiesListByUsernameAndLocationNameAndMonthAndYear(String username, String location, int month, int year) {
-        return compiledStandardActivityRepository.findCompiledStandardActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, location, month, year);
+    public List<CompiledStandardActivity> findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(String username, String location, String activityKey, int month, int year) {
+        return compiledStandardActivityRepository.findCompiledStandardActivitiesListByUsernameAndLocationNameAndActivityKeyAndMonthAndYear(username, location, activityKey, month, year);
     }
     public CompiledStandardActivity saveCompiledStandardActivity(CompiledStandardActivity compiledStandardActivity){
         return compiledStandardActivityRepository.save(compiledStandardActivity);

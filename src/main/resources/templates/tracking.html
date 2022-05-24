@@ -348,7 +348,7 @@
                                                     <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
                                                            th:id="standardActivity + ${iter.index}" name="standardActivity" type="text"
                                                            th:value="'Standard:' +${standardActivity.getActivityKey()}"
-                                                           th:placeholder="'Standard:' +${standardActivity.getActivityKey()}" required
+                                                           th:placeholder="'Std: ' +${standardActivity.getActivityKey()}" required
                                                            readonly>
                                                 </td>
                                                 <td>
@@ -397,7 +397,7 @@
                                                                     th:text="${userActivity.getProject()} + ': ' +${userActivity.getActivityKey()}"></option>
                                                             <option th:each="standardActivity,iter : ${allStandardList}"
                                                                     th:value="'Standard:' +${standardActivity.getActivityKey()}"
-                                                                    th:text="'Standard: ' +${standardActivity.getActivityKey()}"></option>
+                                                                    th:text="'Std: ' +${standardActivity.getActivityKey()}"></option>
                                                         </select>
                                                     </div>
                                                 </td>

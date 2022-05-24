@@ -24,8 +24,8 @@ public class CompiledProjectActivityService {
     public List<CompiledProjectActivity> findActivitiesByUsernameAndMonthAndYear(String username, int month, int year) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsernameAndMonthAndYear(username, month, year);
     }
-    public List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(String username, String location, int month, int year) {
-        return compiledProjectActivityRepository.findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, location, month, year);
+    public List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(String username, String location, String project, String activityKey, int month, int year) {
+        return compiledProjectActivityRepository.findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, location, project, activityKey, month, year);
     }
     public CompiledProjectActivity saveCompiledProjectActivity(CompiledProjectActivity compiledProjectActivity){
         return compiledProjectActivityRepository.save(compiledProjectActivity);

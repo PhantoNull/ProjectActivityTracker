@@ -40,6 +40,8 @@ public class TrackingController {
     @Autowired
     private final LocationService locationService;
 
+    final int[][] festivity = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {1,11}, {8,12}, {25,12}, {26,12}};
+
     @GetMapping ("/tracking")
     public String tracking(Model model, Principal principal) {
         LocalDate currentDate = LocalDate.now();
@@ -62,10 +64,16 @@ public class TrackingController {
         model.addAttribute("monthName", passedDate.getMonth());
 
         Set<Integer> weekendDaysSet = new HashSet<>();
+
         for(int i=1; i <= passedDate.lengthOfMonth(); i++){
             LocalDate cycleLocalDate = LocalDate.of(year, month, i);
             if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY)
                 weekendDaysSet.add(i);
+        }
+        for(int i=0; i<festivity.length; i++){
+            if(festivity[i][1] == month){
+                weekendDaysSet.add(festivity[i][0]);
+            }
         }
         model.addAttribute("weekendDays", weekendDaysSet);
 
@@ -139,13 +147,19 @@ public class TrackingController {
         Pattern actPattern = Pattern.compile("Standard:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
 
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
+            return ResponseEntity.status(409).body("ERROR: Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        }
+
         if(matcher.find()){
+            String[] list = projectActivityKeys.split(":");
+            String activityKey = list[1];
+            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledStandardActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, locationName, month, year);
+                    .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
+            System.out.println(compiledStandardActivityList);
             if(!compiledStandardActivityList.isEmpty())
                 return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
-            String[] list = projectActivityKeys.split(":");
-            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(list[1]);
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -164,12 +178,14 @@ public class TrackingController {
             }
         }
         else{
-            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndMonthAndYear(username, locationName, month, year);
-            if(!compiledProjectActivityList.isEmpty())
-                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
             String[] list = projectActivityKeys.split(":");
             ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            String projectKey = list[0];
+            String activityKey = list[1];
+            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
+            if(!compiledProjectActivityList.isEmpty())
+                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

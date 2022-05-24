@@ -109,8 +109,8 @@ th.teamNameCol, th.locationCol{width: 110px; !important}
 th.valueCol, th.manDaysCol{width: 100px; !important}
 th.projectKeyCol{width: 180px; !important}
 th.dateCol{width: 100px; !important}
-th.activityTrackerCol{min-width: 200px; !important}
-
+/*th.activityTrackerCol{min-width: 200px; !important}
+*/
 .article{border: 1px #2b4d60;}
 
 .width110{width:110px; !important}
