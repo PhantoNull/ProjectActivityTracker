@@ -22,10 +22,11 @@
                         let data = new FormData(document.getElementById("form" + index));
                         if (index !== "99999")
                             await fetch("/users", {method: 'PUT', body: data})
-                                .then(response => response.text())
-                                .then(body => {
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
                                     let span;
-                                    if (body.includes("ERROR"))
+                                    if (status !== 200)
                                         span = "<span class=\"has-text-danger\">";
                                     else
                                         span = "<span class=\"has-text-primary\">";
@@ -34,10 +35,11 @@
                                 .catch(error => console.log(error));
                         else
                             await fetch("/users", {method: 'POST', body: data})
-                                .then(response => response.text())
-                                .then(body => {
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
                                     let span;
-                                    if (body.includes("ERROR"))
+                                    if (status !== 200)
                                         span = "<span class=\"has-text-danger\">";
                                     else {
                                         span = "<span class=\"has-text-primary\">";
@@ -53,33 +55,36 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "99999")
+                        if (index !== "99999")
                             await fetch("/users", {method: 'DELETE', body: data})
-                                .then(response => response.text())
-                                .then(body => {
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
                                     let span;
-                                    if (body.includes("ERROR"))
+                                    if (status !== 200)
                                         span = "<span class=\"has-text-danger\">";
-                                    else
+                                    else {
                                         span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
                                     error_log += span + body + "</span><br>";
                                 })
                                 .catch(error => console.log(error));
 
                     }
                 }
-                return window.location.reload(true)
                 break;
             case 'resetPasswords':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != '99999')
+                        if (index !== '99999')
                             await fetch("/resetPasswordUser", {method: 'POST', body: data})
-                                .then(response => response.text())
-                                .then(body => {
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
                                     let span;
-                                    if (body.includes("ERROR"))
+                                    if (status !== 200)
                                         span = "<span class=\"has-text-danger\">";
                                     else
                                         span = "<span class=\"has-text-primary\">";

@@ -121,16 +121,6 @@ public class ProjectActivityController {
         else return null;
     }
 
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
-        System.out.println(e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("ERROR: Empty input or mismatched input type");
-    }
-
     private boolean isNumericString(String string){
         for (int i=0; i< string.length(); i++){
             if("0123456789".indexOf(string.charAt(i)) == -1)

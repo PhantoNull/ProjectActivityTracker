@@ -109,14 +109,6 @@ public class ProjectController {
         }
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("ERROR: Empty input or mismatched input type" + "<br><br>" + e.toString());
-    }
-
     private ResponseEntity<String> checkProjectValidity(Project project, String teamKey, String projectManagerKey,
                                                         String clientKey, String projectTypeKey, String value){
         if(!isNumericString(value))

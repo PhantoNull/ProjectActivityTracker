@@ -48,7 +48,6 @@ public class ClientController {
                                           @RequestParam(value="clientType") String clientTypeKey,
                                           BindingResult result){
         try{
-
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
             if(clientService.findClientByClientKey(client.getClientKey()) != null)
@@ -76,20 +75,19 @@ public class ClientController {
                                              BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             ClientType clientTypeRepo = clientTypeService.findClientTypeByClientTypeKey(clientTypeKey);
             if(clientTypeRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + clientTypeKey + " is not a valid client type. (not found)");
+                return AdviceController.responseNotFound(clientTypeKey + " is not a valid client type. (not found)");
             Client clientRepo = clientService.findClientByClientKey(client.getClientKey());
             if(clientRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + client.getClientKey() + " does not exists");
+                return AdviceController.responseNotFound(client.getClientKey() + " does not exists");
             client.setClientType(clientTypeRepo);
             clientService.saveClient(client);
-            return ResponseEntity.ok("Client '" + client.getClientKey() + "' updated.");
+            return AdviceController.responseOk("Client '" + client.getClientKey() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseBadRequest(e.getMessage());
         }
     }
 
@@ -98,24 +96,15 @@ public class ClientController {
                                              BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             Client clientRepo = clientService.findClientByClientKey(client.getClientKey());
             if(clientRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + client.getClientKey() + " does not exists");
+                return AdviceController.responseNotFound(client.getClientKey() + " does not exists");
             clientService.deleteClientByClientKey(client.getClientKey());
-            return ResponseEntity.ok("Client '" + client.getClientKey() + "' successfully deleted.");
+            return AdviceController.responseOk("Client '" + client.getClientKey() + "' successfully deleted.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseBadRequest(e.getMessage());
         }
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type");
     }
 }

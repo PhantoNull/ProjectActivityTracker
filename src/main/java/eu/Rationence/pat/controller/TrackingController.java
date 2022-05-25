@@ -4,6 +4,7 @@ import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mapping.model.MappingInstantiationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -227,6 +228,14 @@ public class TrackingController {
         }
         return ResponseEntity.ok("Activity added to time sheet successfully.");
     }
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleMappingInstantiationExceptionException(MappingInstantiationException e) {
+        System.out.println(e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ERROR_STR + "Empty input or mismatched input type");
+    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -234,6 +243,6 @@ public class TrackingController {
         System.out.println(e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type");
+                .body(ERROR_STR + "Empty input or mismatched input type 2");
     }
 }

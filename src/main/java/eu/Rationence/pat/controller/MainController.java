@@ -73,11 +73,11 @@ public class MainController {
     @GetMapping("/initialize")
     public String initialize() throws ParseException {
         String[] stdNames = {"Stage","Ferie","Rol","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
-                            "Attività Interne", "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
+                            "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
                             "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
-        boolean[] stdInternal = {true, false, true, false, false, true, true, true, true, false, false, true, true, false, false, false, false, false, false,
+        boolean[] stdInternal = {true, false, true, false, false, true, true, true, false, false, true, true, false, false, false, false, false, false,
                                  false, false};
-        boolean[] stdWaged = {true, false, true, true, false, true, true, true, false, false, true, false, false, true, false, false, true, true, false, false, false};
+        boolean[] stdWaged = {true, false, true, true, false, true, true, false, false, true, false, false, true, false, false, true, true, false, false, false};
         for(int i = 0; i < stdNames.length; i++){
             StandardActivity std = StandardActivity.builder().
                     activityKey(stdNames[i]).internal(stdInternal[i]).waged(stdWaged[i]).build();
@@ -185,10 +185,15 @@ public class MainController {
                 .projectTypeKey("SERV")
                 .projectTypeDesc("Service")
                 .build();
+        ProjectType projInt = ProjectType.builder()
+                .projectTypeKey("INT")
+                .projectTypeDesc("Internal")
+                .build();
         projectTypeService.saveProjectType(projCons);
         projectTypeService.saveProjectType(projDevp);
         projectTypeService.saveProjectType(projTrng);
         projectTypeService.saveProjectType(projServ);
+        projectTypeService.saveProjectType(projInt);
 
         ClientType clientDirect = ClientType.builder()
                 .clientTypeKey("DIRECT")
@@ -232,8 +237,27 @@ public class MainController {
                 .build();
         clientService.saveClient(clientMICRO);
 
+        Client clientRATIO = Client.builder()
+                .clientKey("RATIO")
+                .clientDesc("Rationence")
+                .clientType(clientInternal)
+                .build();
+        clientService.saveClient(clientRATIO);
+
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Project attInterne = Project.builder()
+                .projectKey("RATIO-Int")
+                .projectDesc("Attività Interne")
+                .projectType(projInt)
+                .client(clientRATIO)
+                .projectManager(marcon)
+                .team(ammTeam)
+                .dateStart(sdf.parse("2022-04-01"))
+                .value(0)
+                .build();
+        projectService.saveProject(attInterne);
+
         Project orchBPER = Project.builder()
                 .projectKey("BPER-ORCH-22")
                 .projectDesc("Orchestratore BPER")

@@ -9,13 +9,18 @@ import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.model.MappingInstantiationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.regex.Matcher;
@@ -170,18 +175,13 @@ public class UserController {
             userService.deleteUserByUsername(user.getUsername());
             return ResponseEntity.ok("'" + user.getUsername() + "' successfully deleted.");
         }
+        catch(DataIntegrityViolationException e){
+            return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete '" + user.getUsername() + "' account. (Constraint violation)");
+        }
         catch(Exception e){
             return ResponseEntity.badRequest()
                     .body(ERROR_STR + e.getMessage());
         }
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type");
     }
 
     private boolean isNumericString(String string){
@@ -209,4 +209,5 @@ public class UserController {
             return ResponseEntity.badRequest().body(ERROR_STR + "Role" + roleKey + " not found.");
         return null;
     }
+
 }
