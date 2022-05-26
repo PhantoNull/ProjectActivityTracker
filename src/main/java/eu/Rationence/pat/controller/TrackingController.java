@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,8 +97,24 @@ public class TrackingController {
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
+
+
+        Set<UserActivity> activitySetRepo = userRepo.getActivities();
+        for(UserActivity userActivity : activitySetRepo){
+            LocalDate activityEndDate = null;
+            LocalDate activityStartDate = new java.sql.Date (userActivity.getC_Activity().getDateStart().getTime()).toLocalDate();
+            if(userActivity.getC_Activity().getDateEnd() != null)
+                activityEndDate = new java.sql.Date (userActivity.getC_Activity().getDateEnd().getTime()).toLocalDate();
+            if(
+                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+            )
+                    activitySetRepo.remove(userActivity);
+        }
         model.addAttribute("userActivityList", userRepo.getActivities());
+
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(compiledProjectActivity.getActivityKey(), compiledProjectActivity.getProject());
             projectActivityHashSet.add(CompiledProjectActivityRow.builder()
                     .project(compiledProjectActivity.getProject())
                     .activityKey(compiledProjectActivity.getActivityKey())
@@ -158,7 +173,6 @@ public class TrackingController {
             StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
                     .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
-            System.out.println(compiledStandardActivityList);
             if(!compiledStandardActivityList.isEmpty())
                 return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
@@ -187,6 +201,18 @@ public class TrackingController {
                     .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
             if(!compiledProjectActivityList.isEmpty())
                 return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+
+            LocalDate activityEndDate = null;
+            LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
+            if(projectActivityRepo.getDateEnd() != null)
+                activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
+            if(
+                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                    (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+            )
+                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
+
+
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -227,22 +253,5 @@ public class TrackingController {
             }
         }
         return ResponseEntity.ok("Activity added to time sheet successfully.");
-    }
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleMappingInstantiationExceptionException(MappingInstantiationException e) {
-        System.out.println(e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type");
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
-        System.out.println(e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type 2");
     }
 }

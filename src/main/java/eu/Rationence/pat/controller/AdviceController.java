@@ -37,6 +37,7 @@ public class AdviceController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleBadRequestException(Exception e) {
+        System.out.println(e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ERROR_STR + e);
