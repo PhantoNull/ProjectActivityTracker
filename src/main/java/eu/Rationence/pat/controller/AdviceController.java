@@ -30,16 +30,11 @@ public class AdviceController {
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<String> handleBindingExceptionException(BindException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + "Empty input or mismatched input type");
+        return responseBadRequest("Empty input or mismatched input type");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleBadRequestException(Exception e) {
-        System.out.println(e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + e);
+        return responseBadRequest(e.getMessage());
     }
 }

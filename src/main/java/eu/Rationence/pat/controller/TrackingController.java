@@ -162,7 +162,7 @@ public class TrackingController {
         Matcher matcher = actPattern.matcher(projectActivityKeys);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return ResponseEntity.status(409).body("ERROR: Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
 
         if(matcher.find()){
@@ -172,7 +172,7 @@ public class TrackingController {
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
                     .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
             if(!compiledStandardActivityList.isEmpty())
-                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -198,7 +198,7 @@ public class TrackingController {
             List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                     .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
             if(!compiledProjectActivityList.isEmpty())
-                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
 
             LocalDate activityEndDate = null;
             LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
@@ -208,7 +208,7 @@ public class TrackingController {
                     (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
                     (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
             )
-                return ResponseEntity.status(409).body("ERROR: Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
+                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
 
 
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
@@ -251,6 +251,6 @@ public class TrackingController {
                 compiledProjectActivityService.saveCompiledProjectActivity(cpa);
             }
         }
-        return ResponseEntity.ok("Activity added to time sheet successfully.");
+        return AdviceController.responseOk("Activity added to time sheet successfully.");
     }
 }
