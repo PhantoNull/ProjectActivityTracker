@@ -4,8 +4,6 @@ import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mapping.model.MappingInstantiationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -231,6 +229,7 @@ public class TrackingController {
                         break;
                     case THURSDAY:
                         pos = 3;
+                        break;
                     case FRIDAY:
                         pos = 4;
                         break;
