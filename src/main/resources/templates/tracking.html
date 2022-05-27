@@ -306,8 +306,8 @@
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="projectActivity,iter : ${projectActivityList}" th:id="row+${iter.index}">
-                                            <form th:action="@{/tracking}" th:id="form+${iter.index}"
-                                                  th:object="${compiledProjectActivity}" method="put">
+                                            <div th:action="@{/tracking}" th:id="form+${iter.index}"
+                                                 th:object="${compiledProjectActivity}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
@@ -328,18 +328,25 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
-                                                           th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
-                                                           type="number"
-                                                           th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
-                                                           th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
-                                                           required>
+                                                    <form th:action="@{/tracking}" th:id="form+${iter.index}"
+                                                          th:object="${compiledProjectActivity}" method="put">
+                                                        <input type="hidden" name="projectKey" th:value="${projectActivity.getProject()}"/>
+                                                        <input type="hidden" name="activityKey" th:value="${projectActivity.getActivityKey()}"/>
+                                                        <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                               th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
+                                                               type="number"
+                                                               th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                               th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                               required>
+                                                    </form>
                                                 </td>
-                                            </form>
+                                                <td>
+
+                                                </td>
+                                            </div>
                                         </tr>
                                         <tr th:each="standardActivity,iter : ${standardActivityList}" th:id="rowS+${iter.index}">
-                                            <form th:action="@{/tracking}" th:id="form+${iter.index}"
-                                                  th:object="${standardActivity}" method="put">
+                                            <div th:id="formS+${iter.index}">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkboxS+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
@@ -360,16 +367,19 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
-                                                           th:id="Shour+${standardActivity.getActivityKey()}+${i}" name="hour"
-                                                           type="number"
-                                                           th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
-                                                           th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
-                                                           required>
+                                                    <form th:action="@{/tracking}" th:id="formS+${iter.index}"
+                                                          th:object="${standardActivity}" method="put">
+                                                        <input type="hidden" name="activityKey" th:value="${standardActivity.getActivityKey()}"/>
+                                                        <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                               th:id="Shour+${standardActivity.getActivityKey()}+${i}" name="hour"
+                                                               type="number"
+                                                               th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                               th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                               required>
+                                                    </form>
                                                 </td>
-                                            </form>
+                                            </div>
                                         </tr>
-
 
                                         <tr>
                                             <td></td>
@@ -412,11 +422,11 @@
                                                     </div>
                                                 </td>
                                             </form>
-                                                <td>
-                                                    <button class="button is-primary"
-                                                            th:onclick="'action(\'addTracking\',' + ${year} + ',' + ${month} +');'">
-                                                        Add Activity</button>
-                                                </td>
+                                            <td>
+                                                <button class="button is-primary"
+                                                        th:onclick="'action(\'addTracking\',' + ${year} + ',' + ${month} +');'">
+                                                    Add Activity</button>
+                                            </td>
                                         </tr>
                                     </table>
                                     <div class="has-text-primary-dark has-text-weight-bold mt-5 has-text-centered">Monthly Note</div>
