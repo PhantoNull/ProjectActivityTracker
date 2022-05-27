@@ -28,6 +28,24 @@ public class AdviceController {
                 .body(message);
     }
 
+    public static ResponseEntity<String> responseServerError(String message){
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(message);
+    }
+
+    public static ResponseEntity<String> responseForbidden(String message){
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(message);
+    }
+
+    public static ResponseEntity<String> responseConflict(String message){
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(message);
+    }
+
     @ExceptionHandler(BindException.class)
     public ResponseEntity<String> handleBindingExceptionException(BindException e) {
         return responseBadRequest("Empty input or mismatched input type");

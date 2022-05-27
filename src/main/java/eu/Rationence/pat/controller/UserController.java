@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 @Controller
 @AllArgsConstructor
 public class UserController {
-    private static final String ERROR_STR = "ERROR: ";
 
     @Autowired
     private final UserService userService;
@@ -60,9 +59,9 @@ public class UserController {
                                           BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             if(userService.findUserByUsername(user.getUsername()) != null)
-                return ResponseEntity.status(409).body(ERROR_STR + user.getUsername() + " has been already created");
+                return AdviceController.responseConflict(user.getUsername() + " has been already created");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if(validityError != null)
                 return validityError;
@@ -73,11 +72,10 @@ public class UserController {
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             userService.saveUser(user);
-            return ResponseEntity.ok("'" + user.getUsername() + "' saved.");
+            return ResponseEntity.ok("'" + user.getUsername() + "' created.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -89,10 +87,10 @@ public class UserController {
                                           BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             User userRepo = userService.findUserByUsername(user.getUsername());
             if(userRepo == null)
-                return ResponseEntity.status(409).body(ERROR_STR + "Can't update user " + user.getUsername() + " (User does not exists)");
+                return AdviceController.responseNotFound("Can't update user " + user.getUsername() + " (User does not exists)");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if(validityError != null)
                 return validityError;
@@ -102,11 +100,10 @@ public class UserController {
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             userService.saveUser(user);
-            return ResponseEntity.ok("'" + user.getUsername() + "' updated.");
+            return AdviceController.responseOk("'" + user.getUsername() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -118,18 +115,17 @@ public class UserController {
                                              BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             User userRepo = userService.findUserByUsername(user.getUsername());
             if(userRepo == null)
-                return ResponseEntity.status(409).body(ERROR_STR + "Can't reset " + user.getUsername() + "'s password. (User does not exists)");
+                return AdviceController.responseNotFound("Can't reset " + user.getUsername() + "'s password. (User does not exists)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
             userService.saveUser(userRepo);
-            return ResponseEntity.ok("'" + user.getUsername() + "'s password reset.");
+            return AdviceController.responseOk("'" + user.getUsername() + "'s password reset.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -140,19 +136,18 @@ public class UserController {
             String username = principal.getName();
             User userRepo = userService.findUserByUsername(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body(ERROR_STR + "Can't reset " + username + "'s password. (User does not exists)");
+                return AdviceController.responseNotFound("Can't reset " + username + "'s password. (User does not exists)");
             Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,64}$");
             Matcher matcher = pattern.matcher(newPass);
             if(!matcher.find())
-                return ResponseEntity.status(400).body(ERROR_STR + "Password does not match minimum requirements (server)");
+                return AdviceController.responseBadRequest("Password does not match minimum requirements (server)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             userRepo.setPasswordHash(encoder.encode(newPass));
             userService.saveUser(userRepo);
-            return ResponseEntity.ok("Your password has been successfully changed");
+            return AdviceController.responseOk("Your password has been successfully changed");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -165,22 +160,21 @@ public class UserController {
                                                     Principal principal){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             User userRepo = userService.findUserByUsername(user.getUsername());
             if(userRepo == null)
-                return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
+                return AdviceController.responseNotFound("Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
             String username = principal.getName();
             if(userRepo.getUsername().equalsIgnoreCase(username))
-                return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete your account while logged in.");
+                return AdviceController.responseForbidden("Cannot delete your account while logged in.");
             userService.deleteUserByUsername(user.getUsername());
-            return ResponseEntity.ok("'" + user.getUsername() + "' successfully deleted.");
+            return AdviceController.responseOk("'" + user.getUsername() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
-            return ResponseEntity.status(409).body(ERROR_STR + "Cannot delete '" + user.getUsername() + "' account. (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete '" + user.getUsername() + "' account. (Constraint violation)");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -194,19 +188,19 @@ public class UserController {
 
     private ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
         if(!user.equals(userService.findUserByEmail(user.getEmail())) && userService.findUserByEmail(user.getEmail()) != null)
-            return ResponseEntity.status(409).body(ERROR_STR + user.getEmail() + " is already used by another user");
+            return AdviceController.responseConflict(user.getEmail() + " is already used by another user");
         if(!EmailValidator.getInstance().isValid(user.getEmail()))
-            return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
+            return AdviceController.responseBadRequest(user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
         if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
-            return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
+            return AdviceController.responseBadRequest(user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
         if(!isNumericString(cost))
-            return ResponseEntity.badRequest().body(ERROR_STR + user.getUsername() + "'s cost '" + cost + "' is not valid");
+            return AdviceController.responseBadRequest(user.getUsername() + "'s cost '" + cost + "' is not valid");
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         Role roleRepo = roleService.findRoleByRoleName(roleKey);
         if(teamRepo == null)
-            return ResponseEntity.badRequest().body(ERROR_STR + "Team" + teamKey + " not found.");
+            return AdviceController.responseNotFound("Team" + teamKey + " not found.");
         if(roleRepo == null)
-            return ResponseEntity.badRequest().body(ERROR_STR + "Role" + roleKey + " not found.");
+            return AdviceController.responseNotFound("Role" + roleKey + " not found.");
         return null;
     }
 
