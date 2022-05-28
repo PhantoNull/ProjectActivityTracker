@@ -140,6 +140,7 @@ public class TrackingController {
                     + compiledStandardActivity.getActivityKey() + "."
                     + compiledStandardActivity.getLocationName() + "."
                     + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
+
         }
         model.addAttribute("standardActivityList", standardActivityHashSet);
 

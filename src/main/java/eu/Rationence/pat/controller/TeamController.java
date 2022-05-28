@@ -6,6 +6,7 @@ import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -94,6 +95,9 @@ public class TeamController {
                 return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
             teamService.deleteTeamByTeamName(team.getTeamName());
             return ResponseEntity.ok("Team '" + team.getTeamName() + "' successfully deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete team '" + team.getTeamName() + "'. (Constraint violation)");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

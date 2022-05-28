@@ -46,51 +46,57 @@
     async function action(actionString, year, month) {
         let error_log = "";
         let tableChanged = false;
-        if (tableRowList.every(v => v === false) && actionString !== "addTracking")
+        if (Object.values(tableRowList).every(v => v === false) && actionString !== "addTracking")
             return 1;
         switch (actionString) {
             case 'saveTracking':
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
-                        let data = new FormData(document.getElementById("form" + index));
-                        for (let value of data.values()) {
-                            console.log(value);
+                        for(let day=1; day <= 31; day++){
+                            let form = document.getElementById("form" + index + "." + day);
+                            if(form != null){
+                                let data = new FormData(form);
+                                await fetch("/tracking/" + year + "/" + month, {method: 'PUT', body: data})
+                                    .then(response => response.text())
+                                    .then(body => {
+                                        let span;
+                                        if (body.includes("ERROR"))
+                                            span = "<span class=\"has-text-danger\">";
+                                        else
+                                            span = "<span class=\"has-text-primary\">";
+                                        error_log += span + body + "</span><br>";
+                                    })
+                                    .catch(error => console.log(error));
+                            }
                         }
-                        console.log(data);
-                        await fetch("/tracking", {method: 'PUT', body: data})
-                            .then(response => response.text())
-                            .then(body => {
-                                let span;
-                                if (body.includes("ERROR"))
-                                    span = "<span class=\"has-text-danger\">";
-                                else
-                                    span = "<span class=\"has-text-primary\">";
-                                error_log += span + body + "</span><br>";
-                            })
-                            .catch(error => console.log(error));
                     }
                 }
                 break;
             case 'deleteTracking':
                 for (let index in tableRowList) {
+                    console.log(Object.keys(tableRowList));
+                    console.log(index);
                     if (tableRowList[index]) {
-                        let data = new FormData(document.getElementById("form" + index));
-                        if (index != "99999")
-                            await fetch("/tracking", {method: 'DELETE', body: data})
-                                .then(response => response.text())
-                                .then(body => {
-                                    let span;
-                                    if (body.includes("ERROR"))
-                                        span = "<span class=\"has-text-danger\">";
-                                    else
-                                        span = "<span class=\"has-text-primary\">";
-                                    error_log += span + body + "</span><br>";
-                                })
-                                .catch(error => console.log(error));
-
+                        for(let day = 1; day <= 31; day++){
+                            let form = document.getElementById("form" + index + "." + day);
+                            console.log(form);
+                            if(form != null){
+                                let data = new FormData(form);
+                                await fetch("/tracking/" + year + "/" + month, {method: 'DELETE', body: data})
+                                    .then(response => response.text())
+                                    .then(body => {
+                                        let span;
+                                        if (body.includes("ERROR"))
+                                            span = "<span class=\"has-text-danger\">";
+                                        else
+                                            span = "<span class=\"has-text-primary\">";
+                                        error_log += span + body + "</span><br>";
+                                    })
+                                    .catch(error => console.log(error));
+                            }
+                        }
                     }
                 }
-                return window.location.reload(true)
                 break;
             case 'addTracking':
                 console.log("mese e anno: " + month + " " + year);
@@ -222,7 +228,7 @@
                         <div class="level-right">
                             <div class="level-item">
                                 <button class="button is-danger"
-                                        th:onclick="'action(\'deleteTeams\'), showConfirm(false);'">Continue
+                                        th:onclick="'action(\'deleteTracking\'), showConfirm(false);'">Continue
                                 </button>
                                 <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
                             </div>
@@ -285,23 +291,11 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="activityTrackingCol has-text-primary-dark table-header">Activity
-                                                <span class="icon has-text-primary"
-                                                      data-tooltip="Order">
-                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'teamName\',columnList);'"></i>
-                                                </span>
-                                            </th>
-                                            <th class="locationCol has-text-primary-dark table-header">Location
-                                                <span class="icon has-text-primary"
-                                                      data-tooltip="Order">
-                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'teamDesc\',columnList);'"></i>
-                                                </span>
-                                            </th>
-                                            <th class="hoursCol has-text-primary-dark table-header has-text-centered" th:each="i : ${#numbers.sequence( 1, monthDays/1)}" th:text="${i}">
-                                            </th>
-                                            <th class="hoursCol has-text-primary-dark table-header">Tot
+                                            <th class="activityTrackingCol has-text-primary-dark table-header">Activity</th>
+                                            <th class="locationCol has-text-primary-dark table-header">Location</th>
+                                            <th class="hoursCol has-text-primary-dark table-header has-text-centered"
+                                                th:each="i : ${#numbers.sequence( 1, monthDays/1)}" th:text="${i}"></th>
+                                            <th class="hoursCol has-text-primary-dark table-header has-text-centered">Tot
                                             </th>
                                         </tr>
                                         <!-- Data rows -->
@@ -328,7 +322,7 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <form th:action="@{/tracking}" th:id="form+${iter.index}"
+                                                    <form th:action="@{/tracking}" th:id="form+${iter.index}+.+${i}"
                                                           th:object="${compiledProjectActivity}" method="put">
                                                         <input type="hidden" name="projectKey" th:value="${projectActivity.getProject()}"/>
                                                         <input type="hidden" name="activityKey" th:value="${projectActivity.getActivityKey()}"/>
@@ -341,7 +335,11 @@
                                                     </form>
                                                 </td>
                                                 <td>
-
+                                                    <input class="input has-text-centered"
+                                                           th:id="rowTotal+${i}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
                                                 </td>
                                             </div>
                                         </tr>
@@ -349,7 +347,7 @@
                                             <div th:id="formS+${iter.index}">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkboxS+${iter.index}"
-                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           th:onclick="'selectTableRow(\'S' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
                                                 </td>
                                                 <td>
@@ -367,7 +365,7 @@
                                                            readonly>
                                                 </td>
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                    <form th:action="@{/tracking}" th:id="formS+${iter.index}"
+                                                    <form th:action="@{/tracking}" th:id="formS+${iter.index}+.+${i}"
                                                           th:object="${standardActivity}" method="put">
                                                         <input type="hidden" name="activityKey" th:value="${standardActivity.getActivityKey()}"/>
                                                         <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
@@ -378,25 +376,44 @@
                                                                required>
                                                     </form>
                                                 </td>
+                                                <td>
+                                                    <input class="input has-text-centered"
+                                                           th:id="rowTotalS+${i}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
+                                                </td>
                                             </div>
                                         </tr>
 
                                         <tr>
                                             <td></td>
                                             <td></td>
-                                            <td>Tot</td>
+                                            <td class="has-text-centered">
+                                                <span class="has-text-primary-dark has-text-weight-bold">
+                                                Tot
+                                                </span>
+                                            </td>
                                             <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
                                                 <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                        th:id="hourTot+${i}"
                                                        type="number"
                                                        th:value="0"
                                                        th:placeholder="0"
-                                                       required>
+                                                       required readonly>
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-centered"
+                                                       th:id="hourTotComplex"
+                                                       type="number"
+                                                       th:value="0"
+                                                       th:placeholder="0"
+                                                       required readonly>
                                             </td>
                                         </tr>
                                     </table>
                                     <table class="mx-auto mt-4">
-                                        <!--new team form-->
+                                        <!--new add activity form-->
                                         <tr id="row99999">
                                             <form id="formAddProjectActivity">
                                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>

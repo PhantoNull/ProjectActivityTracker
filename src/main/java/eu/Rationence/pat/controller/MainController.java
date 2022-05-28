@@ -72,7 +72,7 @@ public class MainController {
 
     @GetMapping("/initialize")
     public String initialize() throws ParseException {
-        String[] stdNames = {"Stage","Ferie","Rol","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
+        String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
                             "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
                             "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
         boolean[] stdInternal = {true, false, true, false, false, true, true, true, false, false, true, true, false, false, false, false, false, false,

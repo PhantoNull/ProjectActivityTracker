@@ -24,7 +24,7 @@
                             console.log(value);
                         }
                         console.log(data);
-                        if (index !== "99999")
+                        if (index !== "add")
                             await fetch("/projects/"+ projectKey + "/" + activityKey, {method: 'PUT', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -59,7 +59,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "99999")
+                        if (index != "add")
                             await fetch("/projects/" + projectKey + "/" + activityKey, {method: 'DELETE', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -86,12 +86,9 @@
     }
 
     function filterTableRow() {
-        for (let i = 0; i < 99998; i++) {
+        for (let i = 0; document.getElementById("row" + i) !== null; i++) {
             let row = document.getElementById("row" + i);
-            if (row != null)
-                row.classList.remove('hidden');
-            else
-                break;
+            row.classList.remove('hidden');
         }
         let tableColumnList = ["Username", "DailyRate"];
         for (let columnKey of tableColumnList) {
@@ -284,14 +281,14 @@
                                             </form>
                                         </tr>
                                         <!--new user projectActivity form-->
-                                        <tr id="row99999">
-                                            <form th:action="@{/projects}" id="form99999" th:object="${userActivity}"
+                                        <tr id="rowadd">
+                                            <form th:action="@{/projects}" id="formadd" th:object="${userActivity}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" name="project" th:value="${projectKey}">
                                                     <input type="hidden" name="activityKey" th:value="${activityKey}">
                                                     <input id="checkboxadd"
-                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           th:onclick="'selectTableRow(\'add\');'" type="checkbox"
                                                            class="tablecheckbox">
                                                 </td>
                                                 <td>

@@ -1,5 +1,5 @@
 
-var tableRowList = [];
+var tableRowList = {'add':false};
 tableRowList['add'] = false;
 
 function selectTableRow(id){
@@ -7,10 +7,12 @@ function selectTableRow(id){
     if(tableRowList[id]){
         document.getElementById("row"+id).classList.add('is-selected');
         console.log("attivata "+ id);
+        console.log(tableRowList)
     }
     else{
         document.getElementById("row"+id).classList.remove('is-selected');
         console.log("disattivata " +id);
+        console.log(tableRowList)
     }
 
 }
@@ -69,10 +71,12 @@ function sortTable(column, columnList) {
 }
 function showConfirm(bool) {
     let elem = document.getElementById("confirm-delete");
-    if (bool && !tableRowList.every(v => v === false)) {
+    if (bool && !Object.values(tableRowList).every(v => v === false)) {
         tableRowList['99999'] = false;
-        document.getElementById("checkboxadd").checked = false;
-        if (!tableRowList.every(v => v === false))
+        let doc = document.getElementById("checkboxadd");
+        if(doc != null)
+            doc.checked = false;
+        if (!Object.values(tableRowList).every(v => v === false))
             elem.style.display = "block";
     } else
         elem.style.display = "none";

@@ -8,7 +8,7 @@ import eu.Rationence.pat.service.ClientService;
 import eu.Rationence.pat.service.ClientTypeService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -102,6 +102,9 @@ public class ClientController {
                 return AdviceController.responseNotFound(client.getClientKey() + " does not exists");
             clientService.deleteClientByClientKey(client.getClientKey());
             return AdviceController.responseOk("Client '" + client.getClientKey() + "' successfully deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete client '" + client.getClientKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseBadRequest(e.getMessage());

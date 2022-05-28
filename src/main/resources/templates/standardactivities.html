@@ -13,7 +13,7 @@
     async function action(actionString) {
         let error_log = "";
         let tableChanged = false;
-        if (tableRowList.every(v => v === false))
+        if (Object.values(tableRowList).every(v => v === false))
             return 1;
         switch (actionString) {
             case 'saveStandardActivities':
@@ -25,7 +25,7 @@
                             console.log(value);
                         }
                         console.log(data);
-                        if (index !== "99999")
+                        if (index !== "add")
                             await fetch("/standardactivities", {method: 'PUT', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -60,7 +60,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "99999")
+                        if (index != "add")
                             await fetch("/standardactivities", {method: 'DELETE', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -88,12 +88,10 @@
     }
 
     function filterTableRow() {
-        for (let i = 0; i < 99998; i++) {
+        for (let i = 0; document.getElementById("row" + i) !== null; i++) {
             let row = document.getElementById("row" + i);
-            if (row != null)
-                row.classList.remove('hidden');
-            else
-                break;
+            row.classList.remove('hidden');
+
         }
         let tableColumnList = ["StdActivityKey", "Waged", "Internal"];
         for (let columnKey of tableColumnList) {
@@ -315,14 +313,14 @@
                                             </form>
                                         </tr>
                                         <!--new team form-->
-                                        <tr id="row99999">
+                                        <tr id="rowadd">
                                             <!--/*@thymesVar id="stdAct" type=""*/-->
-                                            <form th:action="@{/standardactivities}" id="form99999" th:object="${stdAct}"
+                                            <form th:action="@{/standardactivities}" id="formadd" th:object="${stdAct}"
                                                   method="post">
 
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input id="checkboxadd"
-                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           th:onclick="'selectTableRow(\'add\');'" type="checkbox"
                                                            class="tablecheckbox">
                                                 </td>
                                                 <td>

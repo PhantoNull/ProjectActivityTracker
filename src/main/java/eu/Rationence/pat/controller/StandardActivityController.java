@@ -6,6 +6,7 @@ import eu.Rationence.pat.service.StandardActivityService;
 import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -84,6 +85,9 @@ public class StandardActivityController {
                 return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
             standardActivityService.deleteStandardActivityByStandardActivityKey(stdAct.getActivityKey());
             return ResponseEntity.ok("Team '" + stdAct.getActivityKey() + "' successfully deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete standard activity '" + stdAct.getActivityKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

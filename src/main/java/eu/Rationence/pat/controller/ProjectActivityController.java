@@ -4,6 +4,7 @@ import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -103,6 +104,9 @@ public class ProjectActivityController {
                 return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
             projectActivityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
             return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' successfully deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete project activity '" + projectActivity.getActivityKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

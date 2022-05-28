@@ -4,6 +4,7 @@ import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -101,6 +102,9 @@ public class ProjectController {
                 return ResponseEntity.status(409).body("ERROR: Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
             projectService.deleteProjectByProject(projectRepo.getProjectKey());
             return ResponseEntity.ok("Project '" + projectRepo.getProjectKey() + "' deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete project '" + project.getProjectKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
             return ResponseEntity.badRequest()

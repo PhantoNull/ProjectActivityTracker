@@ -13,7 +13,7 @@
     async function action(actionString, projectKey) {
         let error_log = "";
         let tableChanged = false;
-        if (tableRowList.every(v => v === false))
+        if (Object.values(tableRowList).every(v => v === false))
             return 1;
         switch (actionString) {
             case 'saveActivities':
@@ -24,7 +24,7 @@
                             console.log(value);
                         }
                         console.log(data);
-                        if (index !== "99999")
+                        if (index !== "add")
                             await fetch("/projects/"+ projectKey, {method: 'PUT', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -59,7 +59,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "99999")
+                        if (index != "add")
                             await fetch("/projects/" + projectKey, {method: 'DELETE', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -87,12 +87,9 @@
     }
 
     function filterTableRow() {
-        for (let i = 0; i < 99998; i++) {
+        for (let i = 0; document.getElementById("row" + i); i++) {
             let row = document.getElementById("row" + i);
-            if (row != null)
-                row.classList.remove('hidden');
-            else
-                break;
+            row.classList.remove('hidden');
         }
         let tableColumnList = ["ActivityKey", "ActivityType", "DateStart", "DateEnd", "Charged", "ManDays"];
         for (let columnKey of tableColumnList) {
@@ -380,13 +377,13 @@
                                             </form>
                                         </tr>
                                         <!--new projectActivity form-->
-                                        <tr id="row99999">
-                                            <form th:action="@{/projects}" id="form99999" th:object="${projectActivity}"
+                                        <tr id="rowadd">
+                                            <form th:action="@{/projects}" id="formadd" th:object="${projectActivity}"
                                                   method="post">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" name="project" th:value="${projectKey}">
                                                     <input id="checkboxadd"
-                                                           th:onclick="'selectTableRow(\'99999\');'" type="checkbox"
+                                                           th:onclick="'selectTableRow(\'add\');'" type="checkbox"
                                                            class="tablecheckbox">
                                                 </td>
                                                 <td>

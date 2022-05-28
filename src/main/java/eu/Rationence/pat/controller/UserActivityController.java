@@ -7,6 +7,7 @@ import eu.Rationence.pat.model.UserActivity;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +38,7 @@ public class UserActivityController {
                                         Model model, Principal principal){
         Project projectRepo = projectService.findProjectByProject(projectKey);
         ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
-        if(projectRepo == null || projectActivityRepo == null)
+        if(projectActivityRepo == null)
             return "error";
         List<User> availableUserList = userService.findAll();
         List<UserActivity> userActivityList = userActivityService.findUserActivitiesByProjectAndActivityKey(projectKey, activityKey);

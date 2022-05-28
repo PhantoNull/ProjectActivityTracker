@@ -6,6 +6,7 @@ import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +34,7 @@ public class RoleController {
         return "roles";
     }
 
-    @PostMapping("/addRole")
+    @PostMapping("/roles")
     public ResponseEntity<String> addRole(@Valid Role role) {
         try {
             roleService.saveRole(role);
@@ -45,7 +46,7 @@ public class RoleController {
 
     }
 
-    @PostMapping("/deleteRole")
+    @DeleteMapping("/roles")
     public ResponseEntity<String> deleteRole(@Valid Role role) {
         if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
             return ResponseEntity.badRequest()
@@ -53,7 +54,8 @@ public class RoleController {
         try {
             roleService.deleteRoleByRoleName(role.getRoleName());
             return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body("ERROR : " + e.getMessage());
         }
