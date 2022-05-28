@@ -30,7 +30,7 @@ public class CompiledStandardActivityService {
     public CompiledStandardActivity saveCompiledStandardActivity(CompiledStandardActivity compiledStandardActivity){
         return compiledStandardActivityRepository.save(compiledStandardActivity);
     }
-    public void deleteCompiledStandardActivityByActivityKeyAndStandardAndUsernameAndDate(String activityKey, String username, Date date){
-        compiledStandardActivityRepository.deleteCompiledStandardActivityByActivityKeyAndUsernameAndDate(activityKey, username, date);
+    public void deleteCompiledStandardActivityByActivityKeyAndStandardAndUsernameAndLocationAndDate(String activityKey, String username, String location, Date date){
+        compiledStandardActivityRepository.deleteCompiledStandardActivityByActivityKeyAndUsernameAndLocationNameAndDate(activityKey, username, location, date);
     }
 }

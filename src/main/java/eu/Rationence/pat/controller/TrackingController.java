@@ -37,19 +37,21 @@ public class TrackingController {
     private final StandardActivityService standardActivityService;
     @Autowired
     private final LocationService locationService;
+    @Autowired
+    private final MonthlyNoteService monthlyNoteService;
 
     final int[][] festivity = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {1,11}, {8,12}, {25,12}, {26,12}};
 
     @GetMapping ("/tracking")
-    public String tracking(Model model, Principal principal) {
+    public String tracking(Model model, Principal principal) throws ParseException {
         LocalDate currentDate = LocalDate.now();
-        return trackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
+        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
 
     @GetMapping ("/tracking/{year}/{month}")
-    public String trackingMonthYear(@PathVariable int year,
+    public String getTrackingMonthYear(@PathVariable int year,
                                     @PathVariable int month,
-                                    Model model, Principal principal) {
+                                    Model model, Principal principal) throws ParseException {
         model.addAttribute("locationList", locationService.findAll());
         LocalDate passedDate = LocalDate.of(year, month, 1);
         if(passedDate.isAfter(LocalDate.now()))
@@ -91,6 +93,11 @@ public class TrackingController {
 
         String username = principal.getName();
         User userRepo = userService.findUserByUsername(username);
+
+        Date dateMonthlyNote = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.findMonthlyNoteByUsernameAndDate(username, dateMonthlyNote);
+        if(monthlyNote != null)
+            model.addAttribute("monthlyNote", monthlyNote.getNote());
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .findActivitiesByUsernameAndMonthAndYear(username, month, year);
@@ -150,14 +157,14 @@ public class TrackingController {
     }
 
     @PostMapping ("/tracking/{year}/{month}")
-    public ResponseEntity<String> trackingMonthYear(@PathVariable int year,
+    public ResponseEntity<String> addTrackingMonthYear(@PathVariable int year,
                                                     @PathVariable int month,
                                                     @RequestParam String projectActivityKeys,
                                                     @RequestParam String locationName,
                                                     Principal principal) throws ParseException {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUserByUsername(principal.getName());
+        User userRepo = userService.findUserByUsername(username);
         String userTime = userRepo.getTime();
         Pattern actPattern = Pattern.compile("Std:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
@@ -253,5 +260,102 @@ public class TrackingController {
             }
         }
         return AdviceController.responseOk("Activity added to time sheet successfully.");
+    }
+
+    @PutMapping ("/tracking/{year}/{month}")
+    public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
+                                                          @PathVariable int month,
+                                                          @RequestParam String projectActivityKeys,
+                                                          @RequestParam String locationName,
+                                                          Principal principal) throws ParseException {
+        String username = principal.getName();
+        return AdviceController.responseOk("Put mapping mapped. " + year + "-" + month);
+    }
+
+    @DeleteMapping ("/tracking/{year}/{month}")
+    public ResponseEntity<String> deleteTrackingMonthYear(@PathVariable int year,
+                                                          @PathVariable int month,
+                                                          @RequestParam String projectActivityKeys,
+                                                          @RequestParam String locationName,
+                                                          Principal principal) throws ParseException {
+
+        String username = principal.getName();
+        LocalDate passedDate = LocalDate.of(year, month, 1);
+        User userRepo = userService.findUserByUsername(username);
+        Pattern actPattern = Pattern.compile("Std:.*");
+        Matcher matcher = actPattern.matcher(projectActivityKeys);
+
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
+            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        }
+        if(matcher.find()){
+            String[] list = projectActivityKeys.split(":");
+            String activityKey = list[1];
+            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
+            List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                    .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
+            if(compiledStandardActivityList.isEmpty())
+                return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
+            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
+                String dateString = "" + i + "-" + month + "-" + year;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date dailyDate = dateFormat.parse(dateString);
+                compiledStandardActivityService.deleteCompiledStandardActivityByActivityKeyAndStandardAndUsernameAndLocationAndDate(activityKey, username, locationName, dailyDate);
+            }
+        }
+        else{
+            String[] list = projectActivityKeys.split(":");
+            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            String projectKey = list[0];
+            String activityKey = list[1];
+            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
+            if(!compiledProjectActivityList.isEmpty())
+                return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
+
+            LocalDate activityEndDate = null;
+            LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
+            if(projectActivityRepo.getDateEnd() != null)
+                activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
+            if(
+                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+            )
+                return AdviceController.responseBadRequest("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
+
+
+            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
+                String dateString = "" + i + "-" + month + "-" + year;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date dailyDate = dateFormat.parse(dateString);
+                compiledProjectActivityService.deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(activityKey, projectKey, username, locationName, dailyDate);
+            }
+        }
+        return AdviceController.responseOk("Activity " + projectActivityKeys + " deleted from time sheet successfully.");
+    }
+
+    @PutMapping ("/trackingNote/{year}/{month}")
+    public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
+                                                          @PathVariable int month,
+                                                          @RequestParam (required = false) String note,
+                                                          Principal principal) throws ParseException {
+        String username = principal.getName();
+        LocalDate passedDate = LocalDate.of(year, month, 1);
+        User userRepo = userService.findUserByUsername(username);
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
+            return AdviceController.responseBadRequest("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        }
+        if(note == null || note.length() == 0){
+            monthlyNoteService.deleteMonthlyNoteByUsernameAndDate(username, date);
+            return AdviceController.responseOk("Note deleted.");
+        }
+        else{
+            MonthlyNote monthlyNote = MonthlyNote.builder()
+                    .c_Username(userRepo).username(username).date(date).note(note).build();
+            monthlyNoteService.saveMonthlyNote(monthlyNote);
+            return AdviceController.responseOk("Note saved.");
+        }
     }
 }

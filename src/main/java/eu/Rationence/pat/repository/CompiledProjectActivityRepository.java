@@ -25,7 +25,7 @@ public interface CompiledProjectActivityRepository extends CrudRepository<Compil
     CompiledProjectActivity save(CompiledProjectActivity compiledProjectActivity);
 
     @Transactional
-    void deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndDate(String activityKey, String projectKey, String username, Date date);
+    void deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(String activityKey, String projectKey, String username, String location, Date date);
 }
 
 

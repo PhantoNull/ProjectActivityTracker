@@ -52,7 +52,8 @@ public class AdviceController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleBadRequestException(Exception e) {
+    public ResponseEntity<String> handleGenericException(Exception e) {
+        System.out.println(e);
         return responseBadRequest(e.getMessage());
     }
 }

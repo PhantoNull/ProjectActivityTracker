@@ -30,7 +30,7 @@ public class CompiledProjectActivityService {
     public CompiledProjectActivity saveCompiledProjectActivity(CompiledProjectActivity compiledProjectActivity){
         return compiledProjectActivityRepository.save(compiledProjectActivity);
     }
-    public void deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndDate(String activityKey, String project, String username, Date date){
-        compiledProjectActivityRepository.deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndDate(activityKey, project, username, date);
+    public void deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(String activityKey, String project, String username, String location, Date date){
+        compiledProjectActivityRepository.deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(activityKey, project, username, location, date);
     }
 }

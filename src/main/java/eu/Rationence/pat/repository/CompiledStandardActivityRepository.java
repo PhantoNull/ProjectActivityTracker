@@ -26,7 +26,7 @@ public interface CompiledStandardActivityRepository extends CrudRepository<Compi
     CompiledStandardActivity save(CompiledStandardActivity compiledStandardActivity);
 
     @Transactional
-    void deleteCompiledStandardActivityByActivityKeyAndUsernameAndDate(String activityKey, String username, Date date);
+    void deleteCompiledStandardActivityByActivityKeyAndUsernameAndLocationNameAndDate(String activityKey, String username, String location, Date date);
 }
 
 
