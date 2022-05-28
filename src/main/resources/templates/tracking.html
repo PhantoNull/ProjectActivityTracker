@@ -49,6 +49,28 @@
         let data;
         switch (actionString) {
             case 'saveTracking':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        for(let day=1; day <= 31; day++){
+                            let form = document.getElementById("form" + index + "." + day);
+                            if(form != null){
+                                data = new FormData(form);
+                                await fetch("/tracking/" + year + "/" + month, {method: 'PUT', body: data})
+                                    .then(response => response.text())
+                                    .then(body => {
+                                        let span;
+                                        if (body.includes("ERROR"))
+                                            span = "<span class=\"has-text-danger\">";
+                                        else
+                                            span = "<span class=\"has-text-primary\">";
+                                        if(error_log === "")
+                                            error_log += span + body + "</span><br>";
+                                    })
+                                    .catch(error => console.log(error));
+                            }
+                        }
+                    }
+                }
                 data = new FormData(document.getElementById("formNote"));
                 await fetch("/trackingNote/"+year+"/"+month, {method: 'PUT', body: data})
                     .then(response => response.text())
@@ -62,27 +84,6 @@
                         error_log += span + body + "</span><br>";
                     })
                     .catch(error => console.log(error));
-                for (let index in tableRowList) {
-                    if (tableRowList[index]) {
-                        for(let day=1; day <= 31; day++){
-                            let form = document.getElementById("form" + index + "." + day);
-                            if(form != null){
-                                let data = new FormData(form);
-                                await fetch("/tracking/" + year + "/" + month, {method: 'PUT', body: data})
-                                    .then(response => response.text())
-                                    .then(body => {
-                                        let span;
-                                        if (body.includes("ERROR"))
-                                            span = "<span class=\"has-text-danger\">";
-                                        else
-                                            span = "<span class=\"has-text-primary\">";
-                                        error_log += span + body + "</span><br>";
-                                    })
-                                    .catch(error => console.log(error));
-                            }
-                        }
-                    }
-                }
                 break;
             case 'deleteTracking':
                 for (let index in tableRowList) {
@@ -314,8 +315,9 @@
                                                 <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
                                                     <form th:action="@{/tracking}" th:id="form+${iter.index}+.+${i}"
                                                           th:object="${compiledProjectActivity}" method="put">
-                                                        <input type="hidden" name="projectActivityKeys" th:value="${projectActivity.getProject()}+':'+${standardActivity.getActivityKey()}"/>
-                                                        <input type="hidden" name="locationName" th:value="${projectActivity.getLocation()}/">
+                                                        <input type="hidden" name="projectActivityKeys" th:value="${projectActivity.getProject()}+':'+${projectActivity.getActivityKey()}"/>
+                                                        <input type="hidden" name="locationName" th:value="${projectActivity.getLocation()}"/>
+                                                        <input type="hidden" name="day" th:value="${i}"/>
                                                         <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                                th:id="hour+${projectActivity.getProject()}+${projectActivity.getActivityKey()}+${i}" name="hour"
                                                                type="number"
@@ -359,6 +361,7 @@
                                                           th:object="${standardActivity}" method="put">
                                                         <input type="hidden" name="projectActivityKeys" th:value="'Std:'+${standardActivity.getActivityKey()}"/>
                                                         <input type="hidden" name="locationName" th:value="${standardActivity.getLocation()}"/>
+                                                        <input type="hidden" name="day" th:value="${i}"/>
                                                         <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                                th:id="Shour+${standardActivity.getActivityKey()}+${i}" name="hour"
                                                                type="number"

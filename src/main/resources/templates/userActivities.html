@@ -13,7 +13,7 @@
     async function action(actionString, projectKey, activityKey) {
         let error_log = "";
         let tableChanged = false;
-        if (tableRowList.every(v => v === false))
+        if (Object.values(tableRowList).every(v => v === false))
             return 1;
         switch (actionString) {
             case 'saveUserActivities':
