@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 @Controller
 @AllArgsConstructor
 public class TrackingController {
-    private static final String ERROR_STR = "ERROR: ";
 
     @Autowired
     private final UserService userService;
@@ -29,8 +28,6 @@ public class TrackingController {
     private final CompiledProjectActivityService compiledProjectActivityService;
     @Autowired
     private final CompiledStandardActivityService compiledStandardActivityService;
-    @Autowired
-    private final ProjectService projectService;
     @Autowired
     private final ProjectActivityService projectActivityService;
     @Autowired
@@ -92,15 +89,15 @@ public class TrackingController {
         model.addAttribute("nextYear", nextYear);
 
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
 
         Date dateMonthlyNote = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
-        MonthlyNote monthlyNote = monthlyNoteService.findMonthlyNoteByUsernameAndDate(username, dateMonthlyNote);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, dateMonthlyNote);
         if(monthlyNote != null)
             model.addAttribute("monthlyNote", monthlyNote.getNote());
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                .findActivitiesByUsernameAndMonthAndYear(username, month, year);
+                .findCompiledActivities(username, month, year);
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
 
 
@@ -119,7 +116,6 @@ public class TrackingController {
         model.addAttribute("userActivityList", userRepo.getActivities());
 
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(compiledProjectActivity.getActivityKey(), compiledProjectActivity.getProject());
             projectActivityHashSet.add(CompiledProjectActivityRow.builder()
                     .project(compiledProjectActivity.getProject())
                     .activityKey(compiledProjectActivity.getActivityKey())
@@ -134,7 +130,7 @@ public class TrackingController {
         model.addAttribute("projectActivityList", projectActivityHashSet);
 
         List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                .findActivitiesByUsernameAndMonthAndYear(username, month, year);
+                .findCompiledActivities(username, month, year);
         HashSet<CompiledStandardActivityRow> standardActivityHashSet = new HashSet<>();
         model.addAttribute("allStandardList", standardActivityService.findAll());
         for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
@@ -164,7 +160,7 @@ public class TrackingController {
                                                        Principal principal) throws ParseException {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         String userTime = userRepo.getTime();
         Pattern actPattern = Pattern.compile("Std:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
@@ -178,7 +174,7 @@ public class TrackingController {
             String activityKey = list[1];
             StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, activityKey, month, year);
             if(!compiledStandardActivityList.isEmpty())
                 return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
@@ -191,20 +187,20 @@ public class TrackingController {
                         .username(username)
                         .c_Username(userRepo)
                         .locationName(locationName)
-                        .c_Location(locationService.findLocationByLocationName(locationName))
+                        .c_Location(locationService.find(locationName))
                         .date(dailyDate)
                         .hours(0)
                         .build();
-                compiledStandardActivityService.saveCompiledStandardActivity(csa);
+                compiledStandardActivityService.save(csa);
             }
         }
         else{
             String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
             String projectKey = list[0];
             String activityKey = list[1];
             List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
             if(!compiledProjectActivityList.isEmpty())
                 return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
 
@@ -252,11 +248,11 @@ public class TrackingController {
                         .username(username)
                         .c_Username(userRepo)
                         .locationName(locationName)
-                        .c_Location(locationService.findLocationByLocationName(locationName))
+                        .c_Location(locationService.find(locationName))
                         .date(dailyDate)
                         .hours(hours)
                         .build();
-                compiledProjectActivityService.saveCompiledProjectActivity(cpa);
+                compiledProjectActivityService.save(cpa);
             }
         }
         return AdviceController.responseOk("Activity added to time sheet successfully.");
@@ -272,7 +268,7 @@ public class TrackingController {
                                                           Principal principal) throws ParseException {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         Pattern actPattern = Pattern.compile("Std:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
 
@@ -285,7 +281,7 @@ public class TrackingController {
             String activityKey = list[1];
             StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, activityKey, month, year);
             if(compiledStandardActivityList.isEmpty())
                 return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
@@ -298,20 +294,20 @@ public class TrackingController {
                     .username(username)
                     .c_Username(userRepo)
                     .locationName(locationName)
-                    .c_Location(locationService.findLocationByLocationName(locationName))
+                    .c_Location(locationService.find(locationName))
                     .date(dailyDate)
                     .hours(hour)
                     .build();
-            compiledStandardActivityService.saveCompiledStandardActivity(csa);
+            compiledStandardActivityService.save(csa);
 
         }
         else{
             String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
             String projectKey = list[0];
             String activityKey = list[1];
             List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
             if(compiledProjectActivityList.isEmpty())
                 return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
@@ -336,11 +332,11 @@ public class TrackingController {
                         .username(username)
                         .c_Username(userRepo)
                         .locationName(locationName)
-                        .c_Location(locationService.findLocationByLocationName(locationName))
+                        .c_Location(locationService.find(locationName))
                         .date(dailyDate)
                         .hours(hour)
                         .build();
-                compiledProjectActivityService.saveCompiledProjectActivity(cpa);
+                compiledProjectActivityService.save(cpa);
 
         }
         return AdviceController.responseOk("Activity " + projectActivityKeys + " updated successfully.");
@@ -355,7 +351,7 @@ public class TrackingController {
 
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         Pattern actPattern = Pattern.compile("Std:.*");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
 
@@ -367,23 +363,23 @@ public class TrackingController {
             String activityKey = list[1];
             StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
             List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledStandardActivitiesListByUsernameAndLocationAndActivityKeyNameAndMonthAndYear(username, locationName, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, activityKey, month, year);
             if(compiledStandardActivityList.isEmpty())
                 return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
             for(int i=1; i <= passedDate.lengthOfMonth(); i++){
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
                 Date dailyDate = dateFormat.parse(dateString);
-                compiledStandardActivityService.deleteCompiledStandardActivityByActivityKeyAndStandardAndUsernameAndLocationAndDate(activityKey, username, locationName, dailyDate);
+                compiledStandardActivityService.delete(activityKey, username, locationName, dailyDate);
             }
         }
         else{
             String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(list[1], list[0]);
+            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
             String projectKey = list[0];
             String activityKey = list[1];
             List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, locationName, projectKey, activityKey, month, year);
+                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
             if(compiledProjectActivityList.isEmpty())
                 return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
@@ -402,7 +398,7 @@ public class TrackingController {
                 String dateString = "" + i + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
                 Date dailyDate = dateFormat.parse(dateString);
-                compiledProjectActivityService.deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(activityKey, projectKey, username, locationName, dailyDate);
+                compiledProjectActivityService.delete(activityKey, projectKey, username, locationName, dailyDate);
             }
         }
         return AdviceController.responseOk("Activity " + projectActivityKeys + " deleted from time sheet successfully.");
@@ -415,20 +411,20 @@ public class TrackingController {
                                                           Principal principal) throws ParseException {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
             return AdviceController.responseBadRequest("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
         if(note == null || note.length() == 0){
-            monthlyNoteService.deleteMonthlyNoteByUsernameAndDate(username, date);
+            monthlyNoteService.delete(username, date);
             return AdviceController.responseOk("Note deleted.");
         }
         else{
             MonthlyNote monthlyNote = MonthlyNote.builder()
                     .c_Username(userRepo).username(username).date(date).note(note).build();
-            monthlyNoteService.saveMonthlyNote(monthlyNote);
+            monthlyNoteService.save(monthlyNote);
             return AdviceController.responseOk("Note saved.");
         }
     }

@@ -31,7 +31,7 @@ public class StandardActivityController {
     public String teams(Model model, Principal principal) {
         model.addAttribute("stdActivityList", standardActivityService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "standardactivities";
@@ -47,7 +47,7 @@ public class StandardActivityController {
                 return ResponseEntity.badRequest().body(ERROR_STR + "Activity Key Name can't be blank");
             else if(standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey()) != null)
                 return ResponseEntity.status(409).body(ERROR_STR + stdAct.getActivityKey() + " has been already created");
-            standardActivityService.saveStdActivity(stdAct);
+            standardActivityService.save(stdAct);
             return ResponseEntity.ok("Standard Activity '" + stdAct.getActivityKey() + "' saved.");
         }
         catch(Exception e){
@@ -65,7 +65,7 @@ public class StandardActivityController {
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
-            standardActivityService.saveStdActivity(stdAct);
+            standardActivityService.save(stdAct);
             return ResponseEntity.ok("Standard Activity '" + stdAct.getActivityKey() + "' updated.");
         }
         catch(Exception e){
@@ -83,7 +83,7 @@ public class StandardActivityController {
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
-            standardActivityService.deleteStandardActivityByStandardActivityKey(stdAct.getActivityKey());
+            standardActivityService.delete(stdAct.getActivityKey());
             return ResponseEntity.ok("Team '" + stdAct.getActivityKey() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){

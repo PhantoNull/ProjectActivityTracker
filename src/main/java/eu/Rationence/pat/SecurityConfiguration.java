@@ -29,17 +29,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         };
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*", "/tracking/*/*", "/trackingNote/*/*").authenticated()
+                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*/*", "/trackingNote/*/*").authenticated()
                     .antMatchers("/users","/projects","/clients","/standardactivities", "/teams", "/projects/*").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .formLogin()
-                    .loginPage("/login")
-                    .permitAll()
+                    .loginPage("/login").permitAll()
                     .and()
-                .logout()
-                    .permitAll();
+                .logout().permitAll();
     }
 }

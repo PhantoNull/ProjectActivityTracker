@@ -3,6 +3,7 @@ package eu.Rationence.pat.controller;
 import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.model.Team;
 import eu.Rationence.pat.model.User;
+import eu.Rationence.pat.service.EmailServiceImpl;
 import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UserService;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +36,8 @@ public class UserController {
     private final TeamService teamService;
     @Autowired
     private final RoleService roleService;
+    @Autowired
+    private final EmailServiceImpl emailService;
 
     @GetMapping ("/users")
     public String utenti(Model model, Principal principal) {
@@ -41,7 +46,7 @@ public class UserController {
         model.addAttribute("listaRuoli", roleService.findAll());
         model.addAttribute("pageTitle", "PAT Prova");
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "users";
@@ -56,19 +61,30 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            if(userService.findUserByUsername(user.getUsername()) != null)
+            if(userService.findUser(user.getUsername()) != null)
                 return AdviceController.responseConflict(user.getUsername() + " has been already created");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if(validityError != null)
                 return validityError;
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            user.setPasswordHash(encoder.encode("RatioPassTemp!"));
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
-            Role roleRepo = roleService.findRoleByRoleName(roleKey);
+            Role roleRepo = roleService.findRole(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
-            userService.saveUser(user);
-            return ResponseEntity.ok("'" + user.getUsername() + "' created.");
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+            SecureRandom random = new SecureRandom();
+            byte bytes[] = new byte[16];
+            random.nextBytes(bytes);
+            Base64.Encoder encoderPsw = Base64.getUrlEncoder().withoutPadding();
+            String token = encoderPsw.encodeToString(bytes);
+            user.setPasswordHash(encoder.encode(token));
+            userService.save(user);
+            emailService.sendSimpleMessage(user.getEmail(),"Creazione Account - Amministrazione", "Gentile " + user.getName() + ", <br>" +
+                    "<br><br>    ricevi questa mail a seguito della creazione del tuo account per l'applicativo <strong>Project Activity Tracking</strong>.<br>" +
+                    "   Le credenziali di accesso sono username: <br><strong> " +user.getUsername() + "</strong><br>    e password generata casualmente: <br>   <strong>"
+                    + token +"</strong> <br><br>" +
+                    "   Consigliamo di cambiarla dopo il primo accesso e di seguire le best-practices per tenere le password al sicuro.");
+            return ResponseEntity.ok("'" + user.getUsername() + "' created. A random generated password has been sent to user email address.");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());
@@ -77,14 +93,14 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<String> updateUser(@Valid User user,
-                                          @RequestParam(value="team") String teamKey,
-                                          @RequestParam(value="role") String roleKey,
-                                          @RequestParam(value="cost") String cost,
-                                          BindingResult result){
+                                             @RequestParam(value="team") String teamKey,
+                                             @RequestParam(value="role") String roleKey,
+                                             @RequestParam(value="cost") String cost,
+                                             BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUserByUsername(user.getUsername());
+            User userRepo = userService.findUser(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't update user " + user.getUsername() + " (User does not exists)");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
@@ -92,10 +108,10 @@ public class UserController {
                 return validityError;
             user.setPasswordHash(userRepo.getPasswordHash());
             Team teamRepo = teamService.findTeamByTeamName(teamKey);
-            Role roleRepo = roleService.findRoleByRoleName(roleKey);
+            Role roleRepo = roleService.findRole(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
-            userService.saveUser(user);
+            userService.save(user);
             return AdviceController.responseOk("'" + user.getUsername() + "' updated.");
         }
         catch(Exception e){
@@ -105,19 +121,29 @@ public class UserController {
 
     @PostMapping("/resetPasswordUser")
     public ResponseEntity<String> resetPasswordUser(@Valid User user,
-                                             @RequestParam(value="team") String teamKey,
-                                             @RequestParam(value="role") String roleKey,
-                                             @RequestParam(value="cost") String cost,
-                                             BindingResult result){
+                                                    BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUserByUsername(user.getUsername());
+            User userRepo = userService.findUser(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + user.getUsername() + "'s password. (User does not exists)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            userRepo.setPasswordHash(encoder.encode("RatioPassTemp!"));
-            userService.saveUser(userRepo);
+
+            SecureRandom random = new SecureRandom();
+            byte bytes[] = new byte[16];
+            random.nextBytes(bytes);
+            Base64.Encoder encoderPsw = Base64.getUrlEncoder().withoutPadding();
+            String token = encoderPsw.encodeToString(bytes);
+            userRepo.setPasswordHash(encoder.encode(token));
+
+            userService.save(userRepo);
+
+            emailService.sendSimpleMessage(userRepo.getEmail(),"Reset Password - Amministrazione", "Gentile " + userRepo.getName() + ", <br>" +
+                            "<br>    ricevi questa mail a seguito di un reset della tua password lato amministrativo.<br><br>" +
+                               "    La tua nuova password generata casualmente è la seguente: <br>  <strong> "
+                                + token +"</strong> <br><br>" +
+                            "   Consigliamo di cambiarla al prossimo accesso seguendo le best-practices per tenere le password al sicuro.");
             return AdviceController.responseOk("'" + user.getUsername() + "'s password reset.");
         }
         catch(Exception e){
@@ -130,7 +156,7 @@ public class UserController {
                                                      Principal principal){
         try{
             String username = principal.getName();
-            User userRepo = userService.findUserByUsername(username);
+            User userRepo = userService.findUser(username);
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + username + "'s password. (User does not exists)");
             Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,64}$");
@@ -139,7 +165,7 @@ public class UserController {
                 return AdviceController.responseBadRequest("Password does not match minimum requirements (server)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             userRepo.setPasswordHash(encoder.encode(newPass));
-            userService.saveUser(userRepo);
+            userService.save(userRepo);
             return AdviceController.responseOk("Your password has been successfully changed");
         }
         catch(Exception e){
@@ -149,21 +175,21 @@ public class UserController {
 
     @DeleteMapping("/users")
     public ResponseEntity<String> deleteUser(@Valid User user,
-                                                    @RequestParam(value="team") String teamKey,
-                                                    @RequestParam(value="role") String roleKey,
-                                                    @RequestParam(value="cost") String cost,
-                                                    BindingResult result,
-                                                    Principal principal){
+                                             @RequestParam(value="team") String teamKey,
+                                             @RequestParam(value="role") String roleKey,
+                                             @RequestParam(value="cost") String cost,
+                                             BindingResult result,
+                                             Principal principal){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUserByUsername(user.getUsername());
+            User userRepo = userService.findUser(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Cannot delete '" + user.getUsername() + "' account. (User does not exists)");
             String username = principal.getName();
             if(userRepo.getUsername().equalsIgnoreCase(username))
                 return AdviceController.responseForbidden("Cannot delete your account while logged in.");
-            userService.deleteUserByUsername(user.getUsername());
+            userService.delete(user.getUsername());
             return AdviceController.responseOk("'" + user.getUsername() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
@@ -192,7 +218,7 @@ public class UserController {
         if(!isNumericString(cost))
             return AdviceController.responseBadRequest(user.getUsername() + "'s cost '" + cost + "' is not valid");
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
-        Role roleRepo = roleService.findRoleByRoleName(roleKey);
+        Role roleRepo = roleService.findRole(roleKey);
         if(teamRepo == null)
             return AdviceController.responseNotFound("Team" + teamKey + " not found.");
         if(roleRepo == null)

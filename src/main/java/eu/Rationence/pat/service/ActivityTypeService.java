@@ -15,11 +15,11 @@ public class ActivityTypeService {
     @Autowired
     private ActivityTypeRepository activityTypeRepository;
 
-    public ActivityType findActivityTypeByActivityType(String string){return activityTypeRepository.getActivityTypeByActivityTypeKey(string);
+    public ActivityType find(String activityType){return activityTypeRepository.getActivityTypeByActivityTypeKey(activityType);
     }
     public List<ActivityType> findAll() {
         return activityTypeRepository.findAll();
     }
 
-    public ActivityType saveActivityType(ActivityType a){ return activityTypeRepository.save(a);}
+    public ActivityType save(ActivityType a){ return activityTypeRepository.save(a);}
 }

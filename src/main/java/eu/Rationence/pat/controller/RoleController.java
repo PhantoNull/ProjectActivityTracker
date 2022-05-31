@@ -6,7 +6,6 @@ import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +27,7 @@ public class RoleController {
     public String roles(Model model, Principal principal) {
         model.addAttribute("listaRuoli", roleService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "roles";
@@ -37,7 +36,7 @@ public class RoleController {
     @PostMapping("/roles")
     public ResponseEntity<String> addRole(@Valid Role role) {
         try {
-            roleService.saveRole(role);
+            roleService.save(role);
             return ResponseEntity.ok("Role '" + role.getRoleName() + "' saved.");
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -52,7 +51,7 @@ public class RoleController {
             return ResponseEntity.badRequest()
                     .body("ERROR : Can't delete default ADMIN or USER role");
         try {
-            roleService.deleteRoleByRoleName(role.getRoleName());
+            roleService.deleteRole(role.getRoleName());
             return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");
         }
         catch (Exception e) {

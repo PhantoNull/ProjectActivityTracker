@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class AdviceController {
     private static final String ERROR_STR = "ERROR: ";
 
+    public static ResponseEntity<String> response(HttpStatus httpStatus, String message){
+        if(httpStatus == HttpStatus.OK ||  httpStatus == HttpStatus.CREATED || httpStatus == HttpStatus.ACCEPTED || httpStatus == HttpStatus.NO_CONTENT)
+            return ResponseEntity.status(httpStatus).body(message);
+        return ResponseEntity.status(httpStatus).body(ERROR_STR + message);
+    }
+
     public static ResponseEntity<String> responseBadRequest(String message){
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -25,6 +31,12 @@ public class AdviceController {
     public static ResponseEntity<String> responseOk(String message){
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .body(message);
+    }
+
+    public static ResponseEntity<String> responseCreated(String message){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(message);
     }
 

@@ -7,7 +7,6 @@ import eu.Rationence.pat.model.UserActivity;
 import eu.Rationence.pat.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,8 +25,6 @@ public class UserActivityController {
     @Autowired
     private final ProjectService projectService;
     @Autowired
-    private final ActivityTypeService activityTypeService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
     @Autowired
     private final UserActivityService userActivityService;
@@ -36,12 +33,12 @@ public class UserActivityController {
     public String projectUserActivities(@PathVariable String projectKey,
                                         @PathVariable String activityKey,
                                         Model model, Principal principal){
-        Project projectRepo = projectService.findProjectByProject(projectKey);
-        ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+        Project projectRepo = projectService.find(projectKey);
+        ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectRepo.getProjectKey());
         if(projectActivityRepo == null)
             return "error";
         List<User> availableUserList = userService.findAll();
-        List<UserActivity> userActivityList = userActivityService.findUserActivitiesByProjectAndActivityKey(projectKey, activityKey);
+        List<UserActivity> userActivityList = userActivityService.findUserActivities(projectKey, activityKey);
         for(UserActivity ua : userActivityList)
             availableUserList.remove(ua.getC_Username());
         model.addAttribute("userList", availableUserList);
@@ -50,7 +47,7 @@ public class UserActivityController {
         model.addAttribute("projectKey", projectKey);
 
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "userActivities";
@@ -66,17 +63,17 @@ public class UserActivityController {
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
-            User userRepo = userService.findUserByUsername(username);
+            User userRepo = userService.findUser(username);
             if(userRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
-            UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, userActivity.getC_Username().getUsername());
+            UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, userActivity.getC_Username().getUsername());
             if(userActivityRepo != null)
                 return ResponseEntity.status(409).body("ERROR: User '" + userActivity.getC_Username().getUsername() + "' has already been assigned to Activity '" + activityKey + "'");
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
-            userActivityService.saveUserActivity(userActivity);
+            userActivityService.save(userActivity);
             return ResponseEntity.ok("User '" + username + "' has been assigned to Activity '" + activityKey + "' successfully");
         }
         catch(Exception e){
@@ -92,20 +89,20 @@ public class UserActivityController {
                                                      @PathVariable String projectKey,
                                                      @PathVariable String activityKey){
         try{
-            UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
+            UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't update '" + username + "' to activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
-            User userRepo = userService.findUserByUsername(username);
+            User userRepo = userService.findUser(username);
             if(userRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
-            userActivityService.saveUserActivity(userActivity);
+            userActivityService.save(userActivity);
             return ResponseEntity.ok("User '" + username + "' assignment to activity '" + activityKey + "' updated successfully.");
         }
         catch(Exception e){
@@ -122,20 +119,20 @@ public class UserActivityController {
                                                      @PathVariable String projectKey,
                                                      @PathVariable String activityKey){
         try{
-            UserActivity userActivityRepo = userActivityService.findUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
+            UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + "' from activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
-            User userRepo = userService.findUserByUsername(username);
+            User userRepo = userService.findUser(username);
             if(userRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + " from activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
-            userActivityService.deleteUserActivityByActivityKeyAndProjectAndUsername(activityKey, projectKey, username);
+            userActivityService.delete(activityKey, projectKey, username);
             return ResponseEntity.ok("User '" + username + "' removed from activity '" + activityKey + "' successfully.");
         }
         catch(Exception e){
@@ -149,9 +146,9 @@ public class UserActivityController {
             return ResponseEntity.badRequest().body("ERROR: Daily Rate is a mandatory parameter and must be numeric");
         if(!isNumericString(dailyRate))
             return ResponseEntity.badRequest().body("ERROR: Daily Rate value must be numeric");
-        if(projectService.findProjectByProject(projectKey) == null)
+        if(projectService.find(projectKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Project '" + projectKey + "' does not exits");
-        if(projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey) == null)
+        if(projectActivityService.find(activityKey, projectKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Activity '" + activityKey + "' for Project '" + projectKey + "' does not exits");
         else return null;
     }

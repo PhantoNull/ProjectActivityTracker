@@ -14,16 +14,16 @@ public class ProjectActivityService {
     @Autowired
     private ProjectActivityRepository projectActivityRepository;
 
-    public ProjectActivity findActivityByActivityKeyAndProject(String activityKey, String project){
+    public ProjectActivity find(String activityKey, String project){
         return projectActivityRepository.getActivityByActivityKeyAndProject(activityKey, project);
     }
     public List<ProjectActivity> findActivitiesByProject(String project) {
         return projectActivityRepository.findActivitiesByProject(project);
     }
 
-    public ProjectActivity saveActivity(ProjectActivity projectActivity){ return projectActivityRepository.save(projectActivity);}
+    public ProjectActivity save(ProjectActivity projectActivity){ return projectActivityRepository.save(projectActivity);}
 
-    public void deleteActivityByActivityKeyAndProject(String string, String project){
-        projectActivityRepository.deleteActivityByActivityKeyAndProject(string, project);
+    public void delete(String activityKey, String project){
+        projectActivityRepository.deleteActivityByActivityKeyAndProject(activityKey, project);
     }
 }

@@ -14,15 +14,15 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public Role findRoleByRoleName(String string){
-        return roleRepository.getRoleByRoleName(string);
+    public Role findRole(String role){
+        return roleRepository.getRoleByRoleName(role);
     }
 
     public List<Role> findAll() {
         return roleRepository.findAll();
     }
 
-    public Role saveRole(Role role){ return roleRepository.save(role);}
+    public Role save(Role role){ return roleRepository.save(role);}
 
-    public void deleteRoleByRoleName(String roleName){ roleRepository.deleteRoleByRoleName(roleName);}
+    public void deleteRole(String roleName){ roleRepository.deleteRoleByRoleName(roleName);}
 }

@@ -50,7 +50,7 @@ public class MainController {
     @GetMapping ("/")
     public String index(Model model, Principal principal) {
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "index";
@@ -81,7 +81,7 @@ public class MainController {
         for(int i = 0; i < stdNames.length; i++){
             StandardActivity std = StandardActivity.builder().
                     activityKey(stdNames[i]).internal(stdInternal[i]).waged(stdWaged[i]).build();
-            standardActivityService.saveStdActivity(std);
+            standardActivityService.save(std);
         }
 
         Role roleUser = Role.builder()
@@ -90,8 +90,8 @@ public class MainController {
         Role roleAdmin = Role.builder()
                 .roleName("ADMIN")
                 .build();
-        roleService.saveRole(roleUser);
-        roleService.saveRole(roleAdmin);
+        roleService.save(roleUser);
+        roleService.save(roleAdmin);
 
 
         Team devTeam = Team.builder()
@@ -130,7 +130,7 @@ public class MainController {
                 .time("88888")
                 .enabled(true)
                 .build();
-        userService.saveUser(luca);
+        userService.save(luca);
 
         User disabled = User.builder()
                 .username("Marco.Rossi")
@@ -145,7 +145,7 @@ public class MainController {
                 .time("66006")
                 .enabled(false)
                 .build();
-        userService.saveUser(disabled);
+        userService.save(disabled);
 
         roleList.add(roleAdmin);
         User marcon = User.builder()
@@ -161,7 +161,7 @@ public class MainController {
                 .time("88888")
                 .enabled(true)
                 .build();
-        userService.saveUser(marcon);
+        userService.save(marcon);
 
         teamService.saveTeam(devTeam);
         teamService.saveTeam(ammTeam);
@@ -189,11 +189,11 @@ public class MainController {
                 .projectTypeKey("INT")
                 .projectTypeDesc("Internal")
                 .build();
-        projectTypeService.saveProjectType(projCons);
-        projectTypeService.saveProjectType(projDevp);
-        projectTypeService.saveProjectType(projTrng);
-        projectTypeService.saveProjectType(projServ);
-        projectTypeService.saveProjectType(projInt);
+        projectTypeService.save(projCons);
+        projectTypeService.save(projDevp);
+        projectTypeService.save(projTrng);
+        projectTypeService.save(projServ);
+        projectTypeService.save(projInt);
 
         ClientType clientDirect = ClientType.builder()
                 .clientTypeKey("DIRECT")
@@ -205,44 +205,44 @@ public class MainController {
                 .clientTypeKey("INTERNAL")
                 .build();
 
-        clientTypeService.saveClientType(clientDirect);
-        clientTypeService.saveClientType(clientPartner);
-        clientTypeService.saveClientType(clientInternal);
+        clientTypeService.save(clientDirect);
+        clientTypeService.save(clientPartner);
+        clientTypeService.save(clientInternal);
 
         Client clientBPER = Client.builder()
                 .clientKey("BPER")
                 .clientDesc("Banca Popolare Emilia Romagna")
                 .clientType(clientDirect)
                 .build();
-        clientService.saveClient(clientBPER);
+        clientService.save(clientBPER);
 
         Client clientKNIME = Client.builder()
                 .clientKey("KNIME")
                 .clientDesc("Konstanz Information Miner")
                 .clientType(clientPartner)
                 .build();
-        clientService.saveClient(clientKNIME);
+        clientService.save(clientKNIME);
 
         Client clientCATT = Client.builder()
                 .clientKey("CATT")
                 .clientDesc("Cattolica")
                 .clientType(clientDirect)
                 .build();
-        clientService.saveClient(clientCATT);
+        clientService.save(clientCATT);
 
         Client clientMICRO = Client.builder()
                 .clientKey("MICRO")
                 .clientDesc("Microstrategy")
                 .clientType(clientPartner)
                 .build();
-        clientService.saveClient(clientMICRO);
+        clientService.save(clientMICRO);
 
         Client clientRATIO = Client.builder()
                 .clientKey("RATIO")
                 .clientDesc("Rationence")
                 .clientType(clientInternal)
                 .build();
-        clientService.saveClient(clientRATIO);
+        clientService.save(clientRATIO);
 
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -256,7 +256,7 @@ public class MainController {
                 .dateStart(sdf.parse("2022-04-01"))
                 .value(0)
                 .build();
-        projectService.saveProject(attInterne);
+        projectService.save(attInterne);
 
         Project orchBPER = Project.builder()
                 .projectKey("BPER-ORCH-22")
@@ -270,7 +270,7 @@ public class MainController {
                 .dateClose(sdf.parse("2022-08-21"))
                 .value(15000)
                 .build();
-        projectService.saveProject(orchBPER);
+        projectService.save(orchBPER);
 
         Project bohKNIME = Project.builder()
                 .projectKey("KNIME-BOH-22")
@@ -282,7 +282,7 @@ public class MainController {
                 .dateStart(sdf.parse("2022-03-11"))
                 .value(12000)
                 .build();
-        projectService.saveProject(bohKNIME);
+        projectService.save(bohKNIME);
 
         String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO"};
         String[] actTypeDescList = {"Project Management", "Analytics", "Development", "Testing", "Bug-Fixing", "Support",
@@ -290,10 +290,10 @@ public class MainController {
         for(int i = 0; i < actTypeKeyList.length; i++){
             ActivityType aT = ActivityType.builder()
                     .activityTypeKey(actTypeKeyList[i]).activityTypeDesc(actTypeDescList[i]).build();
-            activityTypeService.saveActivityType(aT);
+            activityTypeService.save(aT);
         }
-        ActivityType devp = activityTypeService.findActivityTypeByActivityType("DEV");
-        ActivityType ana = activityTypeService.findActivityTypeByActivityType("ANA");
+        ActivityType devp = activityTypeService.find("DEV");
+        ActivityType ana = activityTypeService.find("ANA");
 
         ProjectActivity att = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
@@ -304,7 +304,7 @@ public class MainController {
                 .manDays(500)
                 .dateStart(sdf.parse("2022-04-01"))
                 .build();
-        projectActivityService.saveActivity(att);
+        projectActivityService.save(att);
 
         ProjectActivity att2 = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
@@ -315,7 +315,7 @@ public class MainController {
                 .manDays(300)
                 .dateStart(sdf.parse("2022-06-01"))
                 .build();
-        projectActivityService.saveActivity(att2);
+        projectActivityService.save(att2);
         UserActivity userAtt = UserActivity.builder()
                 .username(luca.getUsername())
                 .c_Username(luca)
@@ -324,7 +324,7 @@ public class MainController {
                 .project(att2.getProject())
                 .dailyRate(100)
                 .build();
-        userActivityService.saveUserActivity(userAtt);
+        userActivityService.save(userAtt);
 
         ProjectActivity att3 = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
@@ -335,7 +335,7 @@ public class MainController {
                 .manDays(120)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
-        projectActivityService.saveActivity(att3);
+        projectActivityService.save(att3);
 
         ProjectActivity attKNIME = ProjectActivity.builder()
                 .project(bohKNIME.getProjectKey())
@@ -346,7 +346,7 @@ public class MainController {
                 .manDays(150)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
-        projectActivityService.saveActivity(attKNIME);
+        projectActivityService.save(attKNIME);
 
         Location casa = Location.builder()
                 .locationName("CASA").build();
@@ -356,10 +356,10 @@ public class MainController {
                 .locationName("TRASFERTA").build();
         Location cliente = Location.builder()
                 .locationName("CLIENTE").build();
-        locationService.saveLocation(casa);
-        locationService.saveLocation(sede);
-        locationService.saveLocation(trasf);
-        locationService.saveLocation(cliente);
+        locationService.save(casa);
+        locationService.save(sede);
+        locationService.save(trasf);
+        locationService.save(cliente);
         return "login";
     }
 

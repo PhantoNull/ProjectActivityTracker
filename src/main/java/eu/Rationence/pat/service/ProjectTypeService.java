@@ -15,11 +15,11 @@ public class ProjectTypeService {
     @Autowired
     private ProjectTypeRepository projectTypeRepository;
 
-    public ProjectType findProjectTypeByProjectType(String string){return projectTypeRepository.getProjectTypeByProjectTypeKey(string);
+    public ProjectType find(String projectType){return projectTypeRepository.getProjectTypeByProjectTypeKey(projectType);
     }
     public List<ProjectType> findAll() {
         return projectTypeRepository.findAll();
     }
 
-    public ProjectType saveProjectType(ProjectType p){ return projectTypeRepository.save(p);}
+    public ProjectType save(ProjectType p){ return projectTypeRepository.save(p);}
 }

@@ -14,16 +14,16 @@ public class UserActivityService {
     @Autowired
     private UserActivityRepository userActivityRepository;
 
-    public UserActivity findUserActivityByActivityKeyAndProjectAndUsername(String string, String project, String username){
-        return userActivityRepository.getUserActivityByActivityKeyAndProjectAndUsername(string, project, username);
+    public UserActivity findUserActivity(String activityKey, String project, String username){
+        return userActivityRepository.getUserActivityByActivityKeyAndProjectAndUsername(activityKey, project, username);
     }
-    public List<UserActivity> findUserActivitiesByProjectAndActivityKey(String project, String activityKey) {
+    public List<UserActivity> findUserActivities(String project, String activityKey) {
         return userActivityRepository.findUserActivitiesByProjectAndActivityKey(project, activityKey);
     }
 
-    public UserActivity saveUserActivity(UserActivity userActivity){ return userActivityRepository.save(userActivity);}
+    public UserActivity save(UserActivity userActivity){ return userActivityRepository.save(userActivity);}
 
-    public void deleteUserActivityByActivityKeyAndProjectAndUsername(String string, String project, String username){
+    public void delete(String string, String project, String username){
         userActivityRepository.deleteUserActivityByActivityKeyAndProjectAndUsername(string, project, username);
     }
 }

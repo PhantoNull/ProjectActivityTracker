@@ -43,7 +43,7 @@ public class ProjectController {
             model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
         }
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "projects";
@@ -57,7 +57,7 @@ public class ProjectController {
                                              @RequestParam(value="projectType") String projectTypeKey,
                                              @RequestParam(value="value") String value){
         try{
-            if(projectService.findProjectByProject(project.getProjectKey()) != null)
+            if(projectService.find(project.getProjectKey()) != null)
                 return ResponseEntity.status(409).body("ERROR: " + project.getProjectKey() + " has been already created");
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
@@ -82,7 +82,7 @@ public class ProjectController {
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
-            Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
+            Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Cannot update '" + project.getProjectKey() + "' project. (Project does not exists)");
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
@@ -97,7 +97,7 @@ public class ProjectController {
     @DeleteMapping("/projects")
     public ResponseEntity<String> deleteProject(@Valid Project project){
         try{
-            Project projectRepo = projectService.findProjectByProject(project.getProjectKey());
+            Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
             projectService.deleteProjectByProject(projectRepo.getProjectKey());
@@ -118,11 +118,11 @@ public class ProjectController {
             return ResponseEntity.badRequest().body("ERROR: Value must be numeric");
         if(teamService.findTeamByTeamName(teamKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Team '" + teamKey + "' not found");
-        else if(userService.findUserByUsername(projectManagerKey) == null)
+        else if(userService.findUser(projectManagerKey) == null)
             return ResponseEntity.badRequest().body("ERROR: ProjectManager '" + projectManagerKey + "' not found");
-        else if(clientService.findClientByClientKey(clientKey) == null)
+        else if(clientService.find(clientKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Client '" + clientKey + "' not found");
-        else if(projectTypeService.findProjectTypeByProjectType(projectTypeKey) == null)
+        else if(projectTypeService.find(projectTypeKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Project Type '" + projectTypeKey + "' not found");
         else return null;
     }
@@ -133,14 +133,14 @@ public class ProjectController {
                                    @RequestParam("client") String clientKey,
                                    @RequestParam("projectType") String projectTypeKey) {
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
-        User userRepo = userService.findUserByUsername(projectManagerKey);
-        Client clientRepo = clientService.findClientByClientKey(clientKey);
-        ProjectType projectTypeRepo = projectTypeService.findProjectTypeByProjectType(projectTypeKey);
+        User userRepo = userService.findUser(projectManagerKey);
+        Client clientRepo = clientService.find(clientKey);
+        ProjectType projectTypeRepo = projectTypeService.find(projectTypeKey);
         project.setProjectManager(userRepo);
         project.setTeam(teamRepo);
         project.setClient(clientRepo);
         project.setProjectType(projectTypeRepo);
-        projectService.saveProject(project);
+        projectService.save(project);
     }
 
     private boolean isNumericString(String string){

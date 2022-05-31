@@ -16,13 +16,13 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Project findProjectByProject(String string){return projectRepository.getProjectByProjectKey(string);
+    public Project find(String project){return projectRepository.getProjectByProjectKey(project);
     }
     public List<Project> findAll() {
         return projectRepository.findAll();
     }
 
-    public Project saveProject(Project client){ return projectRepository.save(client);}
+    public Project save(Project client){ return projectRepository.save(client);}
 
     public void deleteProjectByProject(String client){ projectRepository.deleteProjectByProjectKey(client);}
 }

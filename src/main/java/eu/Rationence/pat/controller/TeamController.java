@@ -31,7 +31,7 @@ public class TeamController {
         model.addAttribute("userList", userService.findAll());
         model.addAttribute("teamList", teamService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "teams";
@@ -50,7 +50,7 @@ public class TeamController {
                 return ResponseEntity.badRequest().body(ERROR_STR + "Description can't be blank");
             else if(teamService.findTeamByTeamName(team.getTeamName()) != null)
                 return ResponseEntity.status(409).body(ERROR_STR + team.getTeamName() + " has been already created");
-            User userRepo = userService.findUserByUsername(teamAdminKey);
+            User userRepo = userService.findUser(teamAdminKey);
             if(userRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + teamAdminKey + " is not a valid user. (not found)");
             teamService.saveTeam(team);
@@ -69,7 +69,7 @@ public class TeamController {
         try{
             if(result.hasErrors())
                 return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
-            User userRepo = userService.findUserByUsername(teamAdminKey);
+            User userRepo = userService.findUser(teamAdminKey);
             if(userRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + teamAdminKey + " is not a valid user. (not found)");
             Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
@@ -93,7 +93,7 @@ public class TeamController {
             Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
             if(teamRepo == null)
                 return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
-            teamService.deleteTeamByTeamName(team.getTeamName());
+            teamService.deleteTeam(team.getTeamName());
             return ResponseEntity.ok("Team '" + team.getTeamName() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){

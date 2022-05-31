@@ -16,13 +16,13 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Client findClientByClientKey(String string){return clientRepository.getClientByClientKey(string);}
+    public Client find(String client){return clientRepository.getClientByClientKey(client);}
 
     public List<Client> findAll() {
         return clientRepository.findAll();
     }
 
-    public Client saveClient(Client client){ return clientRepository.save(client);};
+    public Client save(Client client){ return clientRepository.save(client);};
 
-    public void deleteClientByClientKey(String client){ clientRepository.deleteClientByClientKey(client);}
+    public void delete(String client){ clientRepository.deleteClientByClientKey(client);}
 }

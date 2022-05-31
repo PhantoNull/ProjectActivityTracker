@@ -14,11 +14,11 @@ public class TeamService {
     @Autowired
     private TeamRepository teamRepository;
 
-    public Team findTeamByTeamName(String string){return teamRepository.getTeamByTeamName(string);
+    public Team findTeamByTeamName(String teamName){return teamRepository.getTeamByTeamName(teamName);
     }
     public List<Team> findAll() { return teamRepository.findAll();}
 
     public Team saveTeam(Team team){ return teamRepository.save(team);}
 
-    public void deleteTeamByTeamName(String teamName){teamRepository.deleteTeamByTeamName(teamName);}
+    public void deleteTeam(String teamName){teamRepository.deleteTeamByTeamName(teamName);}
 }

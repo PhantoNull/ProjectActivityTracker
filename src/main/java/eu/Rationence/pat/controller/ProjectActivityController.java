@@ -28,7 +28,7 @@ public class ProjectActivityController {
 
     @GetMapping("/projects/{projectKey}")
     public String projectActivities(@PathVariable String projectKey, Model model, Principal principal){
-        Project projectRepo = projectService.findProjectByProject(projectKey);
+        Project projectRepo = projectService.find(projectKey);
         if(projectRepo == null)
             return "error";
         for (ProjectActivity projectActivity : projectActivityService.findActivitiesByProject(projectRepo.getProjectKey())) {
@@ -39,7 +39,7 @@ public class ProjectActivityController {
         model.addAttribute("activityList", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()));
         model.addAttribute("projectKey", projectKey);
         String username = principal.getName();
-        User userRepo = userService.findUserByUsername(username);
+        User userRepo = userService.findUser(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "activities";
@@ -55,11 +55,11 @@ public class ProjectActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
+            ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo != null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " has already been created");
             projectActivity.setProject(projectKey);
-            projectActivityService.saveActivity(projectActivity);
+            projectActivityService.save(projectActivity);
             return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' saved.");
         }
         catch(Exception e){
@@ -78,11 +78,11 @@ public class ProjectActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectKey);
+            ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
             projectActivity.setProject(projectKey);
-            projectActivityService.saveActivity(projectActivity);
+            projectActivityService.save(projectActivity);
             return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' updated.");
         }
         catch(Exception e){
@@ -96,13 +96,13 @@ public class ProjectActivityController {
                                                  @RequestParam(value="activityKey") String activityKey,
                                                  @PathVariable String projectKey){
         try{
-            Project projectRepo = projectService.findProjectByProject(projectKey);
+            Project projectRepo = projectService.find(projectKey);
             if(projectRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Project " + projectKey + " does not exits.");
-            ProjectActivity projectActivityRepo = projectActivityService.findActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+            ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectRepo.getProjectKey());
             if(projectActivityRepo == null)
                 return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
-            projectActivityService.deleteActivityByActivityKeyAndProject(activityKey, projectRepo.getProjectKey());
+            projectActivityService.delete(activityKey, projectRepo.getProjectKey());
             return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
@@ -117,9 +117,9 @@ public class ProjectActivityController {
     private ResponseEntity<String> checkActivityValidity(String projectKey, String activityTypeKey, String manDays){
         if(!isNumericString(manDays))
             return ResponseEntity.badRequest().body("ERROR: Man Days value must be numeric");
-        if(projectService.findProjectByProject(projectKey) == null)
+        if(projectService.find(projectKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Project '" + projectKey + "' does not exits");
-        else if(activityTypeService.findActivityTypeByActivityType(activityTypeKey) == null)
+        else if(activityTypeService.find(activityTypeKey) == null)
             return ResponseEntity.badRequest().body("ERROR: Activity Type '" + activityTypeKey + "' not found");
         else return null;
     }

@@ -14,13 +14,13 @@ public class StandardActivityService {
     @Autowired
     private StandardActivityRepository stdRepository;
 
-    public StandardActivity findStandardActivityByActivityKey(String string){
-        return stdRepository.getStandardActivitiesByActivityKey(string);
+    public StandardActivity findStandardActivityByActivityKey(String activityKey){
+        return stdRepository.getStandardActivitiesByActivityKey(activityKey);
     }
     public List<StandardActivity> findAll() { return stdRepository.findAll();}
 
-    public StandardActivity saveStdActivity(StandardActivity stdAct){ return stdRepository.save(stdAct);};
+    public StandardActivity save(StandardActivity standardActivity){ return stdRepository.save(standardActivity);};
 
-    public void deleteStandardActivityByStandardActivityKey(String string){
+    public void delete(String string){
         stdRepository.deleteStandardActivityByActivityKey(string);}
 }

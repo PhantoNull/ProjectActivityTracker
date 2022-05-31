@@ -10,9 +10,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>eu.rationence</groupId>
-	<artifactId>pat</artifactId>
+	<artifactId>PAT</artifactId>
 	<version>1.0</version>
-	<name>pat</name>
+	<name>PAT</name>
 	<description>Project Activity Tracker Rationence</description>
 	<properties>
 		<java.version>11</java.version>
@@ -71,10 +71,14 @@
 			<artifactId>commons-validator</artifactId>
 			<version>1.7</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+			<version>2.7.0</version>
+		</dependency>
 
 	</dependencies>
 	<build>
-
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

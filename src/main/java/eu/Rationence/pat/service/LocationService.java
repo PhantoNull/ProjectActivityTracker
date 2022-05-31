@@ -14,11 +14,11 @@ public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
 
-    public Location findLocationByLocationName(String string){return locationRepository.getLocationByLocationName(string);
+    public Location find(String locationName){return locationRepository.getLocationByLocationName(locationName);
     }
     public List<Location> findAll() { return locationRepository.findAll();}
 
-    public Location saveLocation(Location location){ return locationRepository.save(location);}
+    public Location save(Location location){ return locationRepository.save(location);}
 
-    public void deleteLocationByLocationName(String locationName){locationRepository.deleteLocationByLocationName(locationName);}
+    public void delete(String locationName){locationRepository.deleteLocationByLocationName(locationName);}
 }
