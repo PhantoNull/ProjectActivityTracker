@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 @Controller
 @AllArgsConstructor
 public class TrackingController {
-
     @Autowired
     private final UserService userService;
     @Autowired
@@ -157,6 +156,7 @@ public class TrackingController {
                                                        @PathVariable int month,
                                                        @RequestParam String projectActivityKeys,
                                                        @RequestParam String locationName,
+                                                       @RequestParam (required = false) boolean autocompile,
                                                        Principal principal) throws ParseException {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
@@ -239,7 +239,12 @@ public class TrackingController {
                         break;
                 }
                 int hours = 0;
-                if(pos != -1)
+                for(int festindex=0; festindex<festivity.length; festindex++){
+                    if(festivity[festindex][1] == month && festivity[festindex][0] == i){
+                        pos = -1;
+                    }
+                }
+                if(pos != -1 && autocompile)
                     hours = Character.getNumericValue(userTime.charAt(pos));
                 CompiledProjectActivity cpa = CompiledProjectActivity.builder()
                         .project(projectActivityRepo.getProject())

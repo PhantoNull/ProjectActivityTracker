@@ -97,6 +97,7 @@ input:focus {
 .username{text-shadow: 0 0 4px rgba(255, 255, 255, 0.36);}
 th.checkboxCol{width: 30px; !important}
 th.hoursCol{width: 40px; !important}
+th.hoursTotCol{width: 60px; !important}
 th.usernameCol{width:180px; !important}
 th.nameCol{width:120px; !important}
 th.surnameCol{width:120px; !important}
@@ -132,6 +133,9 @@ th.activityTrackingCol{min-width: 200px; !important}
 .sort-icon{ margin-right: -6px !important;
             margin-left: -8px !important;}
 
+.input-error{
+    outline: 1px solid red;
+}
 
 /* Remove input number arrows Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
