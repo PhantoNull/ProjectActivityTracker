@@ -6,6 +6,9 @@
 <body onload="computeSubTotals(), applyFilter()">
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/js/export-excel.js"></script>
+
 
 <script type="text/javascript">
     let columnList = ["checkbox", "activity", "location"];
@@ -38,7 +41,7 @@
                         if(!isNaN(val))
                             rowSubtotal[index] += val;
                         else
-                           dailyInput.value = 0;
+                            dailyInput.value = 0;
                     }
                 }
             }
@@ -50,7 +53,6 @@
             let dailyInput = document.getElementById("hourTot"+day);
             if(dailyInput !== null){
                 for(let index in tableRowList) {
-                    console.log("Index: " + index);
                     if (index !== "add") {
                         let val = parseInt(document.getElementById("hour" + index + "." + day).value);
                         if(!isNaN(val)){
@@ -68,7 +70,6 @@
     async function action(actionString, year, month) {
         let error_log = "";
         let tableChanged = false;
-        console.log(actionString + " "+ year + " " + month);
         if (actionString !== "addTracking" && actionString !=="saveTracking" && Object.values(tableRowList).every(v => v === false))
             return 1;
         let data;
@@ -472,6 +473,12 @@
                                                         th:onclick="'action(\'addTracking\',' + ${year} + ',' + ${month} +');'">
                                                     Add Activity</button>
                                             </td>
+                                        </tr>
+                                        <tr>
+                                            <button class="button is-primary"
+                                                    onclick="extractXLSX();">
+                                                Export Excel File
+                                            </button>
                                         </tr>
                                     </table>
                                     <div class="has-text-primary-dark has-text-weight-bold mt-5 has-text-centered">Monthly Note</div>
