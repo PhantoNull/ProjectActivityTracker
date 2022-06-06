@@ -22,6 +22,8 @@
     }
 
     function computeSubTotals(){
+        let warningExtraordinary = document.getElementById("warningExtraordinary");
+        warningExtraordinary.classList.add('hidden');
         let checkboxes = document.getElementsByClassName("tablecheckbox");
         for(let c of checkboxes){
             c.onclick();
@@ -62,6 +64,12 @@
                     }
                 }
                 dailyInput.value = dailySubtotal[day];
+                if(dailySubtotal[day] > parseInt(dailyInput.getAttribute("hourstowork"))){
+                    dailyInput.classList.add('has-background-warning');
+                    warningExtraordinary.classList.remove('hidden');
+                }
+                else
+                    dailyInput.classList.remove('has-background-warning');
             }
         }
         document.getElementById("hourTotFinal").value = totalHours;
@@ -211,7 +219,7 @@
                 </div>
 
                 <div id="error-log" class="hidden notification has-background-primary-light">
-                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <button class="delete" onclick="showErrorLog(false);"></button>
                     <div class="level m-0">
                         <div class="level-left">
                             <div class="level-item">
@@ -330,8 +338,8 @@
                                                 <td>
                                                     <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
                                                            th:id="projectActivity + ${iter.index}" name="projectActivity" type="text"
-                                                           th:value="${projectActivity.getProject()} + ':' +${projectActivity.getActivityKey()}"
-                                                           th:placeholder="${projectActivity.getProject()} + ':' +${projectActivity.getActivityKey()}" required
+                                                           th:value="${projectActivity.getProjectDesc()} + ':' +${projectActivity.getActivityKey()}"
+                                                           th:placeholder="${projectActivity.getProjectDesc()} + ':' +${projectActivity.getActivityKey()}" required
                                                            readonly>
                                                 </td>
                                                 <td>
@@ -357,7 +365,7 @@
                                                     </form>
                                                 </td>
                                                 <td>
-                                                    <input class="input has-text-centered"
+                                                    <input class="input has-text-centered has-text-weight-semibold"
                                                            th:id="rowTotal+${iter.index}"
                                                            type="number"
                                                            value="0"
@@ -402,7 +410,7 @@
                                                     </form>
                                                 </td>
                                                 <td>
-                                                    <input class="input has-text-centered"
+                                                    <input class="input has-text-centered has-text-weight-semibold"
                                                            th:id="rowTotalS+${iter.index}"
                                                            type="number"
                                                            value="0"
@@ -420,15 +428,16 @@
                                                 </span>
                                             </td>
                                             <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                <input class="input has-text-centered" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                <input class="input has-text-centered has-text-weight-semibold" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
                                                        th:id="hourTot+${i}"
                                                        type="number"
                                                        th:value="0"
                                                        th:placeholder="0"
+                                                       th:hourstowork="${#vars.getVariable('hoursToWork.__${i}__')}"
                                                        required readonly>
                                             </td>
                                             <td>
-                                                <input class="input has-text-centered"
+                                                <input class="input has-text-centered has-text-weight-semibold"
                                                        th:id="hourTotFinal"
                                                        type="number"
                                                        th:value="0"
@@ -437,6 +446,28 @@
                                             </td>
                                         </tr>
                                     </table>
+
+                                    <div id="warningExtraordinary" class="hidden notification has-background-warning mt-4">
+                                        <button class="delete" onclick="this.parentElement.classList.add('hidden');"></button>
+                                        <div class="level m-0">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="level">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                    <p class="has-text-weight-semibold ml-2">
+                                                        Warning: Extraordinary hours in time sheet. Remember you need to contact administrators for approval.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="level-right">
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <table class="mx-auto mt-4">
                                         <!--new add activity form-->
                                         <tr id="row99999">
@@ -447,7 +478,7 @@
                                                         <select th:id="projectActivityAddactivity" name="projectActivityKeys" class="has-text-primary has-text-weight-semibold">
                                                             <option th:each="userActivity,iter : ${userActivityList}"
                                                                     th:value="${userActivity.getProject()} + ':' +${userActivity.getActivityKey()}"
-                                                                    th:text="${userActivity.getProject()} + ': ' +${userActivity.getActivityKey()}"></option>
+                                                                    th:text="${userActivity.getC_Activity().getC_Project().getProjectDesc()} + ': ' +${userActivity.getActivityKey()}"></option>
                                                             <option th:each="standardActivity,iter : ${allStandardList}"
                                                                     th:value="'Std:' +${standardActivity.getActivityKey()}"
                                                                     th:text="'Std: ' +${standardActivity.getActivityKey()}"></option>
@@ -479,6 +510,7 @@
                                         </tr>
 
                                     </table>
+                                    <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
                                     <div class="mt-5 has-text-centered">
                                         <button class="button is-primary"
                                                 th:data-username="${#authentication.getPrincipal().getUsername()}"

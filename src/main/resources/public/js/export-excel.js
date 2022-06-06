@@ -45,13 +45,45 @@ function extractXLSX(month, year, name){
         rowValues = [];
     }
 
-    let strCreated = "Created on "+new Date().toISOString();
-    XLSX.utils.sheet_add_aoa(ws, [[strCreated]], {origin:-1});
+    //let strCreated = "Created on "+new Date().toISOString();
+    //XLSX.utils.sheet_add_aoa(ws, [[strCreated]], {origin:-1});
 
     ws["!cols"] = [
-        {width: strCreated.length},
-        {width: "TRASFERTA  ".length}
+        {width: "BPER-ORCH-22:DEV-22   ".length},
+        {width: "TRASFERTA  ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length},
+        {width: "    ".length}
     ];
 
-    XLSX.writeFile(wb, "Time_Sheet_" + name + "_" + month + "_" + year + ".xlsb");
+    XLSX.writeFileXLSX(wb, "Time_Sheet_" + name + "_" + month + "_" + year + ".xlsx");
 }

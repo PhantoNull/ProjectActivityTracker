@@ -72,12 +72,12 @@ public class MainController {
 
     @GetMapping("/initialize")
     public String initialize() throws ParseException {
-        String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Docente", "Formazione Esterna",
-                            "Donazione Sangue", "Presidio Reply", "Colloqui", "Coordinamento", "Malattia", "Permessio Studio",
+        String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Esterna",
+                            "Donazione Sangue", "Malattia", "Permesso Studio",
                             "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
-        boolean[] stdInternal = {true, false, true, false, false, true, true, true, false, false, true, true, false, false, false, false, false, false,
+        boolean[] stdInternal = {true, false, true, false, false, true, true, false, false, false, false, false, false, false,
                                  false, false};
-        boolean[] stdWaged = {true, false, true, true, false, true, true, false, false, true, false, false, true, false, false, true, true, false, false, false};
+        boolean[] stdWaged = {true, false, true, true, false, true, false, false, true, false, false, true, true, false, false, false};
         for(int i = 0; i < stdNames.length; i++){
             StandardActivity std = StandardActivity.builder().
                     activityKey(stdNames[i]).internal(stdInternal[i]).waged(stdWaged[i]).build();
@@ -284,9 +284,9 @@ public class MainController {
                 .build();
         projectService.save(bohKNIME);
 
-        String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO"};
+        String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO", "INT", "TM"};
         String[] actTypeDescList = {"Project Management", "Analytics", "Development", "Testing", "Bug-Fixing", "Support",
-                                    "Documenting", "Quality", "Application Maintenance", "Training", "Tutoring"};
+                                    "Documenting", "Quality", "Application Maintenance", "Training", "Tutoring", "Internal", "T&M"};
         for(int i = 0; i < actTypeKeyList.length; i++){
             ActivityType aT = ActivityType.builder()
                     .activityTypeKey(actTypeKeyList[i]).activityTypeDesc(actTypeDescList[i]).build();

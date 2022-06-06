@@ -63,8 +63,36 @@ public class TrackingController {
 
         for(int i=1; i <= passedDate.lengthOfMonth(); i++){
             LocalDate cycleLocalDate = LocalDate.of(year, month, i);
+            model.addAttribute("monthName", passedDate.getMonth());
             if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY)
                 weekendDaysSet.add(i);
+            int pos = -1;
+            switch(cycleLocalDate.getDayOfWeek()){
+                case MONDAY:
+                    pos = 0;
+                    break;
+                case TUESDAY:
+                    pos = 1;
+                    break;
+                case WEDNESDAY:
+                    pos = 2;
+                    break;
+                case THURSDAY:
+                    pos = 3;
+                    break;
+                case FRIDAY:
+                    pos = 4;
+                    break;
+            }
+            int hours = 0;
+            for(int festindex=0; festindex<festivity.length; festindex++){
+                if(festivity[festindex][1] == month && festivity[festindex][0] == i){
+                    pos = -1;
+                }
+            }
+            if(pos != -1)
+                hours = Character.getNumericValue(userService.findUser(principal.getName()).getTime().charAt(pos));
+            model.addAttribute("hoursToWork."+i, hours);
         }
         for(int i=0; i<festivity.length; i++){
             if(festivity[i][1] == month){
@@ -117,6 +145,7 @@ public class TrackingController {
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
             projectActivityHashSet.add(CompiledProjectActivityRow.builder()
                     .project(compiledProjectActivity.getProject())
+                    .projectDesc(compiledProjectActivity.getC_Activity().getC_Project().getProjectDesc())
                     .activityKey(compiledProjectActivity.getActivityKey())
                     .location(compiledProjectActivity.getLocationName()).build());
             Calendar calendar = Calendar.getInstance();
@@ -344,7 +373,7 @@ public class TrackingController {
                 compiledProjectActivityService.save(cpa);
 
         }
-        return AdviceController.responseOk("Activity " + projectActivityKeys + " updated successfully.");
+        return AdviceController.responseOk("Time sheet activities updated successfully.");
     }
 
     @DeleteMapping ("/tracking/{year}/{month}")
