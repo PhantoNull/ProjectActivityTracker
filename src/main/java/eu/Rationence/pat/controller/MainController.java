@@ -294,6 +294,7 @@ public class MainController {
         }
         ActivityType devp = activityTypeService.find("DEV");
         ActivityType ana = activityTypeService.find("ANA");
+        ActivityType internAct = activityTypeService.find("INT");
 
         ProjectActivity att = ProjectActivity.builder()
                 .project(orchBPER.getProjectKey())
@@ -331,7 +332,7 @@ public class MainController {
                 .c_Project(orchBPER)
                 .activityKey("ANA-22")
                 .activityType(ana)
-                .charged(false)
+                .charged(true)
                 .manDays(120)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
@@ -342,11 +343,54 @@ public class MainController {
                 .c_Project(bohKNIME)
                 .activityKey("ANA-22")
                 .activityType(ana)
-                .charged(false)
+                .charged(true)
                 .manDays(150)
                 .dateStart(sdf.parse("2022-05-01"))
                 .build();
         projectActivityService.save(attKNIME);
+
+        ProjectActivity attColloqui = ProjectActivity.builder()
+                .project(attInterne.getProjectKey())
+                .c_Project(attInterne)
+                .activityKey("Colloqui")
+                .activityType(internAct)
+                .charged(false)
+                .manDays(0)
+                .dateStart(sdf.parse("2022-05-01"))
+                .build();
+        projectActivityService.save(attColloqui);
+
+        ProjectActivity attFormazioneDocente = ProjectActivity.builder()
+                .project(attInterne.getProjectKey())
+                .c_Project(attInterne)
+                .activityKey("Formaz. Docente")
+                .activityType(internAct)
+                .charged(false)
+                .manDays(0)
+                .dateStart(sdf.parse("2022-05-01"))
+                .build();
+        projectActivityService.save(attFormazioneDocente);
+
+        UserActivity marconAtt = UserActivity.builder()
+                .username(marcon.getUsername())
+                .c_Username(marcon)
+                .activityKey(attFormazioneDocente.getActivityKey())
+                .c_Activity(attFormazioneDocente)
+                .project(attFormazioneDocente.getProject())
+                .dailyRate(200)
+                .build();
+        userActivityService.save(marconAtt);
+
+        ProjectActivity attCoordinamento = ProjectActivity.builder()
+                .project(attInterne.getProjectKey())
+                .c_Project(attInterne)
+                .activityKey("Coordinamento")
+                .activityType(internAct)
+                .charged(false)
+                .manDays(0)
+                .dateStart(sdf.parse("2022-05-01"))
+                .build();
+        projectActivityService.save(attCoordinamento);
 
         Location casa = Location.builder()
                 .locationName("CASA").build();
