@@ -128,8 +128,10 @@ public class TrackingController {
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
 
 
+        Iterator<UserActivity> iter = userRepo.getActivities().iterator();
         Set<UserActivity> activitySetRepo = userRepo.getActivities();
-        for(UserActivity userActivity : activitySetRepo){
+        while(iter.hasNext()){
+            UserActivity userActivity = iter.next();
             LocalDate activityEndDate = null;
             LocalDate activityStartDate = new java.sql.Date (userActivity.getC_Activity().getDateStart().getTime()).toLocalDate();
             if(userActivity.getC_Activity().getDateEnd() != null)

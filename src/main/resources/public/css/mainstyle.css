@@ -143,3 +143,8 @@ input::-webkit-inner-spin-button {-webkit-appearance: none; margin: 0;}
 /* Remove input number arrows Firefox */
 input[type=number] { -moz-appearance: textfield;}
 
+
+.input{
+    padding: 5px; !important
+}
+
