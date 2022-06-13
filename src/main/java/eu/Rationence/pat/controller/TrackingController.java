@@ -127,22 +127,19 @@ public class TrackingController {
                 .findCompiledActivities(username, month, year);
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
 
-
-        Iterator<UserActivity> iter = userRepo.getActivities().iterator();
         Set<UserActivity> activitySetRepo = userRepo.getActivities();
+        Iterator<UserActivity> iter = activitySetRepo.iterator();
         while(iter.hasNext()){
             UserActivity userActivity = iter.next();
             LocalDate activityEndDate = null;
             LocalDate activityStartDate = new java.sql.Date (userActivity.getC_Activity().getDateStart().getTime()).toLocalDate();
             if(userActivity.getC_Activity().getDateEnd() != null)
                 activityEndDate = new java.sql.Date (userActivity.getC_Activity().getDateEnd().getTime()).toLocalDate();
-            if(
-                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
-                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
-            )
-                activitySetRepo.remove(userActivity);
+            if((activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month))))
+                iter.remove();
         }
-        model.addAttribute("userActivityList", userRepo.getActivities());
+        model.addAttribute("userActivityList", activitySetRepo);
 
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
             projectActivityHashSet.add(CompiledProjectActivityRow.builder()
@@ -176,7 +173,6 @@ public class TrackingController {
 
         }
         model.addAttribute("standardActivityList", standardActivityHashSet);
-
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "tracking";
