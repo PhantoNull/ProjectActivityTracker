@@ -4,7 +4,6 @@ import eu.Rationence.pat.model.StandardActivity;
 import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.service.StandardActivityService;
 import eu.Rationence.pat.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +17,15 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 public class StandardActivityController {
-    private static final String ERROR_STR = "ERROR: ";
+    private final StandardActivityService standardActivityService;
+    private final UserService userService;
 
     @Autowired
-    private final StandardActivityService standardActivityService;
-    @Autowired
-    private final UserService userService;
+    public StandardActivityController(StandardActivityService standardActivityService, UserService userService) {
+        this.standardActivityService = standardActivityService;
+        this.userService = userService;
+    }
 
     @GetMapping ("/standardactivities")
     public String teams(Model model, Principal principal) {
@@ -42,17 +42,16 @@ public class StandardActivityController {
                                                 BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             else if(stdAct.getActivityKey().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Activity Key Name can't be blank");
+                return AdviceController.responseBadRequest("Activity Key Name can't be blank");
             else if(standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey()) != null)
-                return ResponseEntity.status(409).body(ERROR_STR + stdAct.getActivityKey() + " has been already created");
+                return AdviceController.responseConflict(stdAct.getActivityKey() + " has been already created");
             standardActivityService.save(stdAct);
-            return ResponseEntity.ok("Standard Activity '" + stdAct.getActivityKey() + "' saved.");
+            return AdviceController.responseOk("Standard Activity '" + stdAct.getActivityKey() + "' saved.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -61,16 +60,15 @@ public class StandardActivityController {
                                                     BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
+                return AdviceController.responseNotFound(stdAct.getActivityKey() + " is not a valid activity. (not found)");
             standardActivityService.save(stdAct);
-            return ResponseEntity.ok("Standard Activity '" + stdAct.getActivityKey() + "' updated.");
+            return AdviceController.responseOk("Standard Activity '" + stdAct.getActivityKey() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -79,19 +77,18 @@ public class StandardActivityController {
                                                     BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + stdAct.getActivityKey() + " is not a valid activity. (not found)");
+                return AdviceController.responseNotFound(stdAct.getActivityKey() + " is not a valid activity. (not found)");
             standardActivityService.delete(stdAct.getActivityKey());
-            return ResponseEntity.ok("Team '" + stdAct.getActivityKey() + "' successfully deleted.");
+            return AdviceController.responseOk("Team '" + stdAct.getActivityKey() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
             return AdviceController.responseForbidden("Cannot delete standard activity '" + stdAct.getActivityKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 }

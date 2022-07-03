@@ -1,5 +1,6 @@
  package eu.Rationence.pat.model;
 
+import eu.Rationence.pat.model.compositeKeys.ProjectActivityCompositeKey;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 

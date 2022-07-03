@@ -2,7 +2,6 @@ package eu.Rationence.pat.controller;
 
 import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -15,20 +14,23 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 public class ProjectController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final TeamService teamService;
-    @Autowired
     private final ProjectService projectService;
-    @Autowired
     private final ProjectTypeService projectTypeService;
-    @Autowired
     private final ClientService clientService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
+
+    @Autowired
+    public ProjectController(UserService userService, TeamService teamService, ProjectService projectService, ProjectTypeService projectTypeService, ClientService clientService, ProjectActivityService projectActivityService) {
+        this.userService = userService;
+        this.teamService = teamService;
+        this.projectService = projectService;
+        this.projectTypeService = projectTypeService;
+        this.clientService = clientService;
+        this.projectActivityService = projectActivityService;
+    }
 
 
     @GetMapping ("/projects")
@@ -58,16 +60,15 @@ public class ProjectController {
                                              @RequestParam(value="value") String value){
         try{
             if(projectService.find(project.getProjectKey()) != null)
-                return ResponseEntity.status(409).body("ERROR: " + project.getProjectKey() + " has been already created");
+                return AdviceController.responseConflict(project.getProjectKey() + " has been already created");
             ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
-            return ResponseEntity.ok("Project '" + project.getProjectKey() + "' saved.");
+            return AdviceController.responseOk("Project '" + project.getProjectKey() + "' saved.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -84,13 +85,12 @@ public class ProjectController {
                 return validityError;
             Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Cannot update '" + project.getProjectKey() + "' project. (Project does not exists)");
+                return AdviceController.responseNotFound("Cannot update '" + project.getProjectKey() + "' project. (Project does not exists)");
             setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
-            return ResponseEntity.ok("Project '" + project.getProjectKey() + "' updated.");
+            return AdviceController.responseOk("Project '" + project.getProjectKey() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -99,39 +99,36 @@ public class ProjectController {
         try{
             Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
+                return AdviceController.responseNotFound("Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
             projectService.deleteProjectByProject(projectRepo.getProjectKey());
-            return ResponseEntity.ok("Project '" + projectRepo.getProjectKey() + "' deleted.");
+            return AdviceController.responseOk("Project '" + projectRepo.getProjectKey() + "' deleted.");
         }
         catch(DataIntegrityViolationException e){
             return AdviceController.responseForbidden("Cannot delete project '" + project.getProjectKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
     private ResponseEntity<String> checkProjectValidity(Project project, String teamKey, String projectManagerKey,
                                                         String clientKey, String projectTypeKey, String value){
-        if(!isNumericString(value))
-            return ResponseEntity.badRequest().body("ERROR: Value must be numeric");
+        if(!AdviceController.isStringPositiveDecimal(value))
+            return AdviceController.responseBadRequest("Value must be numeric");
         if(teamService.findTeamByTeamName(teamKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Team '" + teamKey + "' not found");
+            return AdviceController.responseNotFound("Team '" + teamKey + "' not found");
         else if(userService.findUser(projectManagerKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: ProjectManager '" + projectManagerKey + "' not found");
+            return ResponseEntity.badRequest().body("ProjectManager '" + projectManagerKey + "' not found");
         else if(clientService.find(clientKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Client '" + clientKey + "' not found");
+            return AdviceController.responseNotFound("Client '" + clientKey + "' not found");
         else if(projectTypeService.find(projectTypeKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Project Type '" + projectTypeKey + "' not found");
+            return AdviceController.responseNotFound("Project Type '" + projectTypeKey + "' not found");
         else return null;
     }
 
-    private void setProjectObjects(@Valid Project project,
-                                   @RequestParam("team") String teamKey,
-                                   @RequestParam("projectManager") String projectManagerKey,
-                                   @RequestParam("client") String clientKey,
-                                   @RequestParam("projectType") String projectTypeKey) {
+    private void setProjectObjects(Project project,String teamKey, String projectManagerKey,
+                                        String clientKey,
+                                        String projectTypeKey) {
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         User userRepo = userService.findUser(projectManagerKey);
         Client clientRepo = clientService.find(clientKey);
@@ -141,13 +138,5 @@ public class ProjectController {
         project.setClient(clientRepo);
         project.setProjectType(projectTypeRepo);
         projectService.save(project);
-    }
-
-    private boolean isNumericString(String string){
-        for (int i=0; i< string.length(); i++){
-            if("0123456789".indexOf(string.charAt(i)) == -1)
-                return false;
-        }
-        return true;
     }
 }

@@ -4,16 +4,17 @@ package eu.Rationence.pat.service;
 import eu.Rationence.pat.model.ProjectType;
 import eu.Rationence.pat.repository.ProjectTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Configurable
 public class ProjectTypeService {
+    private final ProjectTypeRepository projectTypeRepository;
     @Autowired
-    private ProjectTypeRepository projectTypeRepository;
+    public ProjectTypeService(ProjectTypeRepository projectTypeRepository) {
+        this.projectTypeRepository = projectTypeRepository;
+    }
 
     public ProjectType find(String projectType){return projectTypeRepository.getProjectTypeByProjectTypeKey(projectType);
     }

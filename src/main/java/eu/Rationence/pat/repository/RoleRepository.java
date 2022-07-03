@@ -9,11 +9,11 @@ import java.util.List;
 
 @Repository
 public interface RoleRepository extends CrudRepository<Role, String> {
-    Role getRoleByRoleName(String string);
+    Role getRoleByRoleName(String roleName);
     List<Role> findAll();
     Role save(Role role);
     @Transactional
-    void deleteRoleByRoleName(String string);
+    void deleteRoleByRoleName(String roleName);
 }
 
 

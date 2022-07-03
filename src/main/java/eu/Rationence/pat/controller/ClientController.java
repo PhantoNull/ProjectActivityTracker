@@ -6,7 +6,6 @@ import eu.Rationence.pat.model.ClientType;
 import eu.Rationence.pat.service.UserService;
 import eu.Rationence.pat.service.ClientService;
 import eu.Rationence.pat.service.ClientTypeService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +18,17 @@ import javax.validation.Valid;
 import java.security.Principal;
 
 @Controller
-@AllArgsConstructor
 public class ClientController {
-    private static final String ERROR_STR = "ERROR: ";
-
-    @Autowired
     private final ClientService clientService;
-
-    @Autowired
     private final UserService userService;
+    private final ClientTypeService clientTypeService;
 
     @Autowired
-    private final ClientTypeService clientTypeService;
+    public ClientController(ClientService clientService, UserService userService, ClientTypeService clientTypeService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.clientTypeService = clientTypeService;
+    }
 
     @GetMapping("/clients")
     public String clients(Model model, Principal principal) {
@@ -49,23 +47,22 @@ public class ClientController {
                                           BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             if(clientService.find(client.getClientKey()) != null)
-                return ResponseEntity.status(409).body(ERROR_STR + client.getClientKey() + " has been already created");
+                return AdviceController.responseConflict(client.getClientKey() + " has been already created");
             else if(client.getClientKey().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Client key can't be blank");
+                return AdviceController.responseBadRequest("Client key can't be blank");
             else if(client.getClientDesc().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Client description can't be blank");
+                return AdviceController.responseBadRequest("Client description can't be blank");
             ClientType clientTypeRepo = clientTypeService.find(clientTypeKey);
             if(clientTypeRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + clientTypeKey + " is not a valid client type. (not found)");
+                return AdviceController.responseNotFound(clientTypeKey + " is not a valid client type. (not found)");
             client.setClientType(clientTypeRepo);
             clientService.save(client);
-            return ResponseEntity.ok("Client '" + client.getClientKey() + "' saved.");
+            return AdviceController.responseOk("Client '" + client.getClientKey() + "' saved.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -87,7 +84,7 @@ public class ClientController {
             return AdviceController.responseOk("Client '" + client.getClientKey() + "' updated.");
         }
         catch(Exception e){
-            return AdviceController.responseBadRequest(e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -107,7 +104,7 @@ public class ClientController {
             return AdviceController.responseForbidden("Cannot delete client '" + client.getClientKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
-            return AdviceController.responseBadRequest(e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 }

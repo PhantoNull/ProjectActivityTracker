@@ -3,17 +3,18 @@ package eu.Rationence.pat.service;
 import eu.Rationence.pat.model.CompiledStandardActivity;
 import eu.Rationence.pat.repository.CompiledStandardActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
 @Service
-@Configurable
 public class CompiledStandardActivityService {
+    private final CompiledStandardActivityRepository compiledStandardActivityRepository;
     @Autowired
-    private CompiledStandardActivityRepository compiledStandardActivityRepository;
+    public CompiledStandardActivityService(CompiledStandardActivityRepository compiledStandardActivityRepository) {
+        this.compiledStandardActivityRepository = compiledStandardActivityRepository;
+    }
 
     public CompiledStandardActivity find(String activityKey, String username, Date date){
         return compiledStandardActivityRepository.getCompiledStandardActivityByActivityKeyAndUsernameAndDate(activityKey, username, date);

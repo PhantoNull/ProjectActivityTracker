@@ -4,7 +4,6 @@ import eu.Rationence.pat.model.Team;
 import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +16,15 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 public class TeamController {
-    private static final String ERROR_STR = "ERROR: ";
+    private final UserService userService;
+    private final TeamService teamService;
 
     @Autowired
-    private final UserService userService;
-    @Autowired
-    private final TeamService teamService;
+    public TeamController(UserService userService, TeamService teamService) {
+        this.userService = userService;
+        this.teamService = teamService;
+    }
 
     @GetMapping ("/teams")
     public String teams(Model model, Principal principal) {
@@ -43,22 +43,21 @@ public class TeamController {
                                           BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             else if(team.getTeamName().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Team Name can't be blank");
+                return AdviceController.responseBadRequest("Team Name can't be blank");
             else if(team.getTeamDesc().length() < 1)
-                return ResponseEntity.badRequest().body(ERROR_STR + "Description can't be blank");
+                return AdviceController.responseBadRequest("Description can't be blank");
             else if(teamService.findTeamByTeamName(team.getTeamName()) != null)
-                return ResponseEntity.status(409).body(ERROR_STR + team.getTeamName() + " has been already created");
+                return AdviceController.responseConflict(team.getTeamName() + " has been already created");
             User userRepo = userService.findUser(teamAdminKey);
             if(userRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + teamAdminKey + " is not a valid user. (not found)");
+                return AdviceController.responseNotFound(teamAdminKey + " is not a valid user. (not found)");
             teamService.saveTeam(team);
-            return ResponseEntity.ok("Team '" + team.getTeamName() + "' saved.");
+            return AdviceController.responseOk("Team '" + team.getTeamName() + "' saved.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -68,19 +67,18 @@ public class TeamController {
                                              BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             User userRepo = userService.findUser(teamAdminKey);
             if(userRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + teamAdminKey + " is not a valid user. (not found)");
+                return AdviceController.responseNotFound(teamAdminKey + " is not a valid user. (not found)");
             Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
             if(teamRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
+                return AdviceController.responseNotFound(team.getTeamName() + " is not a valid team. (not found)");
             teamService.saveTeam(team);
-            return ResponseEntity.ok("Team '" + team.getTeamName() + "' updated.");
+            return AdviceController.responseOk("Team '" + team.getTeamName() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -89,19 +87,18 @@ public class TeamController {
                                              BindingResult result){
         try{
             if(result.hasErrors())
-                return ResponseEntity.badRequest().body(ERROR_STR + result.getAllErrors());
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
             if(teamRepo == null)
-                return ResponseEntity.status(404).body(ERROR_STR + team.getTeamName() + " does not exists");
+                return AdviceController.responseNotFound(team.getTeamName() + " does not exists");
             teamService.deleteTeam(team.getTeamName());
-            return ResponseEntity.ok("Team '" + team.getTeamName() + "' successfully deleted.");
+            return AdviceController.responseOk("Team '" + team.getTeamName() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
             return AdviceController.responseForbidden("Cannot delete team '" + team.getTeamName() + "'. (Constraint violation)");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body(ERROR_STR + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 }

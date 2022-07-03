@@ -2,7 +2,6 @@ package eu.Rationence.pat.controller;
 
 import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +14,19 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 public class ProjectActivityController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final ProjectService projectService;
-    @Autowired
     private final ActivityTypeService activityTypeService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
+
+    @Autowired
+    public ProjectActivityController(UserService userService, ProjectService projectService, ActivityTypeService activityTypeService, ProjectActivityService projectActivityService) {
+        this.userService = userService;
+        this.projectService = projectService;
+        this.activityTypeService = activityTypeService;
+        this.projectActivityService = projectActivityService;
+    }
 
     @GetMapping("/projects/{projectKey}")
     public String projectActivities(@PathVariable String projectKey, Model model, Principal principal){
@@ -57,14 +59,13 @@ public class ProjectActivityController {
                 return validityError;
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo != null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " has already been created");
+                return AdviceController.responseConflict("Activity " + projectActivity.getActivityKey() + " has already been created");
             projectActivity.setProject(projectKey);
             projectActivityService.save(projectActivity);
-            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' saved.");
+            return AdviceController.responseOk("Activity '" + projectActivity.getActivityKey() + "' saved.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -80,14 +81,13 @@ public class ProjectActivityController {
                 return validityError;
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
+                return AdviceController.responseNotFound("Activity " + projectActivity.getActivityKey() + " does not exits.");
             projectActivity.setProject(projectKey);
             projectActivityService.save(projectActivity);
-            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' updated.");
+            return AdviceController.responseOk("Activity '" + projectActivity.getActivityKey() + "' updated.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -98,37 +98,28 @@ public class ProjectActivityController {
         try{
             Project projectRepo = projectService.find(projectKey);
             if(projectRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Project " + projectKey + " does not exits.");
+                return AdviceController.responseNotFound("Project " + projectKey + " does not exits.");
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectRepo.getProjectKey());
             if(projectActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
+                return AdviceController.responseNotFound("ERROR: Activity " + projectActivity.getActivityKey() + " does not exits.");
             projectActivityService.delete(activityKey, projectRepo.getProjectKey());
-            return ResponseEntity.ok("Activity '" + projectActivity.getActivityKey() + "' successfully deleted.");
+            return AdviceController.responseOk("Activity '" + projectActivity.getActivityKey() + "' successfully deleted.");
         }
         catch(DataIntegrityViolationException e){
             return AdviceController.responseForbidden("Cannot delete project activity '" + projectActivity.getActivityKey() + "'. (Constraint violation)");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
     private ResponseEntity<String> checkActivityValidity(String projectKey, String activityTypeKey, String manDays){
-        if(!isNumericString(manDays))
-            return ResponseEntity.badRequest().body("ERROR: Man Days value must be numeric");
+        if(!AdviceController.isStringPositiveDecimal(manDays))
+            return AdviceController.responseBadRequest("Man Days value must be numeric");
         if(projectService.find(projectKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Project '" + projectKey + "' does not exits");
+            return AdviceController.responseNotFound("ERROR: Project '" + projectKey + "' does not exits");
         else if(activityTypeService.find(activityTypeKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Activity Type '" + activityTypeKey + "' not found");
+            return AdviceController.responseNotFound("ERROR: Activity Type '" + activityTypeKey + "' not found");
         else return null;
-    }
-
-    private boolean isNumericString(String string){
-        for (int i=0; i< string.length(); i++){
-            if("0123456789".indexOf(string.charAt(i)) == -1)
-                return false;
-        }
-        return true;
     }
 }

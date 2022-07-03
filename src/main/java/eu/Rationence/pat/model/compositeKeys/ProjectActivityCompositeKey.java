@@ -1,4 +1,4 @@
-package eu.Rationence.pat.model;
+package eu.Rationence.pat.model.compositeKeys;
 
 import lombok.*;
 import org.hibernate.Hibernate;

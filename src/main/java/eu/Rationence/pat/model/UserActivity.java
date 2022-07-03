@@ -1,5 +1,6 @@
 package eu.Rationence.pat.model;
 
+import eu.Rationence.pat.model.compositeKeys.UserActivityCompositeKey;
 import lombok.*;
 import org.hibernate.Hibernate;
 import javax.persistence.*;

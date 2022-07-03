@@ -2,7 +2,6 @@ package eu.Rationence.pat.controller;
 
 import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.service.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,35 +15,37 @@ import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 
 @Controller
-@AllArgsConstructor
 public class MainController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final TeamService teamService;
-    @Autowired
     private final RoleService roleService;
-    @Autowired
     private final ProjectTypeService projectTypeService;
-    @Autowired
     private final ClientTypeService clientTypeService;
-    @Autowired
     private final ClientService clientService;
-    @Autowired
     private final StandardActivityService standardActivityService;
-    @Autowired
     private final ProjectService projectService;
-    @Autowired
     private final ActivityTypeService activityTypeService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
-    @Autowired
     private final UserActivityService userActivityService;
-    @Autowired
     private final LocationService locationService;
+
+    @Autowired
+    public MainController(ActivityTypeService activityTypeService, UserService userService, TeamService teamService, RoleService roleService, LocationService locationService, ProjectTypeService projectTypeService, ClientTypeService clientTypeService, ClientService clientService, StandardActivityService standardActivityService, ProjectService projectService, ProjectActivityService projectActivityService, UserActivityService userActivityService) {
+        this.activityTypeService = activityTypeService;
+        this.userService = userService;
+        this.teamService = teamService;
+        this.roleService = roleService;
+        this.locationService = locationService;
+        this.projectTypeService = projectTypeService;
+        this.clientTypeService = clientTypeService;
+        this.clientService = clientService;
+        this.standardActivityService = standardActivityService;
+        this.projectService = projectService;
+        this.projectActivityService = projectActivityService;
+        this.userActivityService = userActivityService;
+    }
 
 
     @GetMapping ("/")
@@ -70,6 +71,7 @@ public class MainController {
         return "redirect:/login?logout";
     }
 
+    //Metodo inizializzante solo per dati default DB, da rimuovere in produzione
     @GetMapping("/initialize")
     public String initialize() throws ParseException {
         String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Esterna",
@@ -115,8 +117,7 @@ public class MainController {
 
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        List<Role> roleList = new ArrayList();
-        roleList.add(roleUser);
+
         User luca = User.builder()
                 .username("Luca.DiPierro")
                 .name("Luca")
@@ -147,7 +148,6 @@ public class MainController {
                 .build();
         userService.save(disabled);
 
-        roleList.add(roleAdmin);
         User marcon = User.builder()
                 .username("Giuseppe.Marcon")
                 .name("Giuseppe")

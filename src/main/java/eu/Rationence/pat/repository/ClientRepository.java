@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ClientRepository extends CrudRepository<Client, String> {
-    Client getClientByClientKey(String string);
+    Client getClientByClientKey(String clientKey);
     List<Client> findAll();
     Client save(Client client);
     @Transactional

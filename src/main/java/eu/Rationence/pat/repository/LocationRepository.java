@@ -9,11 +9,11 @@ import java.util.List;
 
 @Repository
 public interface LocationRepository extends CrudRepository<Location, String> {
-    Location getLocationByLocationName(String string);
+    Location getLocationByLocationName(String locationName);
     List<Location> findAll();
     Location save(Location team);
     @Transactional
-    void deleteLocationByLocationName(String string);
+    void deleteLocationByLocationName(String locationName);
 }
 
 

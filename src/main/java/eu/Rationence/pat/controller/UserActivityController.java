@@ -5,7 +5,6 @@ import eu.Rationence.pat.model.Project;
 import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.model.UserActivity;
 import eu.Rationence.pat.service.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,16 +17,19 @@ import java.util.List;
 
 
 @Controller
-@AllArgsConstructor
 public class UserActivityController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final ProjectService projectService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
-    @Autowired
     private final UserActivityService userActivityService;
+
+    @Autowired
+    public UserActivityController(UserService userService, ProjectService projectService, ProjectActivityService projectActivityService, UserActivityService userActivityService) {
+        this.userService = userService;
+        this.projectService = projectService;
+        this.projectActivityService = projectActivityService;
+        this.userActivityService = userActivityService;
+    }
 
     @GetMapping("/projects/{projectKey}/{activityKey}")
     public String projectUserActivities(@PathVariable String projectKey,
@@ -65,20 +67,19 @@ public class UserActivityController {
                 return validityError;
             User userRepo = userService.findUser(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
+                return AdviceController.responseNotFound("Can't assign '" + username + "' to activity '" + activityKey + "' (User not found)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, userActivity.getC_Username().getUsername());
             if(userActivityRepo != null)
-                return ResponseEntity.status(409).body("ERROR: User '" + userActivity.getC_Username().getUsername() + "' has already been assigned to Activity '" + activityKey + "'");
+                return AdviceController.responseConflict("User '" + userActivity.getC_Username().getUsername() + "' has already been assigned to Activity '" + activityKey + "'");
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.save(userActivity);
-            return ResponseEntity.ok("User '" + username + "' has been assigned to Activity '" + activityKey + "' successfully");
+            return AdviceController.responseOk("User '" + username + "' has been assigned to Activity '" + activityKey + "' successfully");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: Empty input or mismatched input type");
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -91,24 +92,22 @@ public class UserActivityController {
         try{
             UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't update '" + username + "' to activity '" + activityKey + "' (User is not assigned)");
+                return AdviceController.responseNotFound("Can't update '" + username + "' to activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
             User userRepo = userService.findUser(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
+                return AdviceController.responseNotFound("Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.save(userActivity);
-            return ResponseEntity.ok("User '" + username + "' assignment to activity '" + activityKey + "' updated successfully.");
+            return AdviceController.responseOk("User '" + username + "' assignment to activity '" + activityKey + "' updated successfully.");
         }
         catch(Exception e){
-            System.out.println(e);
-            return ResponseEntity.badRequest()
-                    .body("ERROR: Empty input or mismatched input type");
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
@@ -121,43 +120,34 @@ public class UserActivityController {
         try{
             UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + "' from activity '" + activityKey + "' (User is not assigned)");
+                return AdviceController.responseNotFound("Can't remove '" + username + "' from activity '" + activityKey + "' (User is not assigned)");
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
             User userRepo = userService.findUser(username);
             if(userRepo == null)
-                return ResponseEntity.status(409).body("ERROR: Can't remove '" + username + " from activity '" + activityKey + "' (User does not exists)");
+                return AdviceController.responseNotFound("Can't remove '" + username + " from activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
             userActivity.setUsername(userRepo.getUsername());
             userActivity.setProject(projectKey);
             userActivity.setActivityKey(activityKey);
             userActivityService.delete(activityKey, projectKey, username);
-            return ResponseEntity.ok("User '" + username + "' removed from activity '" + activityKey + "' successfully.");
+            return AdviceController.responseOk("User '" + username + "' removed from activity '" + activityKey + "' successfully.");
         }
         catch(Exception e){
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 
     private ResponseEntity<String> checkUserActivityValidity(String projectKey, String activityKey, String dailyRate){
         if(dailyRate == null)
-            return ResponseEntity.badRequest().body("ERROR: Daily Rate is a mandatory parameter and must be numeric");
-        if(!isNumericString(dailyRate))
-            return ResponseEntity.badRequest().body("ERROR: Daily Rate value must be numeric");
+            return AdviceController.responseBadRequest("Daily Rate is a mandatory parameter and must be numeric");
+        if(!AdviceController.isStringPositiveDecimal(dailyRate))
+            return AdviceController.responseBadRequest("Daily Rate value must be numeric");
         if(projectService.find(projectKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Project '" + projectKey + "' does not exits");
+            return AdviceController.responseNotFound("Project '" + projectKey + "' does not exits");
         if(projectActivityService.find(activityKey, projectKey) == null)
-            return ResponseEntity.badRequest().body("ERROR: Activity '" + activityKey + "' for Project '" + projectKey + "' does not exits");
+            return AdviceController.responseNotFound("Activity '" + activityKey + "' for Project '" + projectKey + "' does not exits");
         else return null;
-    }
-
-    private boolean isNumericString(String string){
-        for (int i=0; i< string.length(); i++){
-            if("0123456789".indexOf(string.charAt(i)) == -1)
-                return false;
-        }
-        return true;
     }
 }

@@ -8,12 +8,12 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, String> {
-    User getUserByUsername(String string);
-    User getUsernameByEmail(String string);
+    User getUserByUsername(String username);
+    User getUserByEmail(String email);
     List<User> findAll();
     User save(User user);
     @Transactional
-    void deleteUserByUsername(String string);
+    void deleteUserByUsername(String username);
 }
 
 

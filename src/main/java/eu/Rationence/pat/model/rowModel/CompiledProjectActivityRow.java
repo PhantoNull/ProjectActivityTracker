@@ -1,4 +1,4 @@
-package eu.Rationence.pat.model;
+package eu.Rationence.pat.model.rowModel;
 
 import lombok.*;
 

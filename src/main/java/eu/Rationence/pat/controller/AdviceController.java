@@ -16,46 +16,32 @@ public class AdviceController {
         return ResponseEntity.status(httpStatus).body(ERROR_STR + message);
     }
 
-    public static ResponseEntity<String> responseBadRequest(String message){
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ERROR_STR + message);
-    }
-
-    public static ResponseEntity<String> responseNotFound(String message){
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ERROR_STR + message);
-    }
-
     public static ResponseEntity<String> responseOk(String message){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(message);
+        return response(HttpStatus.OK,message);
     }
 
     public static ResponseEntity<String> responseCreated(String message){
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(message);
+        return response(HttpStatus.CREATED, message);
+    }
+
+    public static ResponseEntity<String> responseBadRequest(String message){
+        return response(HttpStatus.BAD_REQUEST, message);
+    }
+
+    public static ResponseEntity<String> responseNotFound(String message){
+        return response(HttpStatus.NOT_FOUND, message);
     }
 
     public static ResponseEntity<String> responseServerError(String message){
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(message);
+        return response(HttpStatus.INTERNAL_SERVER_ERROR,message);
     }
 
     public static ResponseEntity<String> responseForbidden(String message){
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(message);
+        return response(HttpStatus.FORBIDDEN,message);
     }
 
     public static ResponseEntity<String> responseConflict(String message){
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(message);
+        return response(HttpStatus.CONFLICT, message);
     }
 
     @ExceptionHandler(BindException.class)
@@ -65,7 +51,14 @@ public class AdviceController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception e) {
-        System.out.println(e);
         return responseBadRequest(e.getMessage());
+    }
+
+    public static boolean isStringPositiveDecimal(String string){
+        if(string == null)
+            return false;
+        for (char c : string.toCharArray())
+            if (!Character.isDigit(c)) return false;
+        return true;
     }
 }

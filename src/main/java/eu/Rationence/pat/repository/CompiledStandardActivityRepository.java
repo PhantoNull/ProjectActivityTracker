@@ -1,8 +1,7 @@
 package eu.Rationence.pat.repository;
 
-import eu.Rationence.pat.model.CompiledProjectActivity;
 import eu.Rationence.pat.model.CompiledStandardActivity;
-import eu.Rationence.pat.model.CompiledStandardActivityCompositeKey;
+import eu.Rationence.pat.model.compositeKeys.CompiledStandardActivityCompositeKey;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

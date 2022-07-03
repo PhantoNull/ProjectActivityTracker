@@ -3,11 +3,10 @@ package eu.Rationence.pat.controller;
 import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.model.Team;
 import eu.Rationence.pat.model.User;
-import eu.Rationence.pat.service.EmailServiceImpl;
+import eu.Rationence.pat.service.EmailService;
 import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.TeamService;
 import eu.Rationence.pat.service.UserService;
-import lombok.AllArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,17 +26,19 @@ import java.util.regex.Pattern;
 
 
 @Controller
-@AllArgsConstructor
 public class UserController {
+    private final UserService userService;
+    private final TeamService teamService;
+    private final RoleService roleService;
+    private final EmailService emailService;
 
     @Autowired
-    private final UserService userService;
-    @Autowired
-    private final TeamService teamService;
-    @Autowired
-    private final RoleService roleService;
-    @Autowired
-    private final EmailServiceImpl emailService;
+    public UserController(UserService userService, TeamService teamService, RoleService roleService, EmailService emailService) {
+        this.userService = userService;
+        this.teamService = teamService;
+        this.roleService = roleService;
+        this.emailService = emailService;
+    }
 
     @GetMapping ("/users")
     public String utenti(Model model, Principal principal) {
@@ -73,7 +74,7 @@ public class UserController {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
             SecureRandom random = new SecureRandom();
-            byte bytes[] = new byte[16];
+            byte[] bytes = new byte[16];
             random.nextBytes(bytes);
             Base64.Encoder encoderPsw = Base64.getUrlEncoder().withoutPadding();
             String token = encoderPsw.encodeToString(bytes);
@@ -84,7 +85,7 @@ public class UserController {
                     "   Le credenziali di accesso sono username: <br><strong> " +user.getUsername() + "</strong><br>    e password generata casualmente: <br>   <strong>"
                     + token +"</strong> <br><br>" +
                     "   Consigliamo di cambiarla dopo il primo accesso e di seguire le best-practices per tenere le password al sicuro.");
-            return ResponseEntity.ok("'" + user.getUsername() + "' created. A random generated password has been sent to user email address.");
+            return AdviceController.responseOk("'" + user.getUsername() + "' created. A random generated password has been sent to user email address.");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());
@@ -129,9 +130,8 @@ public class UserController {
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + user.getUsername() + "'s password. (User does not exists)");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
             SecureRandom random = new SecureRandom();
-            byte bytes[] = new byte[16];
+            byte[] bytes = new byte[16];
             random.nextBytes(bytes);
             Base64.Encoder encoderPsw = Base64.getUrlEncoder().withoutPadding();
             String token = encoderPsw.encodeToString(bytes);
@@ -175,9 +175,6 @@ public class UserController {
 
     @DeleteMapping("/users")
     public ResponseEntity<String> deleteUser(@Valid User user,
-                                             @RequestParam(value="team") String teamKey,
-                                             @RequestParam(value="role") String roleKey,
-                                             @RequestParam(value="cost") String cost,
                                              BindingResult result,
                                              Principal principal){
         try{
@@ -200,22 +197,14 @@ public class UserController {
         }
     }
 
-    private boolean isNumericString(String string){
-        for (int i=0; i< string.length(); i++){
-            if("0123456789".indexOf(string.charAt(i)) == -1)
-                return false;
-        }
-        return true;
-    }
-
     private ResponseEntity<String> checkUserValidity(User user, String teamKey, String roleKey, String cost){
         if(!user.equals(userService.findUserByEmail(user.getEmail())) && userService.findUserByEmail(user.getEmail()) != null)
-            return AdviceController.responseConflict(user.getEmail() + " is already used by another user");
+            return AdviceController.responseConflict(user.getEmail() + " email is already used by another user");
         if(!EmailValidator.getInstance().isValid(user.getEmail()))
             return AdviceController.responseBadRequest(user.getUsername() + "'s email '" + user.getEmail() + "' is not valid");
-        if(!isNumericString(user.getTime()) || user.getTime().length() != 5)
+        if(!AdviceController.isStringPositiveDecimal(user.getTime()) || user.getTime().length() != 5)
             return AdviceController.responseBadRequest(user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
-        if(!isNumericString(cost))
+        if(!AdviceController.isStringPositiveDecimal(cost))
             return AdviceController.responseBadRequest(user.getUsername() + "'s cost '" + cost + "' is not valid");
         Team teamRepo = teamService.findTeamByTeamName(teamKey);
         Role roleRepo = roleService.findRole(roleKey);

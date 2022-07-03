@@ -9,9 +9,9 @@ import java.util.List;
 
 @Repository
 public interface ActivityTypeRepository extends CrudRepository<ActivityType, String> {
-    ActivityType getActivityTypeByActivityTypeKey(String string);
+    ActivityType getActivityTypeByActivityTypeKey(String activityTypeKey);
     List<ActivityType> findAll();
-    ActivityType save(ActivityType project);
+    ActivityType save(ActivityType activityType);
     @Transactional
     void deleteActivityTypeByActivityTypeKey(String string);
 }

@@ -1,8 +1,9 @@
 package eu.Rationence.pat.controller;
 
 import eu.Rationence.pat.model.*;
+import eu.Rationence.pat.model.rowModel.CompiledProjectActivityRow;
+import eu.Rationence.pat.model.rowModel.CompiledStandardActivityRow;
 import eu.Rationence.pat.service.*;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,24 +20,27 @@ import java.util.regex.Pattern;
 
 
 @Controller
-@AllArgsConstructor
 public class TrackingController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final CompiledProjectActivityService compiledProjectActivityService;
-    @Autowired
     private final CompiledStandardActivityService compiledStandardActivityService;
-    @Autowired
     private final ProjectActivityService projectActivityService;
-    @Autowired
     private final StandardActivityService standardActivityService;
-    @Autowired
     private final LocationService locationService;
-    @Autowired
     private final MonthlyNoteService monthlyNoteService;
 
-    final int[][] festivity = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {1,11}, {8,12}, {25,12}, {26,12}};
+    final int[][] festivity = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {1,11}, {8,12}, {25,12}, {26,12}, {0, 0}};
+
+    @Autowired
+    public TrackingController(UserService userService, CompiledProjectActivityService compiledProjectActivityService, CompiledStandardActivityService compiledStandardActivityService, ProjectActivityService projectActivityService, StandardActivityService standardActivityService, LocationService locationService, MonthlyNoteService monthlyNoteService) {
+        this.userService = userService;
+        this.compiledProjectActivityService = compiledProjectActivityService;
+        this.compiledStandardActivityService = compiledStandardActivityService;
+        this.projectActivityService = projectActivityService;
+        this.standardActivityService = standardActivityService;
+        this.locationService = locationService;
+        this.monthlyNoteService = monthlyNoteService;
+    }
 
     @GetMapping ("/tracking")
     public String tracking(Model model, Principal principal) throws ParseException {
@@ -52,6 +56,11 @@ public class TrackingController {
         LocalDate passedDate = LocalDate.of(year, month, 1);
         if(passedDate.isAfter(LocalDate.now()))
             return "error";
+
+        LocalDate easterMonday = getEasterDate(year).plusDays(1);
+        festivity[10][0] = easterMonday.getDayOfMonth();
+        festivity[10][1] = easterMonday.getMonthValue();
+
         boolean lastCompilableSheet = month == LocalDate.now().getMonthValue() && year == LocalDate.now().getYear();
         model.addAttribute("nextAvailable", lastCompilableSheet);
         model.addAttribute("year", year);
@@ -69,34 +78,30 @@ public class TrackingController {
             int pos = -1;
             switch(cycleLocalDate.getDayOfWeek()){
                 case MONDAY:
-                    pos = 0;
-                    break;
+                    pos = 0; break;
                 case TUESDAY:
-                    pos = 1;
-                    break;
+                    pos = 1; break;
                 case WEDNESDAY:
-                    pos = 2;
-                    break;
+                    pos = 2; break;
                 case THURSDAY:
-                    pos = 3;
-                    break;
+                    pos = 3; break;
                 case FRIDAY:
-                    pos = 4;
-                    break;
+                    pos = 4; break;
             }
             int hours = 0;
-            for(int festindex=0; festindex<festivity.length; festindex++){
-                if(festivity[festindex][1] == month && festivity[festindex][0] == i){
+            for (int[] ints : festivity) {
+                if (ints[1] == month && ints[0] == i) {
                     pos = -1;
+                    break;
                 }
             }
             if(pos != -1)
                 hours = Character.getNumericValue(userService.findUser(principal.getName()).getTime().charAt(pos));
             model.addAttribute("hoursToWork."+i, hours);
         }
-        for(int i=0; i<festivity.length; i++){
-            if(festivity[i][1] == month){
-                weekendDaysSet.add(festivity[i][0]);
+        for (int[] ints : festivity) {
+            if (ints[1] == month) {
+                weekendDaysSet.add(ints[0]);
             }
         }
         model.addAttribute("weekendDays", weekendDaysSet);
@@ -136,7 +141,7 @@ public class TrackingController {
             if(userActivity.getC_Activity().getDateEnd() != null)
                 activityEndDate = new java.sql.Date (userActivity.getC_Activity().getDateEnd().getTime()).toLocalDate();
             if((activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
-                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month))))
+                    (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month))))
                 iter.remove();
         }
         model.addAttribute("userActivityList", activitySetRepo);
@@ -189,105 +194,117 @@ public class TrackingController {
         LocalDate passedDate = LocalDate.of(year, month, 1);
         User userRepo = userService.findUser(username);
         String userTime = userRepo.getTime();
-        Pattern actPattern = Pattern.compile("Std:.*");
+        Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
+        boolean matchFound = matcher.find();
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
             return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
 
-        if(matcher.find()){
-            String[] list = projectActivityKeys.split(":");
-            String activityKey = list[1];
-            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
-            List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledActivities(username, locationName, activityKey, month, year);
-            if(!compiledStandardActivityList.isEmpty())
-                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
-            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
-                String dateString = "" + i + "-" + month + "-" + year;
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                Date dailyDate = dateFormat.parse(dateString);
-                CompiledStandardActivity csa = CompiledStandardActivity.builder()
-                        .activityKey(standardActivityRepo.getActivityKey())
-                        .c_Activity(standardActivityRepo)
-                        .username(username)
-                        .c_Username(userRepo)
-                        .locationName(locationName)
-                        .c_Location(locationService.find(locationName))
-                        .date(dailyDate)
-                        .hours(0)
-                        .build();
-                compiledStandardActivityService.save(csa);
-            }
-        }
-        else{
-            String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
-            String projectKey = list[0];
-            String activityKey = list[1];
-            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
-            if(!compiledProjectActivityList.isEmpty())
-                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Already added)");
+        LocalDate easterMonday = getEasterDate(year).plusDays(1);
+        festivity[10][0] = easterMonday.getDayOfMonth();
+        festivity[10][1] = easterMonday.getMonthValue();
 
-            LocalDate activityEndDate = null;
-            LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
-            if(projectActivityRepo.getDateEnd() != null)
-                activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
-            if(
-                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
-                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
-            )
-                return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
-
-
-            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
-                String dateString = "" + i + "-" + month + "-" + year;
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                Date dailyDate = dateFormat.parse(dateString);
-                LocalDate cycleLocalDate = LocalDate.of(year, month, i);
-                int pos = -1;
-                switch(cycleLocalDate.getDayOfWeek()){
-                    case MONDAY:
-                        pos = 0;
-                        break;
-                    case TUESDAY:
-                        pos = 1;
-                        break;
-                    case WEDNESDAY:
-                        pos = 2;
-                        break;
-                    case THURSDAY:
-                        pos = 3;
-                        break;
-                    case FRIDAY:
-                        pos = 4;
-                        break;
+        if(matchFound) {
+            if(matcher.group(1).equals("Std")) {
+                String activityKey = matcher.group(2);
+                StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
+                if (standardActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot add " + activityKey + " to time sheet. (Not found)");
+                List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                if (!compiledStandardActivityList.isEmpty())
+                    return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Already added)");
+                for (int day = 1; day <= passedDate.lengthOfMonth(); day++) {
+                    String dateString = "" + day + "-" + month + "-" + year;
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date dailyDate = dateFormat.parse(dateString);
+                    CompiledStandardActivity csa = CompiledStandardActivity.builder()
+                            .activityKey(standardActivityRepo.getActivityKey())
+                            .c_Activity(standardActivityRepo)
+                            .username(username)
+                            .c_Username(userRepo)
+                            .locationName(locationName)
+                            .c_Location(locationService.find(locationName))
+                            .date(dailyDate)
+                            .hours(0)
+                            .build();
+                    compiledStandardActivityService.save(csa);
                 }
-                int hours = 0;
-                for(int festindex=0; festindex<festivity.length; festindex++){
-                    if(festivity[festindex][1] == month && festivity[festindex][0] == i){
-                        pos = -1;
+                return AdviceController.responseOk("Activity added to time sheet successfully.");
+            }
+            else {
+                String projectKey = matcher.group(1);
+                String activityKey = matcher.group(2);
+                ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
+                if (projectActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot add " + projectKey + ":" + activityKey + " to time sheet. (Not found)");
+                List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                if (!compiledProjectActivityList.isEmpty())
+                    return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Already added)");
+
+                LocalDate activityEndDate = null;
+                LocalDate activityStartDate = new java.sql.Date(projectActivityRepo.getDateStart().getTime()).toLocalDate();
+                if (projectActivityRepo.getDateEnd() != null)
+                    activityEndDate = new java.sql.Date(projectActivityRepo.getDateEnd().getTime()).toLocalDate();
+                if (
+                        (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                                (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+                )
+                    return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() + ")");
+
+
+                for (int day = 1; day <= passedDate.lengthOfMonth(); day++) {
+                    String dateString = "" + day + "-" + month + "-" + year;
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date dailyDate = dateFormat.parse(dateString);
+                    LocalDate cycleLocalDate = LocalDate.of(year, month, day);
+                    int pos = -1;
+                    switch (cycleLocalDate.getDayOfWeek()) {
+                        case MONDAY:
+                            pos = 0;
+                            break;
+                        case TUESDAY:
+                            pos = 1;
+                            break;
+                        case WEDNESDAY:
+                            pos = 2;
+                            break;
+                        case THURSDAY:
+                            pos = 3;
+                            break;
+                        case FRIDAY:
+                            pos = 4;
+                            break;
                     }
+                    int hours = 0;
+                    for (int[] ints : festivity) {
+                        if (ints[1] == month && ints[0] == day) {
+                            pos = -1;
+                            break;
+                        }
+                    }
+                    if (pos != -1 && autocompile)
+                        hours = Character.getNumericValue(userTime.charAt(pos));
+                    CompiledProjectActivity cpa = CompiledProjectActivity.builder()
+                            .project(projectActivityRepo.getProject())
+                            .activityKey(projectActivityRepo.getActivityKey())
+                            .c_Activity(projectActivityRepo)
+                            .username(username)
+                            .c_Username(userRepo)
+                            .locationName(locationName)
+                            .c_Location(locationService.find(locationName))
+                            .date(dailyDate)
+                            .hours(hours)
+                            .build();
+                    compiledProjectActivityService.save(cpa);
                 }
-                if(pos != -1 && autocompile)
-                    hours = Character.getNumericValue(userTime.charAt(pos));
-                CompiledProjectActivity cpa = CompiledProjectActivity.builder()
-                        .project(projectActivityRepo.getProject())
-                        .activityKey(projectActivityRepo.getActivityKey())
-                        .c_Activity(projectActivityRepo)
-                        .username(username)
-                        .c_Username(userRepo)
-                        .locationName(locationName)
-                        .c_Location(locationService.find(locationName))
-                        .date(dailyDate)
-                        .hours(hours)
-                        .build();
-                compiledProjectActivityService.save(cpa);
+                return AdviceController.responseOk("Activity added to time sheet successfully.");
             }
         }
-        return AdviceController.responseOk("Activity added to time sheet successfully.");
+        return AdviceController.responseBadRequest("Activities cannot be added. Bad request.");
     }
 
     @PutMapping ("/tracking/{year}/{month}")
@@ -301,58 +318,61 @@ public class TrackingController {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
         User userRepo = userService.findUser(username);
-        Pattern actPattern = Pattern.compile("Std:.*");
+        Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
+        boolean matchFound = matcher.find();
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
             return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
 
-        if(matcher.find()){
-            String[] list = projectActivityKeys.split(":");
-            String activityKey = list[1];
-            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
-            List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledActivities(username, locationName, activityKey, month, year);
-            if(compiledStandardActivityList.isEmpty())
-                return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
+        if(matchFound) {
+            if (matcher.group(1).equals("Std")) {
+                String activityKey = matcher.group(2);
+                StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
+                if (standardActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot update " + activityKey + " to time sheet. (Not found)");
+                List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                if (compiledStandardActivityList.isEmpty())
+                    return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Not found)");
 
-            String dateString = "" + day + "-" + month + "-" + year;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            Date dailyDate = dateFormat.parse(dateString);
-            CompiledStandardActivity csa = CompiledStandardActivity.builder()
-                    .activityKey(standardActivityRepo.getActivityKey())
-                    .c_Activity(standardActivityRepo)
-                    .username(username)
-                    .c_Username(userRepo)
-                    .locationName(locationName)
-                    .c_Location(locationService.find(locationName))
-                    .date(dailyDate)
-                    .hours(hour)
-                    .build();
-            compiledStandardActivityService.save(csa);
+                String dateString = "" + day + "-" + month + "-" + year;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date dailyDate = dateFormat.parse(dateString);
+                CompiledStandardActivity csa = CompiledStandardActivity.builder()
+                        .activityKey(standardActivityRepo.getActivityKey())
+                        .c_Activity(standardActivityRepo)
+                        .username(username)
+                        .c_Username(userRepo)
+                        .locationName(locationName)
+                        .c_Location(locationService.find(locationName))
+                        .date(dailyDate)
+                        .hours(hour)
+                        .build();
+                compiledStandardActivityService.save(csa);
+                return AdviceController.responseOk("Time sheet activities updated successfully.");
+            }
+            else{
+                String projectKey = matcher.group(1);
+                String activityKey = matcher.group(2);
+                ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
+                if(projectActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot update " + projectKey + ":" + activityKey + " in time sheet. (Not found)");
+                List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                if(compiledProjectActivityList.isEmpty())
+                    return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
-        }
-        else{
-            String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
-            String projectKey = list[0];
-            String activityKey = list[1];
-            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
-            if(compiledProjectActivityList.isEmpty())
-                return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
-
-            LocalDate activityEndDate = null;
-            LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
-            if(projectActivityRepo.getDateEnd() != null)
-                activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
-            if(
-                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
-                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
-            )
-                return AdviceController.responseBadRequest("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
-
+                LocalDate activityEndDate = null;
+                LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
+                if(projectActivityRepo.getDateEnd() != null)
+                    activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
+                if(
+                        (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                                (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+                )
+                    return AdviceController.responseBadRequest("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
 
                 String dateString = "" + day + "-" + month + "-" + year;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -369,9 +389,10 @@ public class TrackingController {
                         .hours(hour)
                         .build();
                 compiledProjectActivityService.save(cpa);
-
+                return AdviceController.responseOk("Time sheet activities updated successfully.");
+            }
         }
-        return AdviceController.responseOk("Time sheet activities updated successfully.");
+        return AdviceController.responseBadRequest("Activities cannot be updated. Bad request.");
     }
 
     @DeleteMapping ("/tracking/{year}/{month}")
@@ -384,56 +405,63 @@ public class TrackingController {
         String username = principal.getName();
         LocalDate passedDate = LocalDate.of(year, month, 1);
         User userRepo = userService.findUser(username);
-        Pattern actPattern = Pattern.compile("Std:.*");
+        Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
+        boolean matchFound = matcher.find();
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
             return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
-        if(matcher.find()){
-            String[] list = projectActivityKeys.split(":");
-            String activityKey = list[1];
-            StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
-            List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                    .findCompiledActivities(username, locationName, activityKey, month, year);
-            if(compiledStandardActivityList.isEmpty())
-                return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
-            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
-                String dateString = "" + i + "-" + month + "-" + year;
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                Date dailyDate = dateFormat.parse(dateString);
-                compiledStandardActivityService.delete(activityKey, username, locationName, dailyDate);
+        if(matchFound) {
+            if(matcher.group(1).equals("Std")) {
+                String activityKey = matcher.group(2);
+                StandardActivity standardActivityRepo = standardActivityService.findStandardActivityByActivityKey(activityKey);
+                if (standardActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot delete " + activityKey + " from time sheet. (Not found)");
+                List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                if (compiledStandardActivityList.isEmpty())
+                    return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Not found)");
+                for (int i = 1; i <= passedDate.lengthOfMonth(); i++) {
+                    String dateString = "" + i + "-" + month + "-" + year;
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date dailyDate = dateFormat.parse(dateString);
+                    compiledStandardActivityService.delete(activityKey, username, locationName, dailyDate);
+                }
+                return AdviceController.responseOk("Activity " + projectActivityKeys + " deleted from time sheet successfully.");
+            }
+            else{
+                String projectKey = matcher.group(1);
+                String activityKey = matcher.group(2);
+                ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
+                if(projectActivityRepo == null)
+                    return AdviceController.responseNotFound("Cannot delete " + projectKey + ":" + activityKey + " from time sheet. (Not found)");
+                List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                if(compiledProjectActivityList.isEmpty())
+                    return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
+
+                LocalDate activityEndDate = null;
+                LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
+                if(projectActivityRepo.getDateEnd() != null)
+                    activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
+                if(
+                        (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
+                                (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
+                )
+                    return AdviceController.responseBadRequest("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
+
+
+                for(int dayNum=1; dayNum <= passedDate.lengthOfMonth(); dayNum++){
+                    String dateString = "" + dayNum + "-" + month + "-" + year;
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date dailyDate = dateFormat.parse(dateString);
+                    compiledProjectActivityService.delete(activityKey, projectKey, username, locationName, dailyDate);
+                }
+                return AdviceController.responseOk("Activity " + projectActivityKeys + " deleted from time sheet successfully.");
             }
         }
-        else{
-            String[] list = projectActivityKeys.split(":");
-            ProjectActivity projectActivityRepo = projectActivityService.find(list[1], list[0]);
-            String projectKey = list[0];
-            String activityKey = list[1];
-            List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                    .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
-            if(compiledProjectActivityList.isEmpty())
-                return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
-
-            LocalDate activityEndDate = null;
-            LocalDate activityStartDate = new java.sql.Date (projectActivityRepo.getDateStart().getTime()).toLocalDate();
-            if(projectActivityRepo.getDateEnd() != null)
-                activityEndDate = new java.sql.Date (projectActivityRepo.getDateEnd().getTime()).toLocalDate();
-            if(
-                    (activityStartDate.getYear() > year || (activityStartDate.getYear() == year && activityStartDate.getMonthValue() > month)) ||
-                            (activityEndDate != null && (activityEndDate.getYear() < year || (activityEndDate.getYear() == year && activityEndDate.getMonthValue() < month)))
-            )
-                return AdviceController.responseBadRequest("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Activity period was" + projectActivityRepo.getDateStart() + " - " + projectActivityRepo.getDateEnd() +")");
-
-
-            for(int i=1; i <= passedDate.lengthOfMonth(); i++){
-                String dateString = "" + i + "-" + month + "-" + year;
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                Date dailyDate = dateFormat.parse(dateString);
-                compiledProjectActivityService.delete(activityKey, projectKey, username, locationName, dailyDate);
-            }
-        }
-        return AdviceController.responseOk("Activity " + projectActivityKeys + " deleted from time sheet successfully.");
+        return AdviceController.responseBadRequest("Activities cannot be deleted. Bad request.");
     }
 
     @PutMapping ("/trackingNote/{year}/{month}")
@@ -459,5 +487,24 @@ public class TrackingController {
             monthlyNoteService.save(monthlyNote);
             return AdviceController.responseOk("Note saved.");
         }
+    }
+
+    public LocalDate getEasterDate(int year) {
+        int a = year % 19;
+        int b = year / 100;
+        int c = year % 100;
+        int d = b / 4;
+        int e = b % 4;
+        int f = (b + 8) / 25;
+        int g = (b - f + 1) / 3;
+        int h = (19 * a + b - d - g + 15) % 30;
+        int i = c / 4;
+        int k = c % 4;
+        int l = (32 + 2 * e + 2 * i - h - k) % 7;
+        int m = (a + 11 * h + 22 * l) / 451;
+        int easterMonth = (h + l - 7 * m + 114) / 31;
+        int p = (h + l - 7 * m + 114) % 31;
+        int easterDay = p + 1;
+        return LocalDate.of(year, easterMonth, easterDay);
     }
 }

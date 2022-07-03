@@ -3,16 +3,17 @@ package eu.Rationence.pat.service;
 import eu.Rationence.pat.model.ProjectActivity;
 import eu.Rationence.pat.repository.ProjectActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Configurable
 public class ProjectActivityService {
+    private final ProjectActivityRepository projectActivityRepository;
     @Autowired
-    private ProjectActivityRepository projectActivityRepository;
+    public ProjectActivityService(ProjectActivityRepository projectActivityRepository) {
+        this.projectActivityRepository = projectActivityRepository;
+    }
 
     public ProjectActivity find(String activityKey, String project){
         return projectActivityRepository.getActivityByActivityKeyAndProject(activityKey, project);

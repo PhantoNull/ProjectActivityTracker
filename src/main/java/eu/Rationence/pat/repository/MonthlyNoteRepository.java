@@ -1,7 +1,7 @@
 package eu.Rationence.pat.repository;
 
 import eu.Rationence.pat.model.MonthlyNote;
-import eu.Rationence.pat.model.MonthlyNoteCompositeKey;
+import eu.Rationence.pat.model.compositeKeys.MonthlyNoteCompositeKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;

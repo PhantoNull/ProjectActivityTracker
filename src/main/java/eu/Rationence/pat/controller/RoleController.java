@@ -4,8 +4,8 @@ import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.model.User;
 import eu.Rationence.pat.service.RoleService;
 import eu.Rationence.pat.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,12 +16,15 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 public class RoleController {
-    @Autowired
     private final RoleService roleService;
-    @Autowired
     private final UserService userService;
+
+    @Autowired
+    public RoleController(RoleService roleService, UserService userService) {
+        this.roleService = roleService;
+        this.userService = userService;
+    }
 
     @GetMapping("/roles")
     public String roles(Model model, Principal principal) {
@@ -37,10 +40,9 @@ public class RoleController {
     public ResponseEntity<String> addRole(@Valid Role role) {
         try {
             roleService.save(role);
-            return ResponseEntity.ok("Role '" + role.getRoleName() + "' saved.");
+            return AdviceController.responseOk("Role '" + role.getRoleName() + "' saved.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body("ERROR: " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
 
     }
@@ -48,15 +50,16 @@ public class RoleController {
     @DeleteMapping("/roles")
     public ResponseEntity<String> deleteRole(@Valid Role role) {
         if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
-            return ResponseEntity.badRequest()
-                    .body("ERROR : Can't delete default ADMIN or USER role");
+            return AdviceController.responseForbidden("Can't delete default ADMIN or USER role");
         try {
             roleService.deleteRole(role.getRoleName());
-            return ResponseEntity.ok("Role '" + role.getRoleName() + "' deleted.");
+            return AdviceController.responseOk("Role '" + role.getRoleName() + "' deleted.");
+        }
+        catch(DataIntegrityViolationException e){
+            return AdviceController.responseForbidden("Cannot delete role '" + role.getRoleName() + "'. (Constraint violation)");
         }
         catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body("ERROR : " + e.getMessage());
+            return AdviceController.responseServerError(e.getMessage());
         }
     }
 }
