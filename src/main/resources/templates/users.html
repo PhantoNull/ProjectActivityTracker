@@ -377,6 +377,7 @@
                                                        th:onclick="'sortTable(\'enabled\',columnList);'"></i>
                                                 </span>
                                             </th>
+                                            <th></th>
                                         </tr>
                                         <!-- Data rows -->
                                         <!--/*@thymesVar id="listaUtenti" type=""*/-->
@@ -467,6 +468,13 @@
                                                             </option>
                                                         </select>
                                                     </div>
+                                                </td>
+                                                <td>
+                                                    <a th:href="'/tracking/' + ${user.username}">
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${user.username} + ' time sheets'">
+                                                            <i class="fas fa-file-spreadsheet fa-lg is-clickable table-button"></i>
+                                                        </span>
+                                                    </a>
                                                 </td>
                                             </form>
                                         </tr>

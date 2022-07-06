@@ -1,22 +1,32 @@
-function extractXLSX(month, year, name){
+function extractXLSX(month, year, username, global){
     let table = document.getElementById("sortableTable");
     let wb = XLSX.utils.book_new();
 
-    wb.SheetNames.push("TimeSheet");
-    let ws = XLSX.utils.aoa_to_sheet([[ "TimeSheet" ]]);
-    wb.Sheets["TimeSheet"] = ws;
+    let ws = XLSX.utils.aoa_to_sheet([ ]);
 
+    wb.Sheets["TimeSheet"] = ws;
     let rowValues = [];
     let rows = table.rows;
-    for (let i = 0; i < rows.length; i++) {
+    let startingRow = 0;
+    if(global)
+        startingRow = 2;
+    for (let i = startingRow; i < rows.length; i++) {
+        if(table.rows[i].classList.contains("hidden"))
+            continue;
         let rowCells = table.rows[i].cells;
 
         if (i === rows.length - 1) {
-            rowValues.push("", "Tot");
+            if(global) {
+                rowValues.push("", "", "Tot");
+                for(let j=6; j<=rowCells.length; j++)
+                    rowValues.push("")
+            }
+            else
+                rowValues.push("", "Tot");
         }
 
         for (let cell of rowCells) {
-            if (i === 0) {
+            if (cell.classList.contains("table-header") && !cell.classList.contains("checkboxCol")) {
                 if (cell.classList.contains("table-header") && !cell.classList.contains("checkboxCol")) {
                     let value = cell.textContent;
                     rowValues.push(value);
@@ -44,12 +54,11 @@ function extractXLSX(month, year, name){
         XLSX.utils.sheet_add_aoa(ws, [rowValues], {origin:-1});
         rowValues = [];
     }
-
-    //let strCreated = "Created on "+new Date().toISOString();
-    //XLSX.utils.sheet_add_aoa(ws, [[strCreated]], {origin:-1});
+    XLSX.utils.book_append_sheet(wb, ws, "TimeSheet");
 
     ws["!cols"] = [
-        {width: "BPER-ORCH-22:DEV-22   ".length},
+        {width: "Nome utente lungo   ".length},
+        {width: "BPER-ORCH-22:DEV-22     ".length},
         {width: "TRASFERTA  ".length},
         {width: "    ".length},
         {width: "    ".length},
@@ -84,6 +93,9 @@ function extractXLSX(month, year, name){
         {width: "    ".length},
         {width: "    ".length}
     ];
-
-    XLSX.writeFileXLSX(wb, "Time_Sheet_" + name + "_" + month + "_" + year + ".xlsx");
+    console.log(typeof ws["!cols"]);
+    if(!global)
+        ws["!cols"] = ws["!cols"].slice(1);
+    console.log(ws["!cols"]);
+    XLSX.writeFileXLSX(wb, "TimeSheet_" + year + "_" + month + "_" + username + ".xlsx");
 }

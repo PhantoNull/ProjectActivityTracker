@@ -16,6 +16,9 @@ public interface CompiledStandardActivityRepository extends CrudRepository<Compi
 
     List<CompiledStandardActivity> findCompiledStandardActivitiesByUsername(String username);
 
+    @Query(value = "SELECT * FROM PAT_CompiledStandardActivities WHERE DATEPART(month, d_Date) = ?1 and DATEPART(year, d_Date) = ?2", nativeQuery = true)
+    List<CompiledStandardActivity> findCompiledStandardActivitiesByMonthAndYear(int month, int year);
+
     @Query(value = "SELECT * FROM PAT_CompiledStandardActivities WHERE c_Username = ?1 and DATEPART(month, d_Date) = ?2 and DATEPART(year, d_Date) = ?3", nativeQuery = true)
     List<CompiledStandardActivity> findCompiledStandardActivitiesByUsernameAndMonthAndYear(String username, int month, int year);
 

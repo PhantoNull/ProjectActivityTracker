@@ -16,6 +16,9 @@ public interface CompiledProjectActivityRepository extends CrudRepository<Compil
 
     List<CompiledProjectActivity> findCompiledProjectActivitiesByUsername(String username);
 
+    @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE DATEPART(month, d_Date) = ?1 and DATEPART(year, d_Date) = ?2", nativeQuery = true)
+    List<CompiledProjectActivity> findCompiledProjectActivitiesByMonthAndYear(int month, int year);
+
     @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and DATEPART(month, d_Date) = ?2 and DATEPART(year, d_Date) = ?3", nativeQuery = true)
     List<CompiledProjectActivity> findCompiledProjectActivitiesByUsernameAndMonthAndYear(String username, int month, int year);
 

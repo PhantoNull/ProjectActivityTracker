@@ -3,6 +3,8 @@ package eu.Rationence.pat.controller;
 import eu.Rationence.pat.model.*;
 import eu.Rationence.pat.model.rowModel.CompiledProjectActivityRow;
 import eu.Rationence.pat.model.rowModel.CompiledStandardActivityRow;
+import eu.Rationence.pat.model.rowModel.CompiledUserProjectActivityRow;
+import eu.Rationence.pat.model.rowModel.CompiledUserStandardActivityRow;
 import eu.Rationence.pat.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +50,44 @@ public class TrackingController {
         return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
 
+    @GetMapping("/tracking/{username}")
+    public String trackingUsername(@PathVariable String username,
+                                   Model model,
+                                   Principal principal) throws ParseException {
+        User userAdmin = userService.findUser(principal.getName());
+        User userTimeSheet = userService.findUser(username);
+        if((!userAdmin.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username)) || userTimeSheet == null)
+            return "error";
+        LocalDate currentDate = LocalDate.now();
+        return getTrackingMonthYearUsername(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
+    }
+
     @GetMapping ("/tracking/{year}/{month}")
     public String getTrackingMonthYear(@PathVariable int year,
                                        @PathVariable int month,
                                        Model model, Principal principal) throws ParseException {
-        model.addAttribute("locationList", locationService.findAll());
+        return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
+    }
+
+    @GetMapping ("/trackingMonthlyGlobal")
+    public String getGlobalMonthlyTracking(Model model, Principal principal) throws ParseException {
+        LocalDate currentDate = LocalDate.now();
+        return getGlobalMonthlyTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
+    }
+
+    @GetMapping ("/trackingMonthlyGlobal/{year}/{month}")
+    public String getGlobalMonthlyTrackingMonthYear(@PathVariable int year,
+                                                    @PathVariable int month,
+                                                    Model model, Principal principal) throws ParseException {
+        User userLogged = userService.findUser(principal.getName());
+        if(userLogged == null)
+            return "error";
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
         if(passedDate.isAfter(LocalDate.now()))
             return "error";
+
+        model.addAttribute("locationList", locationService.findAll());
 
         LocalDate easterMonday = getEasterDate(year).plusDays(1);
         festivity[10][0] = easterMonday.getDayOfMonth();
@@ -120,8 +152,138 @@ public class TrackingController {
         model.addAttribute("nextMonth", nextMonth);
         model.addAttribute("nextYear", nextYear);
 
-        String username = principal.getName();
+        List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
+                .findCompiledActivities(month, year);
+        HashSet<CompiledUserProjectActivityRow> projectActivityHashSet = new HashSet<>();
+
+        for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
+            projectActivityHashSet.add(CompiledUserProjectActivityRow.builder()
+                    .username(compiledProjectActivity.getUsername())
+                    .project(compiledProjectActivity.getProject())
+                    .projectDesc(compiledProjectActivity.getC_Activity().getC_Project().getProjectDesc())
+                    .activityKey(compiledProjectActivity.getActivityKey())
+                    .location(compiledProjectActivity.getLocationName()).build());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(compiledProjectActivity.getDate());
+            model.addAttribute(compiledProjectActivity.getProject() + "."
+                    + compiledProjectActivity.getActivityKey() + "."
+                    + compiledProjectActivity.getUsername() + "."
+                    + compiledProjectActivity.getLocationName() + "."
+                    + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
+        }
+        model.addAttribute("projectActivityList", projectActivityHashSet);
+
+        List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
+                .findCompiledActivities(month, year);
+        HashSet<CompiledUserStandardActivityRow> standardActivityHashSet = new HashSet<>();
+        model.addAttribute("allStandardList", standardActivityService.findAll());
+        for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
+            standardActivityHashSet.add(CompiledUserStandardActivityRow.builder()
+                    .username(compiledStandardActivity.getUsername())
+                    .activityKey(compiledStandardActivity.getActivityKey())
+                    .location(compiledStandardActivity.getLocationName()).build());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(compiledStandardActivity.getDate());
+            model.addAttribute("Standard."
+                    + compiledStandardActivity.getActivityKey() + "."
+                    + compiledStandardActivity.getUsername() + "."
+                    + compiledStandardActivity.getLocationName() + "."
+                    + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
+        }
+        model.addAttribute("standardActivityList", standardActivityHashSet);
+        model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userLogged.getTeam().getTeamDesc());
+        return "globalMonthlyTracking";
+    }
+
+    @GetMapping ("/tracking/{year}/{month}/{username}")
+    public String getTrackingMonthYearUsername(@PathVariable int year,
+                                                @PathVariable int month,
+                                                @PathVariable String username,
+                                                Model model, Principal principal) throws ParseException {
+        User userAdmin = userService.findUser(principal.getName());
+        if(!userAdmin.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return "error";
+
+        LocalDate passedDate = LocalDate.of(year, month, 1);
+        if(passedDate.isAfter(LocalDate.now()))
+            return "error";
+
+        User userLogged = userService.findUser(principal.getName());
+        if(userLogged == null)
+            return "error";
+
         User userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return "error";
+
+        model.addAttribute("locationList", locationService.findAll());
+
+        LocalDate easterMonday = getEasterDate(year).plusDays(1);
+        festivity[10][0] = easterMonday.getDayOfMonth();
+        festivity[10][1] = easterMonday.getMonthValue();
+
+        model.addAttribute("userTimeSheetDescription", userService.findUser(username).getDescription());
+        model.addAttribute("userTimeSheetUsername", username);
+
+        boolean lastCompilableSheet = month == LocalDate.now().getMonthValue() && year == LocalDate.now().getYear();
+        model.addAttribute("nextAvailable", lastCompilableSheet);
+        model.addAttribute("year", year);
+        model.addAttribute("month", month);
+        model.addAttribute("monthDays", passedDate.lengthOfMonth());
+        model.addAttribute("monthName", passedDate.getMonth());
+
+        Set<Integer> weekendDaysSet = new HashSet<>();
+
+        for(int i=1; i <= passedDate.lengthOfMonth(); i++){
+            LocalDate cycleLocalDate = LocalDate.of(year, month, i);
+            model.addAttribute("monthName", passedDate.getMonth());
+            if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY)
+                weekendDaysSet.add(i);
+            int pos = -1;
+            switch(cycleLocalDate.getDayOfWeek()){
+                case MONDAY:
+                    pos = 0; break;
+                case TUESDAY:
+                    pos = 1; break;
+                case WEDNESDAY:
+                    pos = 2; break;
+                case THURSDAY:
+                    pos = 3; break;
+                case FRIDAY:
+                    pos = 4; break;
+            }
+            int hours = 0;
+            for (int[] ints : festivity) {
+                if (ints[1] == month && ints[0] == i) {
+                    pos = -1;
+                    break;
+                }
+            }
+            if(pos != -1)
+                hours = Character.getNumericValue(userService.findUser(principal.getName()).getTime().charAt(pos));
+            model.addAttribute("hoursToWork."+i, hours);
+        }
+        for (int[] ints : festivity) {
+            if (ints[1] == month) {
+                weekendDaysSet.add(ints[0]);
+            }
+        }
+        model.addAttribute("weekendDays", weekendDaysSet);
+
+        int previousMonth = month-1, previousYear = year, nextMonth = month + 1, nextYear = year;
+        if(month == 1) {
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        else if(month == 12){
+            nextMonth = 1;
+            nextYear = year + 1;
+        }
+        model.addAttribute("previousMonth", previousMonth);
+        model.addAttribute("previousYear", previousYear);
+        model.addAttribute("nextMonth", nextMonth);
+        model.addAttribute("nextYear", nextYear);
 
         Date dateMonthlyNote = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, dateMonthlyNote);
@@ -178,21 +340,28 @@ public class TrackingController {
 
         }
         model.addAttribute("standardActivityList", standardActivityHashSet);
-        model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
-        model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
+        model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
+        model.addAttribute("userTeamName", userLogged.getTeam().getTeamDesc());
         return "tracking";
     }
 
-    @PostMapping ("/tracking/{year}/{month}")
-    public ResponseEntity<String> addTrackingMonthYear(@PathVariable int year,
+    @PostMapping ("/tracking/{year}/{month}/{username}")
+    public ResponseEntity<String> addTrackingMonthYearUsername(@PathVariable int year,
                                                        @PathVariable int month,
+                                                       @PathVariable String username,
                                                        @RequestParam String projectActivityKeys,
                                                        @RequestParam String locationName,
                                                        @RequestParam (required = false) boolean autocompile,
                                                        Principal principal) throws ParseException {
-        String username = principal.getName();
+
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUser(username);
+        userRepo = userService.findUser(username);
+
+
         String userTime = userRepo.getTime();
         Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
@@ -307,17 +476,25 @@ public class TrackingController {
         return AdviceController.responseBadRequest("Activities cannot be added. Bad request.");
     }
 
-    @PutMapping ("/tracking/{year}/{month}")
+    @PutMapping ("/tracking/{year}/{month}/{username}")
     public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
                                                           @PathVariable int month,
+                                                          @PathVariable String username,
                                                           @RequestParam String projectActivityKeys,
                                                           @RequestParam String locationName,
                                                           @RequestParam int day,
                                                           @RequestParam int hour,
                                                           Principal principal) throws ParseException {
-        String username = principal.getName();
+
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUser(username);
+        userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
+
         Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
@@ -395,16 +572,22 @@ public class TrackingController {
         return AdviceController.responseBadRequest("Activities cannot be updated. Bad request.");
     }
 
-    @DeleteMapping ("/tracking/{year}/{month}")
+    @DeleteMapping ("/tracking/{year}/{month}/{username}")
     public ResponseEntity<String> deleteTrackingMonthYear(@PathVariable int year,
                                                           @PathVariable int month,
+                                                          @PathVariable String username,
                                                           @RequestParam String projectActivityKeys,
                                                           @RequestParam String locationName,
                                                           Principal principal) throws ParseException {
 
-        String username = principal.getName();
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUser(username);
+        userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
@@ -464,14 +647,21 @@ public class TrackingController {
         return AdviceController.responseBadRequest("Activities cannot be deleted. Bad request.");
     }
 
-    @PutMapping ("/trackingNote/{year}/{month}")
+    @PutMapping ("/trackingNote/{year}/{month}/{username}")
     public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
                                                           @PathVariable int month,
+                                                          @PathVariable String username,
                                                           @RequestParam (required = false) String note,
                                                           Principal principal) throws ParseException {
-        String username = principal.getName();
+
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        User userRepo = userService.findUser(username);
+        userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){

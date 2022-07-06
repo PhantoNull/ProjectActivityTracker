@@ -22,6 +22,9 @@ public class CompiledProjectActivityService {
     public List<CompiledProjectActivity> findCompiledActivities(String username) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsername(username);
     }
+    public List<CompiledProjectActivity> findCompiledActivities(int month, int year) {
+        return compiledProjectActivityRepository.findCompiledProjectActivitiesByMonthAndYear(month, year);
+    }
     public List<CompiledProjectActivity> findCompiledActivities(String username, int month, int year) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesByUsernameAndMonthAndYear(username, month, year);
     }

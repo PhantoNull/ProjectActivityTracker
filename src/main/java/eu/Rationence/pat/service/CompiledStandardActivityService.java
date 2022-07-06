@@ -22,6 +22,9 @@ public class CompiledStandardActivityService {
     public List<CompiledStandardActivity> findCompiledActivities(String username) {
         return compiledStandardActivityRepository.findCompiledStandardActivitiesByUsername(username);
     }
+    public List<CompiledStandardActivity> findCompiledActivities(int month, int year) {
+        return compiledStandardActivityRepository.findCompiledStandardActivitiesByMonthAndYear(month, year);
+    }
     public List<CompiledStandardActivity> findCompiledActivities(String username, int month, int year) {
         return compiledStandardActivityRepository.findCompiledStandardActivitiesByUsernameAndMonthAndYear(username, month, year);
     }

@@ -148,3 +148,8 @@ input[type=number] { -moz-appearance: textfield;}
     padding: 5px; !important
 }
 
+/*
+.subTotalTable tr:last-child{
+    border-top:2px double #2a4f5e;
+}+/
+
