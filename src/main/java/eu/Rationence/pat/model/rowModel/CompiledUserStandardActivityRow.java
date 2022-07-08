@@ -1,14 +1,13 @@
 package eu.Rationence.pat.model.rowModel;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
 @EqualsAndHashCode
 @ToString
-public class CompiledUserStandardActivityRow {
+@SuperBuilder
+public class CompiledUserStandardActivityRow extends CompiledStandardActivityRow{
     private String username;
-    private String activityKey;
-    private String location;
 }

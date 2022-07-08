@@ -24,7 +24,7 @@ public class UserActivityService {
 
     public UserActivity save(UserActivity userActivity){ return userActivityRepository.save(userActivity);}
 
-    public void delete(String string, String project, String username){
-        userActivityRepository.deleteUserActivityByActivityKeyAndProjectAndUsername(string, project, username);
+    public void delete(String activityKey, String project, String username){
+        userActivityRepository.deleteUserActivityByActivityKeyAndProjectAndUsername(activityKey, project, username);
     }
 }

@@ -87,7 +87,7 @@
                                 Functions</p>
                         </div>
                         <div class="message-body">
-                            <div class="columns is-0-mobile is-centered is-mobile">
+                            <div class="columns is-centered">
                                 <div class="column">
                                     <a th:href="@{/teams}">
                                         <figure th:onclick="'clickImg(\'teamsimg\')'" class="image is-128x128 m-auto">
@@ -112,6 +112,13 @@
                                         </figure>
                                     </a>
                                 </div>
+                                <div class="column">
+                                    <a th:href="@{/overview}">
+                                        <figure th:onclick="'clickImg(\'overview\')'" class="image is-128x128 m-auto">
+                                            <img id="overview" src="/images/overview3.png" class="menu-item">
+                                        </figure>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </article>
@@ -122,7 +129,7 @@
                             <p class="subtitle has-text-white has-text-weight-semibold m-auto">User Functions</p>
                         </div>
                         <div class="message-body">
-                            <div class="columns is-0-mobile is-centered is-mobile">
+                            <div class="columns is-centered">
                                 <div class="column" sec:authorize="hasAuthority('ADMIN')">
                                     <a th:href="@{/users}">
                                         <figure th:onclick="'clickImg(\'userimg\')'" class="image is-128x128 m-auto">

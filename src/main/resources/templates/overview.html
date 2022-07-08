@@ -91,8 +91,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="/trackingMonthlyGlobal">
-                                        <span>TrackingMonthlyGlobal</span>
+                                    <a href="/overview">
+                                        <span>Overview</span>
                                     </a>
                                 </li>
                             </ul>
@@ -156,7 +156,7 @@
                             <div class="column">
                                 <div class="table__wrapper">
                                     <div class="is-6 has-text-centered has-text-weight-bold mx-auto">
-                                        <a th:href="'/trackingMonthlyGlobal/' + ${previousYear} + '/'+${previousMonth}" style="text-decoration: none;">
+                                        <a th:href="'/overview/' + ${previousYear} + '/'+${previousMonth}" style="text-decoration: none;">
                                             <span class="icon is-medium has-text-primary is-clickable"
                                                   data-tooltip="Previous">
                                                     <i class="fas fa-arrow-alt-square-left fa-lg table-button"></i>
@@ -165,7 +165,7 @@
                                         <span class="my-auto is-size-4 has-text-weight-bold" th:text="${monthName}+' '+${year}">
                                         </span>
                                         <a th:if="${nextAvailable == false}"
-                                           th:href="'/trackingMonthlyGlobal/' + ${nextYear} + '/'+${nextMonth}">
+                                           th:href="'/overview/' + ${nextYear} + '/'+${nextMonth}">
                                             <span class="icon is-medium has-text-primary is-clickable"
                                                   data-tooltip="Next">
                                                     <i class="fas fa-arrow-alt-square-right fa-lg table-button"></i>
@@ -351,10 +351,10 @@
                                                 th:data-month="${month}"
                                                 th:data-year="${year}"
                                                 th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),'GLOBAL',true);">
-                                            Export Excel File
-                                            <figure class="image is-16x16 ml-2">
+                                            <figure class="image is-32x32 mr-3">
                                                 <img src="/images/xls32.png">
                                             </figure>
+                                            Export Excel File
                                         </button>
                                     </div>
                                 </div>

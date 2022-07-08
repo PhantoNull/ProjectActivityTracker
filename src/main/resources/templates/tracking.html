@@ -3,7 +3,7 @@
 <head th:include="fragments/headFragment.html :: headFragment">
 </head>
 
-<body onload="computeSubTotals(), applyFilter()">
+<body onload="computeSubTotals(), applyFilter(), resizePage()">
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
@@ -11,6 +11,11 @@
 
 
 <script type="text/javascript">
+    function resizePage(){
+        zoom = $(window).width()/$("body").width()*100;
+        document.body.style.zoom = zoom+"%"
+    }
+
     let columnList = ["checkbox", "activity", "location"];
 
     function applyFilter(){
@@ -379,7 +384,7 @@
                                                         <input type="hidden" name="projectActivityKeys" th:value="${projectActivity.getProject()}+':'+${projectActivity.getActivityKey()}"/>
                                                         <input type="hidden" name="locationName" th:value="${projectActivity.getLocation()}"/>
                                                         <input type="hidden" name="day" th:value="${i}"/>
-                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
                                                                th:id="hour+${iter.index}+.+${i}" name="hour"
                                                                type="number"
                                                                th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
@@ -424,7 +429,7 @@
                                                         <input type="hidden" name="projectActivityKeys" th:value="'Std:'+${standardActivity.getActivityKey()}"/>
                                                         <input type="hidden" name="locationName" th:value="${standardActivity.getLocation()}"/>
                                                         <input type="hidden" name="day" th:value="${i}"/>
-                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
                                                                th:id="hourS+${iter.index}+.+${i}" name="hour"
                                                                type="number"
                                                                th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
@@ -452,7 +457,7 @@
                                                 </span>
                                             </td>
                                             <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
-                                                <input class="input has-text-centered has-text-weight-semibold" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                <input class="input has-text-centered has-text-weight-semibold" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
                                                        th:id="hourTot+${i}"
                                                        type="number"
                                                        th:value="0"
@@ -473,7 +478,7 @@
 
                                     <table class="mx-auto mt-4">
                                         <!--new add activity form-->
-                                        <tr id="row99999">
+                                        <tr id="rowadd">
                                             <form id="formAddProjectActivity">
                                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                                 <td>
@@ -512,7 +517,6 @@
 
                                             </td>
                                         </tr>
-
                                     </table>
                                     <!--
                                     <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
@@ -523,10 +527,10 @@
                                                 th:data-month="${month}"
                                                 th:data-year="${year}"
                                                 th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false);">
-                                            Export Excel File
-                                            <figure class="image is-16x16 ml-2">
+                                            <figure class="image is-32x32 mr-3">
                                                 <img src="/images/xls32.png">
                                             </figure>
+                                            Export Excel File
                                         </button>
                                     </div>
                                     <div class="has-text-primary-dark has-text-weight-bold mt-5 has-text-centered">Monthly Note</div>

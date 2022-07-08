@@ -69,13 +69,13 @@ public class TrackingController {
         return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
     }
 
-    @GetMapping ("/trackingMonthlyGlobal")
+    @GetMapping ("/overview")
     public String getGlobalMonthlyTracking(Model model, Principal principal) throws ParseException {
         LocalDate currentDate = LocalDate.now();
         return getGlobalMonthlyTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
 
-    @GetMapping ("/trackingMonthlyGlobal/{year}/{month}")
+    @GetMapping ("/overview/{year}/{month}")
     public String getGlobalMonthlyTrackingMonthYear(@PathVariable int year,
                                                     @PathVariable int month,
                                                     Model model, Principal principal) throws ParseException {
@@ -193,7 +193,7 @@ public class TrackingController {
         model.addAttribute("standardActivityList", standardActivityHashSet);
         model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
         model.addAttribute("userTeamName", userLogged.getTeam().getTeamDesc());
-        return "globalMonthlyTracking";
+        return "overview";
     }
 
     @GetMapping ("/tracking/{year}/{month}/{username}")
@@ -386,9 +386,18 @@ public class TrackingController {
                 if (!compiledStandardActivityList.isEmpty())
                     return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Already added)");
                 for (int day = 1; day <= passedDate.lengthOfMonth(); day++) {
-                    String dateString = "" + day + "-" + month + "-" + year;
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                    Date dailyDate = dateFormat.parse(dateString);
+                    Date dailyDate = dateFormat.parse("" + day + "-" + month + "-" + year);
+                    LocalDate cycleLocalDate = LocalDate.of(year, month, day);
+                    int hours = 0;
+                    if (cycleLocalDate.getDayOfWeek().getValue() <= 5 && autocompile)
+                        hours = Character.getNumericValue(userTime.charAt(cycleLocalDate.getDayOfWeek().getValue()-1));
+                    for (int[] ints : festivity) {
+                        if (ints[1] == month && ints[0] == day) {
+                            hours = 0;
+                            break;
+                        }
+                    }
                     CompiledStandardActivity csa = CompiledStandardActivity.builder()
                             .activityKey(standardActivityRepo.getActivityKey())
                             .c_Activity(standardActivityRepo)
@@ -397,7 +406,7 @@ public class TrackingController {
                             .locationName(locationName)
                             .c_Location(locationService.find(locationName))
                             .date(dailyDate)
-                            .hours(0)
+                            .hours(hours)
                             .build();
                     compiledStandardActivityService.save(csa);
                 }
@@ -426,37 +435,18 @@ public class TrackingController {
 
 
                 for (int day = 1; day <= passedDate.lengthOfMonth(); day++) {
-                    String dateString = "" + day + "-" + month + "-" + year;
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                    Date dailyDate = dateFormat.parse(dateString);
+                    Date dailyDate = dateFormat.parse("" + day + "-" + month + "-" + year);
                     LocalDate cycleLocalDate = LocalDate.of(year, month, day);
-                    int pos = -1;
-                    switch (cycleLocalDate.getDayOfWeek()) {
-                        case MONDAY:
-                            pos = 0;
-                            break;
-                        case TUESDAY:
-                            pos = 1;
-                            break;
-                        case WEDNESDAY:
-                            pos = 2;
-                            break;
-                        case THURSDAY:
-                            pos = 3;
-                            break;
-                        case FRIDAY:
-                            pos = 4;
-                            break;
-                    }
                     int hours = 0;
+                    if (cycleLocalDate.getDayOfWeek().getValue() <= 5 && autocompile)
+                        hours = Character.getNumericValue(userTime.charAt(cycleLocalDate.getDayOfWeek().getValue()-1));
                     for (int[] ints : festivity) {
                         if (ints[1] == month && ints[0] == day) {
-                            pos = -1;
+                            hours = 0;
                             break;
                         }
                     }
-                    if (pos != -1 && autocompile)
-                        hours = Character.getNumericValue(userTime.charAt(pos));
                     CompiledProjectActivity cpa = CompiledProjectActivity.builder()
                             .project(projectActivityRepo.getProject())
                             .activityKey(projectActivityRepo.getActivityKey())

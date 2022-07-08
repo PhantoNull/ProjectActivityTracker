@@ -1,10 +1,11 @@
 package eu.Rationence.pat.model.rowModel;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @EqualsAndHashCode
 @ToString
 public class CompiledStandardActivityRow {

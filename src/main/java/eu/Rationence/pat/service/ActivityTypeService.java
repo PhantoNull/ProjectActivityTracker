@@ -22,4 +22,6 @@ public class ActivityTypeService {
     }
 
     public ActivityType save(ActivityType a){ return activityTypeRepository.save(a);}
+
+    public void delete(String activityType){ activityTypeRepository.deleteActivityTypeByActivityTypeKey(activityType);}
 }
