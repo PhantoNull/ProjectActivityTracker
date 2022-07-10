@@ -144,8 +144,12 @@ input::-webkit-inner-spin-button {-webkit-appearance: none; margin: 0;}
 input[type=number] { -moz-appearance: textfield;}
 
 
-.input{
+.input, .select select{
     padding: 5px; !important
+}
+
+.input, .select select{
+    border-radius: 1px; !important
 }
 
 /*

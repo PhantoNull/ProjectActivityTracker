@@ -60,7 +60,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "add")
+                        if (index !== "add")
                             await fetch("/projects", {method: 'DELETE', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -100,7 +100,7 @@
             for (let columnInput of columnInputs) {
                 let parentTableRow;
                 //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
-                if (columnKey === "ProjectType" || columnKey === "Team" || columnKey === "ProjectManager" || columnKey == "Client")
+                if (columnKey === "ProjectType" || columnKey === "Team" || columnKey === "ProjectManager" || columnKey === "Client")
                     parentTableRow = columnInput.parentNode.parentNode.parentNode;
                 else
                     parentTableRow = columnInput.parentNode.parentNode;
@@ -318,7 +318,7 @@
                                                        th:onclick="'sortTable(\'client\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="projectTypeCol has-text-primary-dark table-header">Proj Type
+                                            <th class="projectTypeCol has-text-primary-dark table-header">Type
                                                 <span class="icon has-text-primary"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"

@@ -19,7 +19,6 @@
             c.onclick();
             c.onclick();
         }
-        let dailySubtotal = {0:0};
         let rowSubtotal = {0:0};
         let totalHours = 0;
         for(let index in tableRowList) {
@@ -91,8 +90,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="/overview">
-                                        <span>Overview</span>
+                                    <a th:href="'/report/' + ${year} + '/'+${month}">
+                                        <span>Monthly Report</span>
                                     </a>
                                 </li>
                             </ul>
@@ -135,28 +134,19 @@
                                     and will erase all selected activities filled data.</p>
                             </div>
                         </div>
-                        <div class="level-right">
-                            <div class="level-item">
-                                <button class="button is-danger"
-                                        th:data-username="${userTimeSheetUsername}"
-                                        th:onclick="'action(\'deleteTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\')), showConfirm(false);'">Continue
-                                </button>
-                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <article class="message is-primary">
                     <div class="message-header">
-                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Time Sheet - Monthly Global View</span></p>
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Time Sheet - Monthly Report</span></p>
                     </div>
                     <div class="message-body">
                         <div class="columns is-centered">
                             <div class="column">
                                 <div class="table__wrapper">
                                     <div class="is-6 has-text-centered has-text-weight-bold mx-auto">
-                                        <a th:href="'/overview/' + ${previousYear} + '/'+${previousMonth}" style="text-decoration: none;">
+                                        <a th:href="'/report/' + ${previousYear} + '/'+${previousMonth}" style="text-decoration: none;">
                                             <span class="icon is-medium has-text-primary is-clickable"
                                                   data-tooltip="Previous">
                                                     <i class="fas fa-arrow-alt-square-left fa-lg table-button"></i>
@@ -165,7 +155,7 @@
                                         <span class="my-auto is-size-4 has-text-weight-bold" th:text="${monthName}+' '+${year}">
                                         </span>
                                         <a th:if="${nextAvailable == false}"
-                                           th:href="'/overview/' + ${nextYear} + '/'+${nextMonth}">
+                                           th:href="'/report/' + ${nextYear} + '/'+${nextMonth}">
                                             <span class="icon is-medium has-text-primary is-clickable"
                                                   data-tooltip="Next">
                                                     <i class="fas fa-arrow-alt-square-right fa-lg table-button"></i>
@@ -218,8 +208,7 @@
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="projectActivity,iter : ${projectActivityList}" th:id="row+${iter.index}">
-                                            <div th:action="@{/tracking}" th:id="form+${iter.index}"
-                                                 th:object="${compiledUserProjectActivity}" method="put">
+                                            <div th:id="form+${iter.index}">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
@@ -252,7 +241,7 @@
                                                         <input type="hidden" name="projectActivityKeys" th:value="${projectActivity.getProject()}+':'+${projectActivity.getActivityKey()}"/>
                                                         <input type="hidden" name="locationName" th:value="${projectActivity.getLocation()}"/>
                                                         <input type="hidden" name="day" th:value="${i}"/>
-                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
                                                                th:id="hour+${iter.index}+.+${i}" name="hour"
                                                                type="number"
                                                                th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getUsername()}__.__${projectActivity.getLocation()}__.__${i}__')}"
@@ -303,7 +292,7 @@
                                                         <input type="hidden" name="projectActivityKeys" th:value="'Std:'+${standardActivity.getActivityKey()}"/>
                                                         <input type="hidden" name="locationName" th:value="${standardActivity.getLocation()}"/>
                                                         <input type="hidden" name="day" th:value="${i}"/>
-                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-grey-lighter':''}"
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
                                                                th:id="hourS+${iter.index}+.+${i}" name="hour"
                                                                type="number"
                                                                th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getUsername()}__.__${standardActivity.getLocation()}__.__${i}__')}"

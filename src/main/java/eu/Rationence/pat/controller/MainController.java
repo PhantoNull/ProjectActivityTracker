@@ -248,7 +248,7 @@ public class MainController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Project attInterne = Project.builder()
                 .projectKey("RATIO-Int")
-                .projectDesc("Attività Interne")
+                .projectDesc("Att. Int.")
                 .projectType(projInt)
                 .client(clientRATIO)
                 .projectManager(marcon)
@@ -260,7 +260,7 @@ public class MainController {
 
         Project orchBPER = Project.builder()
                 .projectKey("BPER-ORCH-22")
-                .projectDesc("Orchestratore BPER")
+                .projectDesc("BPER Orch")
                 .projectType(projDevp)
                 .client(clientBPER)
                 .projectManager(marcon)
@@ -274,7 +274,7 @@ public class MainController {
 
         Project bohKNIME = Project.builder()
                 .projectKey("KNIME-BOH-22")
-                .projectDesc("Progetto boh")
+                .projectDesc("KNIME Boh")
                 .projectType(projDevp)
                 .client(clientBPER)
                 .projectManager(disabled)

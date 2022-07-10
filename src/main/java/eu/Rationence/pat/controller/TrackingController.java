@@ -69,13 +69,13 @@ public class TrackingController {
         return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
     }
 
-    @GetMapping ("/overview")
+    @GetMapping ("/report")
     public String getGlobalMonthlyTracking(Model model, Principal principal) throws ParseException {
         LocalDate currentDate = LocalDate.now();
         return getGlobalMonthlyTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
 
-    @GetMapping ("/overview/{year}/{month}")
+    @GetMapping ("/report/{year}/{month}")
     public String getGlobalMonthlyTrackingMonthYear(@PathVariable int year,
                                                     @PathVariable int month,
                                                     Model model, Principal principal) throws ParseException {
@@ -193,7 +193,7 @@ public class TrackingController {
         model.addAttribute("standardActivityList", standardActivityHashSet);
         model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
         model.addAttribute("userTeamName", userLogged.getTeam().getTeamDesc());
-        return "overview";
+        return "report";
     }
 
     @GetMapping ("/tracking/{year}/{month}/{username}")
