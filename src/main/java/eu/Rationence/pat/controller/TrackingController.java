@@ -62,15 +62,8 @@ public class TrackingController {
         return getTrackingMonthYearUsername(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
     }
 
-    @GetMapping ("/tracking/{year}/{month}")
-    public String getTrackingMonthYear(@PathVariable int year,
-                                       @PathVariable int month,
-                                       Model model, Principal principal) throws ParseException {
-        return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
-    }
-
     @GetMapping ("/report")
-    public String getGlobalMonthlyTracking(Model model, Principal principal) throws ParseException {
+    public String getGlobalMonthlyTracking(Model model, Principal principal) {
         LocalDate currentDate = LocalDate.now();
         return getGlobalMonthlyTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
@@ -78,7 +71,7 @@ public class TrackingController {
     @GetMapping ("/report/{year}/{month}")
     public String getGlobalMonthlyTrackingMonthYear(@PathVariable int year,
                                                     @PathVariable int month,
-                                                    Model model, Principal principal) throws ParseException {
+                                                    Model model, Principal principal) {
         User userLogged = userService.findUser(principal.getName());
         if(userLogged == null)
             return "error";
@@ -153,7 +146,7 @@ public class TrackingController {
         model.addAttribute("nextYear", nextYear);
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                .findCompiledActivities(month, year);
+                .find(month, year);
         HashSet<CompiledUserProjectActivityRow> projectActivityHashSet = new HashSet<>();
 
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
@@ -174,7 +167,7 @@ public class TrackingController {
         model.addAttribute("projectActivityList", projectActivityHashSet);
 
         List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                .findCompiledActivities(month, year);
+                .find(month, year);
         HashSet<CompiledUserStandardActivityRow> standardActivityHashSet = new HashSet<>();
         model.addAttribute("allStandardList", standardActivityService.findAll());
         for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
@@ -194,6 +187,13 @@ public class TrackingController {
         model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
         model.addAttribute("userTeamName", userLogged.getTeam().getTeamDesc());
         return "report";
+    }
+
+    @GetMapping ("/tracking/{year}/{month}")
+    public String getTrackingMonthYear(@PathVariable int year,
+                                       @PathVariable int month,
+                                       Model model, Principal principal) throws ParseException {
+        return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
     }
 
     @GetMapping ("/tracking/{year}/{month}/{username}")
@@ -291,7 +291,7 @@ public class TrackingController {
             model.addAttribute("monthlyNote", monthlyNote.getNote());
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                .findCompiledActivities(username, month, year);
+                .find(username, month, year);
         HashSet<CompiledProjectActivityRow> projectActivityHashSet = new HashSet<>();
 
         Set<UserActivity> activitySetRepo = userRepo.getActivities();
@@ -324,7 +324,7 @@ public class TrackingController {
         model.addAttribute("projectActivityList", projectActivityHashSet);
 
         List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                .findCompiledActivities(username, month, year);
+                .find(username, month, year);
         HashSet<CompiledStandardActivityRow> standardActivityHashSet = new HashSet<>();
         model.addAttribute("allStandardList", standardActivityService.findAll());
         for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
@@ -382,7 +382,7 @@ public class TrackingController {
                 if (standardActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot add " + activityKey + " to time sheet. (Not found)");
                 List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                        .find(username, locationName, activityKey, month, year);
                 if (!compiledStandardActivityList.isEmpty())
                     return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Already added)");
                 for (int day = 1; day <= passedDate.lengthOfMonth(); day++) {
@@ -419,7 +419,7 @@ public class TrackingController {
                 if (projectActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot add " + projectKey + ":" + activityKey + " to time sheet. (Not found)");
                 List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                        .find(username, locationName, projectKey, activityKey, month, year);
                 if (!compiledProjectActivityList.isEmpty())
                     return AdviceController.responseBadRequest("Cannot add '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Already added)");
 
@@ -500,7 +500,7 @@ public class TrackingController {
                 if (standardActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot update " + activityKey + " to time sheet. (Not found)");
                 List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                        .find(username, locationName, activityKey, month, year);
                 if (compiledStandardActivityList.isEmpty())
                     return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Not found)");
 
@@ -527,7 +527,7 @@ public class TrackingController {
                 if(projectActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot update " + projectKey + ":" + activityKey + " in time sheet. (Not found)");
                 List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                        .find(username, locationName, projectKey, activityKey, month, year);
                 if(compiledProjectActivityList.isEmpty())
                     return AdviceController.responseNotFound("Cannot update '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
@@ -592,7 +592,7 @@ public class TrackingController {
                 if (standardActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot delete " + activityKey + " from time sheet. (Not found)");
                 List<CompiledStandardActivity> compiledStandardActivityList = compiledStandardActivityService
-                        .findCompiledActivities(username, locationName, activityKey, month, year);
+                        .find(username, locationName, activityKey, month, year);
                 if (compiledStandardActivityList.isEmpty())
                     return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName + "' in time sheet. (Not found)");
                 for (int i = 1; i <= passedDate.lengthOfMonth(); i++) {
@@ -610,7 +610,7 @@ public class TrackingController {
                 if(projectActivityRepo == null)
                     return AdviceController.responseNotFound("Cannot delete " + projectKey + ":" + activityKey + " from time sheet. (Not found)");
                 List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
-                        .findCompiledActivities(username, locationName, projectKey, activityKey, month, year);
+                        .find(username, locationName, projectKey, activityKey, month, year);
                 if(compiledProjectActivityList.isEmpty())
                     return AdviceController.responseNotFound("Cannot delete '" + projectActivityKeys + "' for location '" + locationName +"' in time sheet. (Not found)");
 
