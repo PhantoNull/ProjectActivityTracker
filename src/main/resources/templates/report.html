@@ -79,7 +79,7 @@
 
                 <div class="level mt-5">
                     <div class="level-left">
-                        <nav class="breadcrumb has-arrow-separator is-medium level-item" aria-label="breadcrumbs">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
                             <ul>
                                 <li>
                                     <a href="/">
@@ -161,6 +161,17 @@
                                                     <i class="fas fa-arrow-alt-square-right fa-lg table-button"></i>
                                             </span>
                                         </a>
+                                    </div>
+
+                                    <div class="is-4 mt-4 has-text-centered has-text-weight-bold mx-auto">
+                                        <p>Users who have not filled out Time Sheet:</p>
+                                        <div class="select">
+                                            <select th:id="uncompiledSelect" class="">
+                                                <option th:each="user : ${uncompiledTimeSheetUsers}"
+                                                        th:value="${user.getDescription()}"
+                                                        th:text="${user.getDescription()}"></option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <table id="sortableTable" class="mx-auto subTotalTable">

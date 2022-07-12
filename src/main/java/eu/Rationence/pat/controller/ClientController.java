@@ -57,7 +57,6 @@ public class ClientController {
             ClientType clientTypeRepo = clientTypeService.find(clientTypeKey);
             if(clientTypeRepo == null)
                 return AdviceController.responseNotFound(clientTypeKey + " is not a valid client type. (not found)");
-            client.setClientType(clientTypeRepo);
             clientService.save(client);
             return AdviceController.responseOk("Client '" + client.getClientKey() + "' saved.");
         }
@@ -79,7 +78,8 @@ public class ClientController {
             Client clientRepo = clientService.find(client.getClientKey());
             if(clientRepo == null)
                 return AdviceController.responseNotFound(client.getClientKey() + " does not exists");
-            client.setClientType(clientTypeRepo);
+            else if(client.getClientDesc().length() < 1)
+                return AdviceController.responseBadRequest("Client description can't be blank");
             clientService.save(client);
             return AdviceController.responseOk("Client '" + client.getClientKey() + "' updated.");
         }

@@ -59,19 +59,19 @@ public class TrackingController {
         if((!userAdmin.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username)) || userTimeSheet == null)
             return "error";
         LocalDate currentDate = LocalDate.now();
-        return getTrackingMonthYearUsername(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
+        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
     }
 
     @GetMapping ("/report")
-    public String getGlobalMonthlyTracking(Model model, Principal principal) {
+    public String report(Model model, Principal principal) throws ParseException {
         LocalDate currentDate = LocalDate.now();
-        return getGlobalMonthlyTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
+        return reportMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
     }
 
     @GetMapping ("/report/{year}/{month}")
-    public String getGlobalMonthlyTrackingMonthYear(@PathVariable int year,
-                                                    @PathVariable int month,
-                                                    Model model, Principal principal) {
+    public String reportMonthYear(@PathVariable int year,
+                                  @PathVariable int month,
+                                  Model model, Principal principal) throws ParseException {
         User userLogged = userService.findUser(principal.getName());
         if(userLogged == null)
             return "error";
@@ -79,6 +79,16 @@ public class TrackingController {
         LocalDate passedDate = LocalDate.of(year, month, 1);
         if(passedDate.isAfter(LocalDate.now()))
             return "error";
+
+        List<User> uncompiledTimeSheetUserList = userService.findAll();
+        Iterator<User> iter = uncompiledTimeSheetUserList.iterator();
+        while(iter.hasNext()){
+            User user = iter.next();
+            MonthlyNote monthlyNote = monthlyNoteService.find(user.getUsername(), new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year));
+            if(!user.isEnabled() || (monthlyNote != null && monthlyNote.isLocked()))
+                iter.remove();
+        }
+        model.addAttribute("uncompiledTimeSheetUsers", uncompiledTimeSheetUserList);
 
         model.addAttribute("locationList", locationService.findAll());
 
@@ -193,14 +203,14 @@ public class TrackingController {
     public String getTrackingMonthYear(@PathVariable int year,
                                        @PathVariable int month,
                                        Model model, Principal principal) throws ParseException {
-        return getTrackingMonthYearUsername(year, month, principal.getName(), model, principal);
+        return getTrackingMonthYear(year, month, principal.getName(), model, principal);
     }
 
     @GetMapping ("/tracking/{year}/{month}/{username}")
-    public String getTrackingMonthYearUsername(@PathVariable int year,
-                                                @PathVariable int month,
-                                                @PathVariable String username,
-                                                Model model, Principal principal) throws ParseException {
+    public String getTrackingMonthYear(@PathVariable int year,
+                                       @PathVariable int month,
+                                       @PathVariable String username,
+                                       Model model, Principal principal) throws ParseException {
         User userAdmin = userService.findUser(principal.getName());
         if(!userAdmin.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
             return "error";
@@ -287,8 +297,10 @@ public class TrackingController {
 
         Date dateMonthlyNote = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, dateMonthlyNote);
-        if(monthlyNote != null)
+        if(monthlyNote != null) {
             model.addAttribute("monthlyNote", monthlyNote.getNote());
+            model.addAttribute("trackingLocked", monthlyNote.isLocked());
+        }
 
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .find(username, month, year);
@@ -346,7 +358,7 @@ public class TrackingController {
     }
 
     @PostMapping ("/tracking/{year}/{month}/{username}")
-    public ResponseEntity<String> addTrackingMonthYearUsername(@PathVariable int year,
+    public ResponseEntity<String> addTrackingMonthYear(@PathVariable int year,
                                                        @PathVariable int month,
                                                        @PathVariable String username,
                                                        @RequestParam String projectActivityKeys,
@@ -358,9 +370,13 @@ public class TrackingController {
         if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
             return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
 
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        if(monthlyNote != null && monthlyNote.isLocked())
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.findUser(username);
-
 
         String userTime = userRepo.getTime();
         Pattern actPattern = Pattern.compile("(..*):(..*)");
@@ -467,18 +483,23 @@ public class TrackingController {
     }
 
     @PutMapping ("/tracking/{year}/{month}/{username}")
-    public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
-                                                          @PathVariable int month,
-                                                          @PathVariable String username,
-                                                          @RequestParam String projectActivityKeys,
-                                                          @RequestParam String locationName,
-                                                          @RequestParam int day,
-                                                          @RequestParam int hour,
-                                                          Principal principal) throws ParseException {
+    public ResponseEntity<String> updateNoteMonthYear(@PathVariable int year,
+                                                      @PathVariable int month,
+                                                      @PathVariable String username,
+                                                      @RequestParam String projectActivityKeys,
+                                                      @RequestParam String locationName,
+                                                      @RequestParam int day,
+                                                      @RequestParam int hour,
+                                                      Principal principal) throws ParseException {
 
         User userRepo = userService.findUser(principal.getName());
         if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
             return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        if(monthlyNote != null && monthlyNote.isLocked())
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.findUser(username);
@@ -574,10 +595,16 @@ public class TrackingController {
         if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
             return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
 
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        if(monthlyNote != null && monthlyNote.isLocked())
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.findUser(username);
         if(userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
+
         Pattern actPattern = Pattern.compile("(..*):(..*)");
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
@@ -638,11 +665,11 @@ public class TrackingController {
     }
 
     @PutMapping ("/trackingNote/{year}/{month}/{username}")
-    public ResponseEntity<String> updateTrackingMonthYear(@PathVariable int year,
-                                                          @PathVariable int month,
-                                                          @PathVariable String username,
-                                                          @RequestParam (required = false) String note,
-                                                          Principal principal) throws ParseException {
+    public ResponseEntity<String> updateNoteMonthYear(@PathVariable int year,
+                                                      @PathVariable int month,
+                                                      @PathVariable String username,
+                                                      @RequestParam String note,
+                                                      Principal principal) throws ParseException {
 
         User userRepo = userService.findUser(principal.getName());
         if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
@@ -655,17 +682,78 @@ public class TrackingController {
         Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+            return AdviceController.responseForbidden("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
         }
-        if(note == null || note.length() == 0){
-            monthlyNoteService.delete(username, date);
-            return AdviceController.responseOk("Note deleted.");
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        if(monthlyNote != null && monthlyNote.isLocked())
+            return AdviceController.responseForbidden("Cannot edit this timesheet note. Time sheet is locked.");
+
+        if(monthlyNote == null){
+            MonthlyNote monthlyNoteNew = MonthlyNote.builder()
+                    .c_Username(userRepo).username(username).date(date).note(note).locked(false).build();
+            monthlyNoteService.save(monthlyNoteNew);
+            return AdviceController.responseCreated("Note created.");
         }
         else{
-            MonthlyNote monthlyNote = MonthlyNote.builder()
-                    .c_Username(userRepo).username(username).date(date).note(note).build();
+            monthlyNote.setNote(note);
             monthlyNoteService.save(monthlyNote);
             return AdviceController.responseOk("Note saved.");
+        }
+    }
+
+    @PutMapping("/lockTracking/{year}/{month}/{username}")
+    public ResponseEntity<String> lockTrackingYearMonth(@PathVariable int year,
+                                                        @PathVariable int month,
+                                                        @PathVariable String username,
+                                                        Principal principal) throws ParseException {
+
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
+        LocalDate passedDate = LocalDate.of(year, month, 1);
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
+        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6)))
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        else if(monthlyNote != null && monthlyNote.isLocked())
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+        else if(monthlyNote == null)
+            return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
+        else{
+            monthlyNote.setLocked(true);
+            monthlyNoteService.save(monthlyNote);
+            return AdviceController.responseOk("Time Sheet successfully submitted.");
+        }
+    }
+
+    @PutMapping("/unlockTracking/{year}/{month}/{username}")
+    public ResponseEntity<String> unlockTracking(@PathVariable int year,
+                                                 @PathVariable int month,
+                                                 @PathVariable String username,
+                                                 Principal principal) throws ParseException {
+
+        User userRepo = userService.findUser(principal.getName());
+        if(!userRepo.getRole().getRoleName().equals("ADMIN") && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+
+        LocalDate passedDate = LocalDate.of(year, month, 1);
+        Date date = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
+        userRepo = userService.findUser(username);
+        if(userRepo == null)
+            return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
+        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6)))
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        else if(monthlyNote == null)
+            return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
+        else{
+            monthlyNote.setLocked(false);
+            monthlyNoteService.save(monthlyNote);
+            return AdviceController.responseOk("Time Sheet successfully unlocked.");
         }
     }
 

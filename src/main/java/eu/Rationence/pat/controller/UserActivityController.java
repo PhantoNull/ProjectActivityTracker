@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -57,10 +58,11 @@ public class UserActivityController {
 
     @PostMapping("/projects/{projectKey}/{activityKey}")
     public ResponseEntity<String> addUserActivity(@Valid UserActivity userActivity,
-                                                    @RequestParam(value="dailyRate") String dailyRate,
-                                                    @RequestParam(value="username") String username,
-                                                    @PathVariable String projectKey,
-                                                    @PathVariable String activityKey){
+                                                  @RequestParam(value="dailyRate") String dailyRate,
+                                                  @RequestParam(value="username") String username,
+                                                  @PathVariable String projectKey,
+                                                  @PathVariable String activityKey,
+                                                  BindingResult result){
         try{
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
@@ -88,7 +90,8 @@ public class UserActivityController {
                                                      @RequestParam(value="dailyRate") String dailyRate,
                                                      @RequestParam(value="username") String username,
                                                      @PathVariable String projectKey,
-                                                     @PathVariable String activityKey){
+                                                     @PathVariable String activityKey,
+                                                     BindingResult result){
         try{
             UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
@@ -100,9 +103,7 @@ public class UserActivityController {
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't assign '" + username + "' to activity '" + activityKey + "' (User does not exists)");
             userActivity.setC_Username(userRepo);
-            userActivity.setUsername(userRepo.getUsername());
-            userActivity.setProject(projectKey);
-            userActivity.setActivityKey(activityKey);
+            userActivity.setC_Activity(projectActivityService.find(activityKey, projectKey));
             userActivityService.save(userActivity);
             return AdviceController.responseOk("User '" + username + "' assignment to activity '" + activityKey + "' updated successfully.");
         }
@@ -113,26 +114,14 @@ public class UserActivityController {
 
     @DeleteMapping("/projects/{projectKey}/{activityKey}")
     public ResponseEntity<String> deleteUserActivity(@Valid UserActivity userActivity,
-                                                     @RequestParam(value="dailyRate") String dailyRate,
-                                                     @RequestParam(value="username") String username,
-                                                     @PathVariable String projectKey,
-                                                     @PathVariable String activityKey){
+                                                     BindingResult result){
         try{
-            UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
+            UserActivity userActivityRepo = userActivityService.findUserActivity(userActivity.getActivityKey(), userActivity.getProject(), userActivity.getUsername());
             if(userActivityRepo == null)
-                return AdviceController.responseNotFound("Can't remove '" + username + "' from activity '" + activityKey + "' (User is not assigned)");
-            ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
-            if(validityError != null)
-                return validityError;
-            User userRepo = userService.findUser(username);
-            if(userRepo == null)
-                return AdviceController.responseNotFound("Can't remove '" + username + " from activity '" + activityKey + "' (User does not exists)");
-            userActivity.setC_Username(userRepo);
-            userActivity.setUsername(userRepo.getUsername());
-            userActivity.setProject(projectKey);
-            userActivity.setActivityKey(activityKey);
-            userActivityService.delete(activityKey, projectKey, username);
-            return AdviceController.responseOk("User '" + username + "' removed from activity '" + activityKey + "' successfully.");
+                return AdviceController.responseNotFound("Can't remove '" + userActivity.getUsername() + "' from activity '" + userActivity.getActivityKey() + "' (User is not assigned)");
+
+            userActivityService.delete(userActivity.getActivityKey(), userActivity.getProject(), userActivity.getUsername());
+            return AdviceController.responseOk("User '" + userActivity.getUsername() + "' removed from activity '" + userActivity.getActivityKey() + "' successfully.");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());

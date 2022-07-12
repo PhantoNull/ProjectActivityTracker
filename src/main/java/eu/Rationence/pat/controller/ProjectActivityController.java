@@ -60,7 +60,6 @@ public class ProjectActivityController {
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo != null)
                 return AdviceController.responseConflict("Activity " + projectActivity.getActivityKey() + " has already been created");
-            projectActivity.setProject(projectKey);
             projectActivityService.save(projectActivity);
             return AdviceController.responseOk("Activity '" + projectActivity.getActivityKey() + "' saved.");
         }
@@ -82,7 +81,7 @@ public class ProjectActivityController {
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if(projectActivityRepo == null)
                 return AdviceController.responseNotFound("Activity " + projectActivity.getActivityKey() + " does not exits.");
-            projectActivity.setProject(projectKey);
+            projectActivity.setC_Project(projectService.find(projectKey));
             projectActivityService.save(projectActivity);
             return AdviceController.responseOk("Activity '" + projectActivity.getActivityKey() + "' updated.");
         }

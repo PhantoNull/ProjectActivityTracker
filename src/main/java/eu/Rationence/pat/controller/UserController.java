@@ -1,12 +1,10 @@
 package eu.Rationence.pat.controller;
 
+import eu.Rationence.pat.model.MonthlyNote;
 import eu.Rationence.pat.model.Role;
 import eu.Rationence.pat.model.Team;
 import eu.Rationence.pat.model.User;
-import eu.Rationence.pat.service.EmailService;
-import eu.Rationence.pat.service.RoleService;
-import eu.Rationence.pat.service.TeamService;
-import eu.Rationence.pat.service.UserService;
+import eu.Rationence.pat.service.*;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,7 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,18 +34,44 @@ public class UserController {
     private final TeamService teamService;
     private final RoleService roleService;
     private final EmailService emailService;
+    private final MonthlyNoteService monthlyNoteService;
 
     @Autowired
-    public UserController(UserService userService, TeamService teamService, RoleService roleService, EmailService emailService) {
+    public UserController(UserService userService, TeamService teamService, RoleService roleService, EmailService emailService, MonthlyNoteService monthlyNoteService) {
         this.userService = userService;
         this.teamService = teamService;
         this.roleService = roleService;
         this.emailService = emailService;
+        this.monthlyNoteService = monthlyNoteService;
     }
 
     @GetMapping ("/users")
-    public String utenti(Model model, Principal principal) {
-        model.addAttribute("listaUtenti", userService.findAll());
+    public String utenti(Model model, Principal principal) throws ParseException {
+        List<User> userList = userService.findAll();
+        model.addAttribute("listaUtenti", userList);
+        LocalDate currentDate = LocalDate.now();
+        int month = currentDate.getMonthValue();
+        int year = currentDate.getYear();
+        if(currentDate.getDayOfMonth() <= 10) {
+            month = currentDate.getMonthValue() - 1;
+            if(month == 0) {
+                month = 12;
+                year = year - 1;
+            }
+        }
+        Date monthlyNoteDate = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
+        for(User user : userList){
+            if(!user.isEnabled()){
+                model.addAttribute("sheet."+user.getUsername(), "has-text-grey");
+                continue;
+            }
+            MonthlyNote userMonthlyNote = monthlyNoteService.find(user.getUsername(), monthlyNoteDate);
+            if(userMonthlyNote == null || !userMonthlyNote.isLocked())
+                model.addAttribute("sheet."+user.getUsername(), "has-text-danger");
+            else
+                model.addAttribute("sheet."+user.getUsername(), "has-text-primary");
+        }
+
         model.addAttribute("listaTeams", teamService.findAll());
         model.addAttribute("listaRuoli", roleService.findAll());
         model.addAttribute("pageTitle", "PAT Prova");

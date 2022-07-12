@@ -82,6 +82,14 @@ function showConfirm(bool) {
         elem.style.display = "none";
 }
 
+function showConfirmSubmit(bool) {
+    let elem = document.getElementById("confirm-submit");
+    if (bool)
+        elem.style.display = "block";
+    else
+        elem.style.display = "none";
+}
+
 function showErrorLog(bool) {
     let elem = document.getElementById("error-log");
     if (bool)

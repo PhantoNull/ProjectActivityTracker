@@ -28,7 +28,7 @@ public class StandardActivityController {
     }
 
     @GetMapping ("/standardactivities")
-    public String teams(Model model, Principal principal) {
+    public String standardActivities(Model model, Principal principal) {
         model.addAttribute("stdActivityList", standardActivityService.findAll());
         String username = principal.getName();
         User userRepo = userService.findUser(username);
@@ -38,7 +38,7 @@ public class StandardActivityController {
     }
 
     @PostMapping("/standardactivities")
-    public ResponseEntity<String> addStdActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> addActivity(@Valid StandardActivity stdAct,
                                                 BindingResult result){
         try{
             if(result.hasErrors())
@@ -56,7 +56,7 @@ public class StandardActivityController {
     }
 
     @PutMapping("/standardactivities")
-    public ResponseEntity<String> updateStdActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> updateActivity(@Valid StandardActivity stdAct,
                                                     BindingResult result){
         try{
             if(result.hasErrors())
@@ -73,7 +73,7 @@ public class StandardActivityController {
     }
 
     @DeleteMapping("/standardactivities")
-    public ResponseEntity<String> deleteStdActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> deleteActivity(@Valid StandardActivity stdAct,
                                                     BindingResult result){
         try{
             if(result.hasErrors())

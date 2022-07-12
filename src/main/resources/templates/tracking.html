@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
 <head th:include="fragments/headFragment.html :: headFragment">
 </head>
 
-<body onload="computeSubTotals(), applyFilter(), resizePage()">
+<body onload="computeSubTotals(), applyFilter()">
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
@@ -11,10 +11,6 @@
 
 
 <script type="text/javascript">
-    function resizePage(){
-        zoom = $(window).width()/$("body").width()*100;
-        document.body.style.zoom = zoom+"%"
-    }
 
     let columnList = ["checkbox", "activity", "location"];
 
@@ -83,7 +79,7 @@
     async function action(actionString, year, month, username) {
         let error_log = "";
         let tableChanged = false;
-        if (actionString !== "addTracking" && actionString !=="saveTracking" && Object.values(tableRowList).every(v => v === false))
+        if (actionString !== "addTracking" && actionString !=="saveTracking" && actionString !=="lockTracking" && actionString !=="unlockTracking" && Object.values(tableRowList).every(v => v === false))
             return 1;
         let data;
         switch (actionString) {
@@ -95,10 +91,11 @@
                             if(form != null){
                                 data = new FormData(form);
                                 await fetch("/tracking/" + year + "/" + month + "/" + username, {method: 'PUT', body: data})
-                                    .then(response => response.text())
-                                    .then(body => {
+                                    .then(async response => {
+                                        let body = await response.text().then(val => val);
+                                        let status = response.status;
                                         let span;
-                                        if (body.includes("ERROR")){
+                                        if (status >= 300) {
                                             span = "<span class=\"has-text-danger\">";
                                             error_log = span + body + "</span><br>";
                                         }
@@ -115,14 +112,16 @@
                 }
                 data = new FormData(document.getElementById("formNote"));
                 await fetch("/trackingNote/" + year + "/" + month + "/" + username, {method: 'PUT', body: data})
-                    .then(response => response.text())
-                    .then(body => {
+                    .then(async response => {
+                        let body = await response.text().then(val => val);
+                        let status = response.status;
                         let span;
-                        if (body.includes("ERROR"))
+                        if (status === 201)
+                            tableChanged = true;
+                        if (status >= 300)
                             span = "<span class=\"has-text-danger\">";
-                        else {
+                        else
                             span = "<span class=\"has-text-primary\">";
-                        }
                         error_log += span + body + "</span><br>";
                     })
                     .catch(error => console.log(error));
@@ -137,10 +136,11 @@
                         if(form != null){
                             data = new FormData(form);
                             await fetch("/tracking/" + year + "/" + month + "/" + username, {method: 'DELETE', body: data})
-                                .then(response => response.text())
-                                .then(body => {
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
                                     let span;
-                                    if (body.includes("ERROR"))
+                                    if (status >= 300)
                                         span = "<span class=\"has-text-danger\">";
                                     else {
                                         span = "<span class=\"has-text-primary\">";
@@ -158,12 +158,46 @@
                 for (let value of data.values()) {
                     console.log(value);
                 }
-                let url = "/tracking/" + year + "/" + month + "/" + username;
-                await fetch(url, {method: 'POST', body: data})
-                    .then(response => response.text())
-                    .then(body => {
+                await fetch("/tracking/" + year + "/" + month + "/" + username, {method: 'POST', body: data})
+                    .then(async response => {
+                        let body = await response.text().then(val => val);
+                        let status = response.status;
                         let span;
-                        if (body.includes("ERROR"))
+                        if (status >= 300)
+                            span = "<span class=\"has-text-danger\">";
+                        else {
+                            span = "<span class=\"has-text-primary\">";
+                            tableChanged = true;
+                        }
+                        error_log += span + body + "</span><br>";
+                    })
+                    .catch(error => console.log(error));
+                break;
+            case 'lockTracking':
+                data = new FormData(document.getElementById("formNote"));
+                await fetch("/lockTracking/" + year + "/" + month + "/" + username, {method: 'PUT', body: data})
+                    .then(async response => {
+                        let body = await response.text().then(val => val);
+                        let status = response.status;
+                        let span;
+                        if (status >= 300)
+                            span = "<span class=\"has-text-danger\">";
+                        else {
+                            span = "<span class=\"has-text-primary\">";
+                            tableChanged = true;
+                        }
+                        error_log += span + body + "</span><br>";
+                    })
+                    .catch(error => console.log(error));
+                break;
+            case 'unlockTracking':
+                data = new FormData(document.getElementById("formNote"));
+                await fetch("/unlockTracking/" + year + "/" + month + "/" + username, {method: 'PUT', body: data})
+                    .then(async response => {
+                        let body = await response.text().then(val => val);
+                        let status = response.status;
+                        let span;
+                        if (status >= 300)
                             span = "<span class=\"has-text-danger\">";
                         else {
                             span = "<span class=\"has-text-primary\">";
@@ -191,7 +225,7 @@
 
                 <div class="level mt-5">
                     <div class="level-left">
-                        <nav class="breadcrumb has-arrow-separator is-medium level-item" aria-label="breadcrumbs">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
                             <ul>
                                 <li>
                                     <a href="/">
@@ -215,11 +249,11 @@
                                   th:data-username="${userTimeSheetUsername}"
                                   th:onclick="'action(\'saveTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\'))'">
                                   <i class="fas fa-save fa-2x table-button"></i>
-                                </span>
+                            </span>
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
                                   th:onclick="'showConfirm(true);'">
                                   <i class="fas fa-trash-alt fa-2x table-button"></i>
-                                </span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -266,6 +300,33 @@
                                         th:onclick="'action(\'deleteTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\')), showConfirm(false);'">Continue
                                 </button>
                                 <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-submit" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to submit this time sheet?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> You won't be able to modify it after this.</p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button class="button is-danger"
+                                        th:data-username="${userTimeSheetUsername}"
+                                        th:onclick="'action(\'lockTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\')), showConfirmSubmit(false);'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirmSubmit(false);'">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -522,12 +583,26 @@
                                     <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
                                     -->
                                     <div class="mt-5 has-text-centered">
+                                        <button th:if="${trackingLocked != null && !trackingLocked}" class="button is-primary"
+                                                onclick="showConfirmSubmit(true)">
+                                            Submit TimeSheet
+                                        </button>
+                                        <button sec:authorize="!hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}" class="button is-primary" disabled>
+                                            Unlock TimeSheet
+                                        </button>
+                                        <button sec:authorize="hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}" class="button is-primary"
+                                                th:data-username="${userTimeSheetUsername}"
+                                                th:onclick="'action(\'unlockTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\'));'">
+                                            Unlock TimeSheet
+                                        </button>
+                                    </div>
+                                    <div class="mt-5 has-text-centered">
                                         <button class="button is-primary"
                                                 th:data-username="${userTimeSheetDescription}"
                                                 th:data-month="${month}"
                                                 th:data-year="${year}"
                                                 th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false);">
-                                            <figure class="image is-32x32 mr-3">
+                                            <figure class="image is-16x16 mr-2">
                                                 <img src="/images/xls32.png">
                                             </figure>
                                             Export Excel File

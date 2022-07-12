@@ -137,7 +137,7 @@
 
                 <div class="level mt-5">
                     <div class="level-left">
-                        <nav class="breadcrumb has-arrow-separator is-medium level-item" aria-label="breadcrumbs">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
                             <ul>
                                 <li>
                                     <a href="/">
@@ -471,7 +471,7 @@
                                                 </td>
                                                 <td>
                                                     <a th:href="'/tracking/' + ${user.username}">
-                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:data-tooltip="${user.username} + ' time sheets'">
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:classappend="${#vars.getVariable('sheet.__${user.username}__')}" th:data-tooltip="${user.username} + ' time sheets'">
                                                             <i class="fas fa-file-spreadsheet fa-lg is-clickable table-button"></i>
                                                         </span>
                                                     </a>

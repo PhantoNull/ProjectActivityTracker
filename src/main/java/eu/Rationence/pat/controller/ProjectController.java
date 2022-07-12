@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -52,19 +53,22 @@ public class ProjectController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<String> addProject(Project project,
+    public ResponseEntity<String> addProject(@Valid Project project,
                                              @RequestParam(value="team") String teamKey ,
                                              @RequestParam(value="projectManager") String projectManagerKey,
                                              @RequestParam(value="client") String clientKey,
                                              @RequestParam(value="projectType") String projectTypeKey,
-                                             @RequestParam(value="value") String value){
+                                             @RequestParam(value="value") String value,
+                                             BindingResult result){
         try{
+            if(result.hasErrors())
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             if(projectService.find(project.getProjectKey()) != null)
                 return AdviceController.responseConflict(project.getProjectKey() + " has been already created");
-            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
+            ResponseEntity<String> validityError = checkProjectValidity(teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
-            setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
+            projectService.save(project);
             return AdviceController.responseOk("Project '" + project.getProjectKey() + "' saved.");
         }
         catch(Exception e){
@@ -78,15 +82,18 @@ public class ProjectController {
                                                 @RequestParam(value="projectManager") String projectManagerKey,
                                                 @RequestParam(value="client") String clientKey,
                                                 @RequestParam(value="projectType") String projectTypeKey,
-                                                @RequestParam(value="value") String value){
+                                                @RequestParam(value="value") String value,
+                                                BindingResult result){
         try{
-            ResponseEntity<String> validityError = checkProjectValidity(project, teamKey, projectManagerKey, clientKey, projectTypeKey, value);
+            if(result.hasErrors())
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            ResponseEntity<String> validityError = checkProjectValidity(teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
             Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
                 return AdviceController.responseNotFound("Cannot update '" + project.getProjectKey() + "' project. (Project does not exists)");
-            setProjectObjects(project, teamKey, projectManagerKey, clientKey, projectTypeKey);
+            projectService.save(project);
             return AdviceController.responseOk("Project '" + project.getProjectKey() + "' updated.");
         }
         catch(Exception e){
@@ -95,8 +102,11 @@ public class ProjectController {
     }
 
     @DeleteMapping("/projects")
-    public ResponseEntity<String> deleteProject(@Valid Project project){
+    public ResponseEntity<String> deleteProject(@Valid Project project,
+                                                BindingResult result){
         try{
+            if(result.hasErrors())
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
             Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
                 return AdviceController.responseNotFound("Cannot delete '" + project.getProjectKey() + "' project. (Project does not exists)");
@@ -111,11 +121,11 @@ public class ProjectController {
         }
     }
 
-    private ResponseEntity<String> checkProjectValidity(Project project, String teamKey, String projectManagerKey,
+    private ResponseEntity<String> checkProjectValidity(String teamKey, String projectManagerKey,
                                                         String clientKey, String projectTypeKey, String value){
         if(!AdviceController.isStringPositiveDecimal(value))
             return AdviceController.responseBadRequest("Value must be numeric");
-        if(teamService.findTeamByTeamName(teamKey) == null)
+        else if(teamService.findTeamByTeamName(teamKey) == null)
             return AdviceController.responseNotFound("Team '" + teamKey + "' not found");
         else if(userService.findUser(projectManagerKey) == null)
             return ResponseEntity.badRequest().body("ProjectManager '" + projectManagerKey + "' not found");
@@ -124,19 +134,5 @@ public class ProjectController {
         else if(projectTypeService.find(projectTypeKey) == null)
             return AdviceController.responseNotFound("Project Type '" + projectTypeKey + "' not found");
         else return null;
-    }
-
-    private void setProjectObjects(Project project,String teamKey, String projectManagerKey,
-                                        String clientKey,
-                                        String projectTypeKey) {
-        Team teamRepo = teamService.findTeamByTeamName(teamKey);
-        User userRepo = userService.findUser(projectManagerKey);
-        Client clientRepo = clientService.find(clientKey);
-        ProjectType projectTypeRepo = projectTypeService.find(projectTypeKey);
-        project.setProjectManager(userRepo);
-        project.setTeam(teamRepo);
-        project.setClient(clientRepo);
-        project.setProjectType(projectTypeRepo);
-        projectService.save(project);
     }
 }

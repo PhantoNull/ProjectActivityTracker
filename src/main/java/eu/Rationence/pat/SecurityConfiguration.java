@@ -29,9 +29,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         };
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*/*", "/trackingNote/*/*").authenticated()
+                    .antMatchers("/", "/changePasswordUser","/tracking", "/tracking/*/*", "/trackingNote/*/*", "/lockTracking/*/*").authenticated()
                     .antMatchers("/users","/projects","/clients","/standardactivities", "/teams", "/projects/*",
-                            "/trackingMonthlyGlobal", "/trackingMonthlyGlobal/*/*").hasAuthority("ADMIN")
+                            "/report/", "/report/*/*", "/unlockTracking/*/*").hasAuthority("ADMIN")
                     .antMatchers(staticResources).permitAll()
                     .antMatchers("/initialize").permitAll()
                     .anyRequest().authenticated()

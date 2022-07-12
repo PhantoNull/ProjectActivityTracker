@@ -38,6 +38,9 @@ import java.util.Date;
      @Column(name="x_Note", length = 65000, nullable = false)
      private String note;
 
+     @Column(name="f_Locked", nullable = false)
+     private boolean locked;
+
      @Override
      public int hashCode() {
          return getClass().hashCode();
