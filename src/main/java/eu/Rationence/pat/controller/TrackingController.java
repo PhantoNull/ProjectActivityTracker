@@ -158,21 +158,24 @@ public class TrackingController {
         List<CompiledProjectActivity> compiledProjectActivityList = compiledProjectActivityService
                 .find(month, year);
         HashSet<CompiledUserProjectActivityRow> projectActivityHashSet = new HashSet<>();
-
+        Date compiledDate = new SimpleDateFormat("dd-MM-yyyy").parse("1-" + month + "-" + year);
         for(CompiledProjectActivity compiledProjectActivity : compiledProjectActivityList){
-            projectActivityHashSet.add(CompiledUserProjectActivityRow.builder()
-                    .username(compiledProjectActivity.getUsername())
-                    .project(compiledProjectActivity.getProject())
-                    .projectDesc(compiledProjectActivity.getC_Activity().getC_Project().getProjectDesc())
-                    .activityKey(compiledProjectActivity.getActivityKey())
-                    .location(compiledProjectActivity.getLocationName()).build());
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(compiledProjectActivity.getDate());
-            model.addAttribute(compiledProjectActivity.getProject() + "."
-                    + compiledProjectActivity.getActivityKey() + "."
-                    + compiledProjectActivity.getUsername() + "."
-                    + compiledProjectActivity.getLocationName() + "."
-                    + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
+            MonthlyNote monthlyNote = monthlyNoteService.find(compiledProjectActivity.getUsername(), compiledDate);
+            if(monthlyNote.isLocked()) {
+                projectActivityHashSet.add(CompiledUserProjectActivityRow.builder()
+                        .username(compiledProjectActivity.getUsername())
+                        .project(compiledProjectActivity.getProject())
+                        .projectDesc(compiledProjectActivity.getC_Activity().getC_Project().getProjectDesc())
+                        .activityKey(compiledProjectActivity.getActivityKey())
+                        .location(compiledProjectActivity.getLocationName()).build());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(compiledProjectActivity.getDate());
+                model.addAttribute(compiledProjectActivity.getProject() + "."
+                        + compiledProjectActivity.getActivityKey() + "."
+                        + compiledProjectActivity.getUsername() + "."
+                        + compiledProjectActivity.getLocationName() + "."
+                        + calendar.get(Calendar.DAY_OF_MONTH), compiledProjectActivity.getHours());
+            }
         }
         model.addAttribute("projectActivityList", projectActivityHashSet);
 
@@ -180,18 +183,22 @@ public class TrackingController {
                 .find(month, year);
         HashSet<CompiledUserStandardActivityRow> standardActivityHashSet = new HashSet<>();
         model.addAttribute("allStandardList", standardActivityService.findAll());
+
         for(CompiledStandardActivity compiledStandardActivity : compiledStandardActivityList){
-            standardActivityHashSet.add(CompiledUserStandardActivityRow.builder()
-                    .username(compiledStandardActivity.getUsername())
-                    .activityKey(compiledStandardActivity.getActivityKey())
-                    .location(compiledStandardActivity.getLocationName()).build());
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(compiledStandardActivity.getDate());
-            model.addAttribute("Standard."
-                    + compiledStandardActivity.getActivityKey() + "."
-                    + compiledStandardActivity.getUsername() + "."
-                    + compiledStandardActivity.getLocationName() + "."
-                    + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
+            MonthlyNote monthlyNote = monthlyNoteService.find(compiledStandardActivity.getUsername(), compiledDate);
+            if(monthlyNote.isLocked()) {
+                standardActivityHashSet.add(CompiledUserStandardActivityRow.builder()
+                        .username(compiledStandardActivity.getUsername())
+                        .activityKey(compiledStandardActivity.getActivityKey())
+                        .location(compiledStandardActivity.getLocationName()).build());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(compiledStandardActivity.getDate());
+                model.addAttribute("Standard."
+                        + compiledStandardActivity.getActivityKey() + "."
+                        + compiledStandardActivity.getUsername() + "."
+                        + compiledStandardActivity.getLocationName() + "."
+                        + calendar.get(Calendar.DAY_OF_MONTH), compiledStandardActivity.getHours());
+            }
         }
         model.addAttribute("standardActivityList", standardActivityHashSet);
         model.addAttribute("userTeam", userLogged.getTeam().getTeamName());
