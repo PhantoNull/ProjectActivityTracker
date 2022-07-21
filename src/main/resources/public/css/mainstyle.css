@@ -93,7 +93,6 @@ input:focus {
 }
 
 .ratiologo{width: 20rem;}
-.table__wrapper{ /*overflow-x: auto;*/}
 .username{text-shadow: 0 0 4px rgba(255, 255, 255, 0.36);}
 th.checkboxCol{width: 30px; !important}
 th.hoursCol{width: 40px; !important}
@@ -152,8 +151,7 @@ input[type=number] { -moz-appearance: textfield;}
     border-radius: 1px; !important
 }
 
-/*
-.subTotalTable tr:last-child{
-    border-top:2px double #2a4f5e;
-}+/
+.is-not-clickable {
+    pointer-events: none;
+}
 

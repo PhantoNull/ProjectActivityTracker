@@ -20,6 +20,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
+                        console.log(data);
                         if (index !== "add")
                             await fetch("/users", {method: 'PUT', body: data})
                                 .then(async response => {
@@ -309,58 +310,56 @@
                                         <!-- header table -->
                                         <tr class="table-header">
                                             <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="usernameCol has-text-primary-dark table-header">
-                                                Username
+                                            <th class="usernameCol has-text-primary-dark table-header pl-2">Username
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'username\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="roleCol has-text-primary-dark table-header">
-                                                Role
+                                            <th class="roleCol has-text-primary-dark table-header pl-2">Role
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'role\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="nameCol has-text-primary-dark table-header">Name
+                                            <th class="nameCol has-text-primary-dark table-header pl-2">Name
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'name\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="surnameCol has-text-primary-dark table-header">Surname
+                                            <th class="surnameCol has-text-primary-dark table-header pl-2">Surname
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'surname\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="descriptionCol has-text-primary-dark table-header">Description
+                                            <th class="descriptionCol has-text-primary-dark table-header pl-2">Description
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'description\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="emailCol has-text-primary-dark table-header">Email
+                                            <th class="emailCol has-text-primary-dark table-header pl-2">Email
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'email\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="teamCol has-text-primary-dark table-header">Team
+                                            <th class="teamCol has-text-primary-dark table-header pl-2">Team
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
                                                        th:onclick="'sortTable(\'team\',columnList);'"></i>
                                                 </span>
                                             </th>
-                                            <th class="costCol has-text-primary-dark table-header">Cost
+                                            <th class="costCol has-text-primary-dark table-header pl-2">Cost
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
@@ -368,9 +367,9 @@
                                                 </span>
                                             </th>
 
-                                            <th class="timeCol has-text-primary-dark table-header">Time
+                                            <th class="timeCol has-text-primary-dark table-header pl-2">Time
                                             </th>
-                                            <th class="enabledCol has-text-primary-dark table-header">Enabled
+                                            <th class="enabledCol has-text-primary-dark table-header pl-2">Active
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
@@ -471,8 +470,12 @@
                                                 </td>
                                                 <td>
                                                     <a th:href="'/tracking/' + ${user.username}">
-                                                        <span class="icon has-text-primary mt-2 ml-2 table-button" th:classappend="${#vars.getVariable('sheet.__${user.username}__')}" th:data-tooltip="${user.username} + ' time sheets'">
-                                                            <i class="fas fa-file-spreadsheet fa-lg is-clickable table-button"></i>
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button"
+                                                              th:classappend="${#vars.getVariable('sheet.__${user.username}__')}"
+                                                              th:data-tooltip="${user.username} + ' time sheets'">
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-primary'}" class="fas fa-file-check fa-lg is-clickable table-button"></i>
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-danger-dark'}" class="fas fa-file-times fa-lg is-clickable table-button"></i>
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-grey'}" class="fas fa-file fa-lg is-clickable table-button"></i>
                                                         </span>
                                                     </a>
                                                 </td>

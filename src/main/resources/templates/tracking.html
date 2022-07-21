@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it" style="overflow-x: scroll;">
 <head th:include="fragments/headFragment.html :: headFragment">
 </head>
 
 <body onload="computeSubTotals(), applyFilter()">
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
-<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/js/xlsx.bundle.js"></script>
+<script src="/js/cpexcel.js"></script>
+<!--<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>-->
+
 <script src="/js/export-excel.js"></script>
 
 
@@ -245,6 +248,30 @@
                     </div>
                     <div class="level-right">
                         <div class="level-item">
+                            <span th:if="${!projectActivityList.isEmpty() || !standardActivityList.isEmpty()}"
+                                  class="icon is-large has-text-primary is-clickable" data-tooltip="Export Excel"
+                                  th:data-username="${userTimeSheetDescription}"
+                                  th:data-month="${month}"
+                                  th:data-year="${year}"
+                                  th:data-fest-days="${weekendDays}"
+                                  th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false, this.getAttribute('data-fest-days'));">
+                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                            </span>
+                            <span th:if="${trackingLocked != null && !trackingLocked}" class="icon is-large has-text-primary is-clickable" data-tooltip="Submit Timesheet"
+                                  th:data-username="${userTimeSheetUsername}"
+                                  onclick="showConfirmSubmit(true);">
+                                  <i class="fas fa-lock-open-alt fa-2x table-button"></i>
+                            </span>
+                            <span sec:authorize="!hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}"
+                                  class="icon is-large has-text-grey-light is-not-clickable" data-tooltip="Unlock Timesheet">
+                                  <i class="fas fa-lock-alt fa-2x"></i>
+                            </span>
+                            <span sec:authorize="hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}"
+                                  class="icon is-large has-text-primary is-clickable" data-tooltip="Unlock Timesheet"
+                                  th:data-username="${userTimeSheetUsername}"
+                                  th:onclick="'action(\'unlockTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\'));'">
+                                  <i class="fas fa-lock-alt fa-2x table-button"></i>
+                            </span>
                             <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
                                   th:data-username="${userTimeSheetUsername}"
                                   th:onclick="'action(\'saveTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\'))'">
@@ -556,32 +583,6 @@
                                     <!--
                                     <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
                                     -->
-                                    <div class="mt-5 has-text-centered">
-                                        <button th:if="${trackingLocked != null && !trackingLocked}" class="button is-primary"
-                                                onclick="showConfirmSubmit(true)">
-                                            Submit TimeSheet
-                                        </button>
-                                        <button sec:authorize="!hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}" class="button is-primary" disabled>
-                                            Unlock TimeSheet
-                                        </button>
-                                        <button sec:authorize="hasAuthority('ADMIN')" th:if="${trackingLocked != null && trackingLocked}" class="button is-primary"
-                                                th:data-username="${userTimeSheetUsername}"
-                                                th:onclick="'action(\'unlockTracking\',' + ${year} + ',' + ${month} + ',this.getAttribute(\'data-username\'));'">
-                                            Unlock TimeSheet
-                                        </button>
-                                    </div>
-                                    <div class="mt-5 has-text-centered">
-                                        <button class="button is-primary"
-                                                th:data-username="${userTimeSheetDescription}"
-                                                th:data-month="${month}"
-                                                th:data-year="${year}"
-                                                th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false);">
-                                            <figure class="image is-16x16 mr-2">
-                                                <img src="/images/xls32.png">
-                                            </figure>
-                                            Export Excel File
-                                        </button>
-                                    </div>
                                     <div class="has-text-primary-dark has-text-weight-bold mt-5 has-text-centered">Monthly Note</div>
                                     <div class="columns is-centered">
                                         <div class="column is-half-desktop">

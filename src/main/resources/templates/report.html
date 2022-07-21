@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
 <head th:include="fragments/headFragment.html :: headFragment">
 </head>
 
@@ -7,6 +7,7 @@
 <script src="/js/mainjs.js"></script>
 <script src="/js/table-system.js"></script>
 <script src="/js/xlsx.bundle.js"></script>
+<script src="/js/cpexcel.js"></script>
 <script src="/js/export-excel.js"></script>
 
 
@@ -97,6 +98,18 @@
                             </ul>
                         </nav>
                     </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span th:if="${!projectActivityList.isEmpty() || !standardActivityList.isEmpty()}"
+                                  class="icon is-large has-text-primary is-clickable" data-tooltip="Export Excel"
+                                  th:data-month="${month}"
+                                  th:data-year="${year}"
+                                  th:data-fest-days="${weekendDays}"
+                                  th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),'GLOBAL',true, this.getAttribute('data-fest-days'));">
+                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="error-log" class="hidden notification has-background-primary-light">
@@ -164,8 +177,9 @@
                                     </div>
 
                                     <div class="is-4 mt-4 has-text-centered has-text-weight-bold mx-auto">
-                                        <p>Users who have not filled out Time Sheet:</p>
-                                        <div class="select">
+                                        <p th:if="${uncompiledTimeSheetUsers.isEmpty()}">All users have filled out the Time Sheet</p>
+                                        <p th:if="${!uncompiledTimeSheetUsers.isEmpty()}">Users who have not filled out Time Sheet:</p>
+                                        <div th:if="${!uncompiledTimeSheetUsers.isEmpty()}" class="select">
                                             <select th:id="uncompiledSelect" class="">
                                                 <option th:each="user : ${uncompiledTimeSheetUsers}"
                                                         th:value="${user.getDescription()}"
@@ -346,17 +360,6 @@
                                     <!--
                                     <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
                                     -->
-                                    <div class="mt-5 has-text-centered">
-                                        <button class="button is-primary"
-                                                th:data-month="${month}"
-                                                th:data-year="${year}"
-                                                th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),'GLOBAL',true);">
-                                            <figure class="image is-32x32 mr-3">
-                                                <img src="/images/xls32.png">
-                                            </figure>
-                                            Export Excel File
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
