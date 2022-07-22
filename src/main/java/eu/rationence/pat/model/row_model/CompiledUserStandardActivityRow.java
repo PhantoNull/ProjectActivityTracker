@@ -1,4 +1,4 @@
-package eu.rationence.pat.model.rowModel;
+package eu.rationence.pat.model.row_model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;

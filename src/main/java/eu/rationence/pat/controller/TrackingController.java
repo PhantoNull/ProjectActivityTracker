@@ -2,10 +2,10 @@ package eu.rationence.pat.controller;
 import eu.rationence.pat.model.*;
 import eu.rationence.pat.service.*;
 
-import eu.rationence.pat.model.rowModel.CompiledProjectActivityRow;
-import eu.rationence.pat.model.rowModel.CompiledStandardActivityRow;
-import eu.rationence.pat.model.rowModel.CompiledUserProjectActivityRow;
-import eu.rationence.pat.model.rowModel.CompiledUserStandardActivityRow;
+import eu.rationence.pat.model.row_model.CompiledProjectActivityRow;
+import eu.rationence.pat.model.row_model.CompiledStandardActivityRow;
+import eu.rationence.pat.model.row_model.CompiledUserProjectActivityRow;
+import eu.rationence.pat.model.row_model.CompiledUserStandardActivityRow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -111,7 +111,7 @@ public class TrackingController {
 
         for(int i=1; i <= passedDate.lengthOfMonth(); i++){
             LocalDate cycleLocalDate = LocalDate.of(year, month, i);
-            int pos = cycleLocalDate.getDayOfWeek().getValue();
+            int pos = cycleLocalDate.getDayOfWeek().getValue()-1;
             if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
                 weekendAndFestivityDaySet.add(i);
                 pos = -1;
@@ -249,7 +249,7 @@ public class TrackingController {
 
         for(int i=1; i <= passedDate.lengthOfMonth(); i++){
             LocalDate cycleLocalDate = LocalDate.of(year, month, i);
-            int pos = cycleLocalDate.getDayOfWeek().getValue();
+            int pos = cycleLocalDate.getDayOfWeek().getValue()-1;
             if(cycleLocalDate.getDayOfWeek() == DayOfWeek.SATURDAY || cycleLocalDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
                 weekendAndFestivityDaySet.add(i);
                 pos = -1;

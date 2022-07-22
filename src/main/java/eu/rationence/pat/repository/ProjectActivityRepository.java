@@ -1,6 +1,6 @@
 package eu.rationence.pat.repository;
 
-import eu.rationence.pat.model.compositekeys.ProjectActivityCompositeKey;
+import eu.rationence.pat.model.composite_keys.ProjectActivityCompositeKey;
 import eu.rationence.pat.model.ProjectActivity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

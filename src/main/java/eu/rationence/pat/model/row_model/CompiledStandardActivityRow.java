@@ -1,4 +1,4 @@
-package eu.rationence.pat.model.rowModel;
+package eu.rationence.pat.model.row_model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -8,9 +8,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @EqualsAndHashCode
 @ToString
-public class CompiledProjectActivityRow {
-    private String project;
-    private String projectDesc;
+public class CompiledStandardActivityRow {
     private String activityKey;
     private String location;
 }

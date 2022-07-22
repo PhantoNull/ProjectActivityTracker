@@ -1,6 +1,6 @@
 package eu.rationence.pat.model;
 
-import eu.rationence.pat.model.compositekeys.CompiledStandardActivityCompositeKey;
+import eu.rationence.pat.model.composite_keys.CompiledStandardActivityCompositeKey;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -1,6 +1,6 @@
 package eu.rationence.pat.model;
 
-import eu.rationence.pat.model.compositekeys.CompiledProjectActivityCompositeKey;
+import eu.rationence.pat.model.composite_keys.CompiledProjectActivityCompositeKey;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -44,12 +44,12 @@ public class CompiledProjectActivity implements Serializable {
     private Date date;
 
     @ManyToOne
-    @JoinColumns({ @JoinColumn(name = "c_Activity",
-                                foreignKey = @ForeignKey(name = "fk_Activity_CompiledProjectActivity"),
-                                insertable = false, updatable = false),
-                    @JoinColumn(name = "c_Project",
-                                foreignKey = @ForeignKey(name = "fk_Project_CompiledProjectActivity"),
-                                insertable = false, updatable = false) })
+    @JoinColumn(name = "c_Activity",
+                foreignKey = @ForeignKey(name = "fk_Activity_CompiledProjectActivity"),
+                insertable = false, updatable = false)
+    @JoinColumn(name = "c_Project",
+                foreignKey = @ForeignKey(name = "fk_Project_CompiledProjectActivity"),
+                insertable = false, updatable = false)
     private ProjectActivity c_Activity;
 
     @ManyToOne

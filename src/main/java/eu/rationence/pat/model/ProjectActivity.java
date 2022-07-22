@@ -1,6 +1,6 @@
  package eu.rationence.pat.model;
 
-import eu.rationence.pat.model.compositekeys.ProjectActivityCompositeKey;
+import eu.rationence.pat.model.composite_keys.ProjectActivityCompositeKey;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,15 +36,6 @@ import java.util.Objects;
 
      @OneToMany(mappedBy = "c_Activity")
      private List<UserActivity> userActivities;
-
-     /*
-     @ManyToMany(fetch= FetchType.LAZY)
-     @JoinTable(name="PAT_UserActivities",
-                joinColumns = { @JoinColumn(name = "c_Activity", foreignKey = @ForeignKey(name = "fk_Activity_UserActivity")),
-                                @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_UserActivity")) },
-                inverseJoinColumns = { @JoinColumn(name = "c_Username", foreignKey = @ForeignKey(name = "fk_User_UserActivity")) })
-     Set<User> users  = new HashSet<>();
-     */
 
      @ManyToOne(fetch=FetchType.LAZY)
      @JoinColumn(name = "c_ActivityType", nullable = false, foreignKey = @ForeignKey(name = "fk_ActivityType_Activity"))

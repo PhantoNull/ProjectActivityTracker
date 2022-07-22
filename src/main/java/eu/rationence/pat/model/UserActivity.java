@@ -1,8 +1,9 @@
 package eu.rationence.pat.model;
 
-import eu.rationence.pat.model.compositekeys.UserActivityCompositeKey;
+import eu.rationence.pat.model.composite_keys.UserActivityCompositeKey;
 import lombok.*;
 import org.hibernate.Hibernate;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -17,8 +18,6 @@ import java.util.Objects;
 @ToString
 @IdClass(UserActivityCompositeKey.class)
 public class UserActivity implements Serializable {
-
-
     @Id
     @Column(name = "c_Project", nullable = false, length=16)
     private String project;
@@ -49,12 +48,14 @@ public class UserActivity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        UserActivity userActivity = (UserActivity) o;
-        return userActivity != null && c_Username != null && Objects.equals(c_Username, userActivity.c_Username) && Objects.equals(c_Activity, userActivity.c_Activity);
+        UserActivity that = (UserActivity) o;
+        return project != null && Objects.equals(project, that.project)
+                && activityKey != null && Objects.equals(activityKey, that.activityKey)
+                && username != null && Objects.equals(username, that.username);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(project, activityKey, username);
     }
 }
