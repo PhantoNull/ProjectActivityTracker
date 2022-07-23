@@ -1,70 +1,72 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+<html lang="it">
 
-<head>
-    <title>Login page</title>
+<head th:include="fragments/headFragment.html :: headFragment">
+    <title id="pageTitle">Login Rationence</title>
 </head>
+
 <body>
-<div th:insert="fragments/header.html :: header"></div>
-
-
-<div class="title">Login page</div>
-<p th:if="${loginError}" class="error">Wrong user or password</p>
-<form th:action="@{/login.html}" method="post">
-    <label for="username">Username</label>:
-    <input type="text" id="username" name="username" autofocus="autofocus" /> <br />
-    <label for="password">Password</label>:
-    <input type="password" id="password" name="password" /> <br />
-    <input type="submit" value="Log in" />
-</form>
-<div th:insert="fragments/footer.html :: footer"></div>
-
-
-<section class="hero is-primary is-fullheight">
-    <div class="hero-body">
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column is-5-tablet is-5-desktop is-4-widescreen">
-                    <form action="" class="box">
-                        <figure class="image">
-                            <img src="Logo.png">
-                        </figure>
+<section class="container">
+    <div class="columns is-multiline">
+        <div class="column is-8 is-offset-2 login">
+            <div class="columns">
+                <div class="column left has-text-centered">
+                    <figure class="image is-fullwidth">
+                        <img  id="userimg" src="/images/Logo2.png" alt="logo">
+                    </figure>
+                    <h2 class="subtitle colored has-text-primary has-text-weight-semibold is-4">Project Activity Tracking</h2>
+                    <h4><em>Software di tracking attività per progetti.</em></h4>
+                    <figure class="image is-128x128 mx-auto">
+                        <img src="/images/RPATIcon.png" alt="PAT Icon">
+                    </figure>
+                </div>
+                <div class="column right has-text-centered">
+                    <h1 class="title has-text-primary has-text-weight-semibold is-4">Login</h1>
+                    <p th:if="${param.error}" class="notification is-danger">
+                        ⚠️ Credenziali errate️
+                    </p>
+                    <p th:if="${param.logout}" class="notification is-success">
+                        Logout effettuato con successo.
+                    </p>
+                    <form name="f" th:action="@{/login}" method="post">
                         <div class="field">
-                            <label for="" class="label">Email</label>
-                            <div class="control has-icons-left">
-                                <input type="email" placeholder="e.g. email@rationence.eu" class="input" required>
-                                <span class="icon is-small is-left">
-                  <i class="fa fa-envelope"></i>
-                </span>
+                            <div class="control">
+                                <input class="input is-medium is-grey-darker" id="username" name="username" type="text" placeholder="Username">
                             </div>
                         </div>
+
                         <div class="field">
-                            <label for="" class="label">Password</label>
-                            <div class="control has-icons-left">
-                                <input type="password" placeholder="*******" class="input" required>
-                                <span class="icon is-small is-left">
-                  <i class="fa fa-lock"></i>
-                </span>
+                            <div class="control">
+                                <input class="input is-medium is-grey-dark" id="password" name="password" type="password" placeholder="Password">
                             </div>
                         </div>
-                        <div class="field">
-                            <label for="" class="checkbox">
-                                <input type="checkbox">
-                                Remember me
-                            </label>
-                        </div>
-                        <div class="field">
-                            <button class="button is-primary">
-                                Login
-                            </button>
-                        </div>
+                        <button type="submit" class="button is-block is-primary is-fullwidth is-medium">Login</button>
+                        <br />
                     </form>
                 </div>
             </div>
         </div>
+        <div class="column is-8 is-offset-2">
+            <nav class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <span class="icon is-large has-text-primary is-clickable" data-tooltip="www.Rationence.eu">
+                                  <i class="fas fa-globe fa-lg"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <small class="level-item" style="color: var(--textLight)">
+                        &copy; Rationence s.r.l. All Rights Reserved.
+                    </small>
+                </div>
+            </nav>
+        </div>
     </div>
 </section>
 </body>
+<style>
+
+</style>
+
 </html>

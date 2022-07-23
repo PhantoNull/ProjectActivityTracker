@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:include="fragments/headFragment.html :: headFragment">
+</head>
+
+<body>
+<script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
+
+<script type="text/javascript">
+    let columnList = ["checkbox", "username", "role", "name", "surname", "email", "description", "team", "cost", "time", "enabled"];
+
+    async function action(actionString) {
+        let error_log = "";
+        let tableChanged = false;
+        if (Object.values(tableRowList).every(v => v === false))
+            return 1;
+        switch (actionString) {
+            case 'saveUsers':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        console.log(data);
+                        if (index !== "add")
+                            await fetch("/users", {method: 'PUT', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                        else
+                            await fetch("/users", {method: 'POST', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                    }
+                }
+                break;
+            case 'deleteUsers':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        if (index !== "add")
+                            await fetch("/users", {method: 'DELETE', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+
+                    }
+                }
+                break;
+            case 'resetPasswords':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        if (index !== 'add')
+                            await fetch("/resetPasswordUser", {method: 'POST', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                    }
+                }
+                break;
+        }
+        let errorelement = document.getElementById("error-log-text");
+        errorelement.innerHTML = error_log;
+        showErrorLog(true);
+        if (tableChanged === true)
+            setTimeout(function () {
+                window.location.reload(true)
+            }, 3000);
+    }
+
+    function filterTableRow() {
+        for (let i = 0; document.getElementById("row" + i) !== null; i++) {
+            let row = document.getElementById("row" + i);
+            row.classList.remove('hidden');
+        }
+        let tableColumnList = ["Username", "Role", "Name", "Surname", "Email", "Description", "Team", "Cost", "Time", "Enabled"];
+        for (let columnKey of tableColumnList) {
+            let columnInputs = document.getElementsByClassName("f" + columnKey);
+            let filterValue = document.getElementById(columnKey + "filter").value;
+            for (let columnInput of columnInputs) {
+                let parentTableRow;
+                //I select (ROLE, TEAM, ENABLED) sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
+                if (columnKey === "Role" || columnKey === "Team" || columnKey === "Enabled")
+                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                else
+                    parentTableRow = columnInput.parentNode.parentNode;
+                if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
+                    parentTableRow.classList.add('hidden');
+                }
+            }
+        }
+    }
+</script>
+
+<section class="">
+    <div class="container mt-6">
+        <div class="columns">
+            <div class="column" style="min-width:1355px;">
+
+                <div th:include="fragments/authbar.html :: authbar"></div>
+
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/users">
+                                        <span>Users</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                                <span class="icon is-large has-text-primary is-clickable mr-2"
+                                      data-tooltip="Reset Password" th:onclick="'action(\'resetPasswords\');'">
+                                  <i class="fas fa-user-lock fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Salva"
+                                  th:onclick="'action(\'saveUsers\');'">
+                                  <i class="fas fa-save fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Elimina"
+                                  th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hidden notification has-background-primary-light">
+                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected users?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all user-related data.</p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button class="button is-danger"
+                                        th:onclick="'action(\'deleteUsers\'), showConfirm(false);'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">User Management</p>
+                    </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
+
+                                <div class="table__wrapper">
+                                    <table id="sortableTable">
+                                        <!-- Search Filter -->
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter">
+                                            <td style="text-align:center; vertical-align:middle;"></td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="Usernamefilter" name="username" type="text"
+                                                       placeholder="" maxlength="64" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Rolefilter" name="role"
+                                                            class="width110" th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option name="role" th:each="role : ${listaRuoli}"
+                                                                th:value="${role.roleName}"
+                                                                th:text="${role.roleName}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="Namefilter" name="name" type="text"
+                                                       placeholder="" maxlength="32" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="Surnamefilter" name="surname" type="text"
+                                                       placeholder="" maxlength="64" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="Descriptionfilter" name="description"
+                                                       type="text" placeholder="" maxlength="128" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="Emailfilter" name="email" type="email"
+                                                       placeholder="" maxlength="128" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Teamfilter" name="team" class="width110"
+                                                            th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option th:each="team : ${listaTeams}"
+                                                                th:value="${team.teamName}"
+                                                                th:text="${team.teamName}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-right" th:id="Costfilter" name="cost"
+                                                       type="number" placeholder="" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input" th:id="Timefilter" name="time" type="text"
+                                                       placeholder="" minlength="5" maxlength="5" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Enabledfilter" name="enabled" class="width80"
+                                                            th:onchange="'filterTableRow()'">
+                                                        <option value="ALL">ALL</option>
+                                                        <option value="true">yes</option>
+                                                        <option value="false">no</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- header table -->
+                                        <tr class="table-header">
+                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="usernameCol has-text-primary-dark table-header pl-2">Username
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'username\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="roleCol has-text-primary-dark table-header pl-2">Role
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'role\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="nameCol has-text-primary-dark table-header pl-2">Name
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'name\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="surnameCol has-text-primary-dark table-header pl-2">Surname
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'surname\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="descriptionCol has-text-primary-dark table-header pl-2">Description
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'description\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="emailCol has-text-primary-dark table-header pl-2">Email
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'email\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="teamCol has-text-primary-dark table-header pl-2">Team
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'team\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="costCol has-text-primary-dark table-header pl-2">Cost
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'cost\',columnList);'"></i>
+                                                </span>
+                                            </th>
+
+                                            <th class="timeCol has-text-primary-dark table-header pl-2">Time
+                                            </th>
+                                            <th class="enabledCol has-text-primary-dark table-header pl-2">Active
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'enabled\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                        <!-- Data rows -->
+                                        <!--/*@thymesVar id="listaUtenti" type=""*/-->
+                                        <tr th:each="user,iter : ${listaUtenti}" th:id="row+${iter.index}">
+                                            <form th:action="@{/updateuser}" th:id="form+${iter.index}"
+                                                  th:object="${user}" method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" th:id="pass + ${iter.index}"
+                                                           name="passwordHash" value="fake">
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fUsername"
+                                                           th:id="username + ${iter.index}" name="username" type="text"
+                                                           th:value="${user.username}"
+                                                           th:placeholder="${user.username}" maxlength="64" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="role + ${iter.index}" name="role"
+                                                                th:selected="${user.role.roleName}"
+                                                                class="width110 fRole">
+                                                            <option name="role" th:each="role : ${listaRuoli}"
+                                                                    th:selected="${user.role.roleName == role.roleName}"
+                                                                    th:value="${role.roleName}"
+                                                                    th:text="${role.roleName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input fName" th:id="name + ${iter.index}" name="name"
+                                                           type="text" th:value="${user.name}"
+                                                           th:placeholder="${user.name}" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input fSurname" th:id="surname + ${iter.index}"
+                                                           name="surname"
+                                                           type="text" th:value="${user.surname}"
+                                                           th:placeholder="${user.surname}" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input fDescription"
+                                                           th:id="description + ${iter.index}"
+                                                           name="description" type="text" th:value="${user.description}"
+                                                           th:placeholder="${user.description}" maxlength="128"
+                                                           required>
+                                                </td>
+                                                <td>
+                                                    <input class="input fEmail" th:id="email + ${iter.index}"
+                                                           name="email"
+                                                           type="email" th:value="${user.email}"
+                                                           th:placeholder="${user.email}" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="team + ${iter.index}" name="team"
+                                                                th:selected="${user.team.teamName}"
+                                                                class="width110 fTeam">
+                                                            <option th:each="team : ${listaTeams}"
+                                                                    th:selected="${user.team.teamName == team.teamName}"
+                                                                    th:value="${team.teamName}"
+                                                                    th:text="${team.teamName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-right fCost"
+                                                           th:id="cost + ${iter.index}"
+                                                           name="cost" type="number" th:value="${user.cost}"
+                                                           th:placeholder="${user.cost}" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input fTime" th:id="time + ${iter.index}" name="time"
+                                                           type="text" th:value="${user.time}"
+                                                           th:placeholder="${user.time}" minlength="5" maxlength="5"
+                                                           required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="enabled + ${iter.index}" name="enabled"
+                                                                class="width80 fEnabled">
+                                                            <option th:selected="${user.enabled}" value="true">yes
+                                                            </option>
+                                                            <option th:selected="${!user.enabled}" value="false">no
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a th:href="'/tracking/' + ${user.username}">
+                                                        <span class="icon has-text-primary mt-2 ml-2 table-button"
+                                                              th:classappend="${#vars.getVariable('sheet.__${user.username}__')}"
+                                                              th:data-tooltip="${user.username} + ' time sheets'">
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-primary'}" class="fas fa-file-check fa-lg is-clickable table-button"></i>
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-danger-dark'}" class="fas fa-file-times fa-lg is-clickable table-button"></i>
+                                                            <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-grey'}" class="fas fa-file fa-lg is-clickable table-button"></i>
+                                                        </span>
+                                                    </a>
+                                                </td>
+                                            </form>
+                                        </tr>
+
+                                        <!--new user form-->
+                                        <tr id="rowadd">
+                                            <form th:action="@{/adduser}" id="formadd" th:object="${user}"
+                                                  method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input type="hidden" th:id="passadduser" name="passwordHash"
+                                                           value="fake">
+                                                    <input id="checkboxadd"
+                                                           th:onclick="'selectTableRow(\'add\');'" type="checkbox"
+                                                           class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-primary has-text-weight-semibold"
+                                                           th:id="usernameadduser" name="username" type="text"
+                                                           placeholder="" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="roleadduser" name="role" th:selected="USER"
+                                                                class="width110">
+                                                            <option name="role" th:each="role : ${listaRuoli}"
+                                                                    th:selected="USER" th:value="${role.roleName}"
+                                                                    th:text="${role.roleName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="nameadduser" name="name" type="text"
+                                                           placeholder="" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="surnameadduser" name="surname"
+                                                           type="text" placeholder="" maxlength="64" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="descriptionadduser" name="description"
+                                                           type="text" placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="emailadduser" name="email" type="email"
+                                                           placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="teamadduser" name="team" class="width110">
+                                                            <option th:each="team : ${listaTeams}"
+                                                                    th:value="${team.teamName}"
+                                                                    th:text="${team.teamName}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-right" th:id="costadduser" name="cost"
+                                                           type="number" placeholder="" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="timeadduser" name="time" type="text"
+                                                           placeholder="" minlength="5" maxlength="5" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="enabledadduser" name="enabled" class="width80">
+                                                            <option value="true">yes</option>
+                                                            <option value="false">no</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+
+</html>

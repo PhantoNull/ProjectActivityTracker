@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
+<head th:include="fragments/headFragment.html :: headFragment">
+</head>
+
+<body onload="computeSubTotals()">
+<script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
+<script src="/js/xlsx.bundle.js"></script>
+<script src="/js/cpexcel.js"></script>
+<script src="/js/export-excel.js"></script>
+
+
+<script type="text/javascript">
+    let columnList = ["checkbox", "username", "activity", "location"];
+
+    function computeSubTotals(){
+        let checkboxes = document.getElementsByClassName("tablecheckbox");
+        for(let c of checkboxes){
+            c.onclick();
+            c.onclick();
+        }
+        let rowSubtotal = {0:0};
+        let totalHours = 0;
+        for(let index in tableRowList) {
+            rowSubtotal[index] = 0;
+
+            for(let day=1; day <= 31; day++){
+                if(index !== "add"){
+                    let dailyInput = document.getElementById("hour" + index + "." + day);
+                    let parentTableRow = dailyInput.parentNode.parentNode.parentNode;
+                    if(dailyInput !== null){
+                        let val = parseInt(dailyInput.value);
+                        if(!isNaN(val) && !parentTableRow.classList.contains("hidden")) {
+                            rowSubtotal[index] += val;
+                            totalHours += val;
+                        }
+                    }
+                }
+            }
+            if(index !== "add")
+                document.getElementById("rowTotal"+index).value = rowSubtotal[index];
+        }
+        document.getElementById("hourTotFinal").value = totalHours;
+    }
+
+    function filterTableRow() {
+        for (let i = 0; document.getElementById("row" + i) !== null; i++) {
+            let row = document.getElementById("row" + i);
+            row.classList.remove('hidden');
+        }
+        for (let i = 0; document.getElementById("rowS" + i) !== null; i++) {
+            let row = document.getElementById("rowS" + i);
+            row.classList.remove('hidden');
+        }
+
+        let tableColumnList = ["Username", "ProjectActivity", "Location"];
+        for (let columnKey of tableColumnList) {
+            let columnInputs = document.getElementsByClassName("f" + columnKey);
+            let filterValue = document.getElementById(columnKey + "filter").value;
+            for (let columnInput of columnInputs) {
+                let parentTableRow;
+                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
+                parentTableRow = columnInput.parentNode.parentNode;
+                if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
+                    parentTableRow.classList.add('hidden');
+                }
+            }
+        }
+        computeSubTotals();
+    }
+</script>
+
+<section class="">
+    <div class="container mt-6 is-fluid">
+        <div class="columns">
+            <div class="column" style="min-width:1600px;">
+
+                <div th:include="fragments/authbar.html :: authbar"></div>
+
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="'/report/' + ${year} + '/'+${month}">
+                                        <span>Monthly Report</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span th:if="${!projectActivityList.isEmpty() || !standardActivityList.isEmpty()}"
+                                  class="icon is-large has-text-primary is-clickable" data-tooltip="Export Excel"
+                                  th:data-month="${month}"
+                                  th:data-year="${year}"
+                                  th:data-fest-days="${weekendDays}"
+                                  th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),'GLOBAL',true, this.getAttribute('data-fest-days'));">
+                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hidden notification has-background-primary-light">
+                    <button class="delete" onclick="showErrorLog(false);"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected activities?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all selected activities filled data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Time Sheet - Monthly Report</span></p>
+                    </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
+                                <div class="table__wrapper">
+                                    <div class="is-6 has-text-centered has-text-weight-bold mx-auto">
+                                        <a th:href="'/report/' + ${previousYear} + '/'+${previousMonth}" style="text-decoration: none;">
+                                            <span class="icon is-medium has-text-primary is-clickable"
+                                                  data-tooltip="Previous">
+                                                    <i class="fas fa-arrow-alt-square-left fa-lg table-button"></i>
+                                            </span>
+                                        </a>
+                                        <span class="my-auto is-size-4 has-text-weight-bold" th:text="${monthName}+' '+${year}">
+                                        </span>
+                                        <a th:if="${nextAvailable == false}"
+                                           th:href="'/report/' + ${nextYear} + '/'+${nextMonth}">
+                                            <span class="icon is-medium has-text-primary is-clickable"
+                                                  data-tooltip="Next">
+                                                    <i class="fas fa-arrow-alt-square-right fa-lg table-button"></i>
+                                            </span>
+                                        </a>
+                                    </div>
+
+                                    <div class="is-4 mt-4 has-text-centered has-text-weight-bold mx-auto">
+                                        <p th:if="${uncompiledTimeSheetUsers.isEmpty()}">All users have filled out the Time Sheet</p>
+                                        <p th:if="${!uncompiledTimeSheetUsers.isEmpty()}">Users who have not filled out Time Sheet:</p>
+                                        <div th:if="${!uncompiledTimeSheetUsers.isEmpty()}" class="select">
+                                            <select th:id="uncompiledSelect" class="">
+                                                <option th:each="user : ${uncompiledTimeSheetUsers}"
+                                                        th:value="${user.getDescription()}"
+                                                        th:text="${user.getDescription()}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <table id="sortableTable" class="mx-auto subTotalTable">
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter">
+                                            <td>
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="Usernamefilter" name="projectActivity" type="text"
+                                                       placeholder="" maxlength="24" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="ProjectActivityfilter" name="projectActivity" type="text"
+                                                       placeholder="" maxlength="24" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="Locationfilter" name="location"
+                                                            class="width110" th:onchange="'filterTableRow()'">
+                                                        <option th:value="ALL">ALL</option>
+                                                        <option th:each="location : ${locationList}"
+                                                                th:value="${location.locationName}"
+                                                                th:text="${location.locationName}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- header table -->
+                                        <tr class="table-header">
+                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="usernameCol has-text-primary-dark table-header">Username</th>
+                                            <th class="activityTrackingCol has-text-primary-dark table-header">Activity</th>
+                                            <th class="locationCol has-text-primary-dark table-header">Location</th>
+                                            <th class="hoursCol has-text-primary-dark table-header has-text-centered"
+                                                th:each="i : ${#numbers.sequence( 1, monthDays/1)}" th:text="${i}"></th>
+                                            <th class="hoursTotCol has-text-primary-dark table-header has-text-centered">Tot
+                                            </th>
+                                        </tr>
+                                        <!-- Data rows -->
+                                        <tr th:each="projectActivity,iter : ${projectActivityList}" th:id="row+${iter.index}">
+                                            <div th:id="form+${iter.index}">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox hidden">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fUsername"
+                                                           th:id="username + ${iter.index}" name="projectActivity" type="text"
+                                                           th:value="${projectActivity.getUsername()}"
+                                                           th:placeholder="${projectActivity.getUsername()}" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
+                                                           th:id="projectActivity + ${iter.index}" name="projectActivity" type="text"
+                                                           th:value="${projectActivity.getProjectDesc()} + ':' +${projectActivity.getActivityKey()}"
+                                                           th:placeholder="${projectActivity.getProjectDesc()} + ':' +${projectActivity.getActivityKey()}" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fLocation"
+                                                           th:id="location + ${iter.index}" name="location" type="text"
+                                                           th:value="${projectActivity.getLocation()}"
+                                                           th:placeholder="${projectActivity.getLocation()}" required
+                                                           readonly>
+                                                </td>
+                                                <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                                    <form th:action="@{/tracking}" th:id="form+${iter.index}+.+${i}"
+                                                          th:object="${compiledProjectActivity}" method="put">
+                                                        <input type="hidden" name="projectActivityKeys" th:value="${projectActivity.getProject()}+':'+${projectActivity.getActivityKey()}"/>
+                                                        <input type="hidden" name="locationName" th:value="${projectActivity.getLocation()}"/>
+                                                        <input type="hidden" name="day" th:value="${i}"/>
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
+                                                               th:id="hour+${iter.index}+.+${i}" name="hour"
+                                                               type="number"
+                                                               th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getUsername()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                               th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getUsername()}__.__${projectActivity.getLocation()}__.__${i}__')}"
+                                                               onkeyup="computeSubTotals()"
+                                                               required readonly>
+                                                    </form>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-centered has-text-weight-semibold"
+                                                           th:id="rowTotal+${iter.index}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
+                                                </td>
+                                            </div>
+                                        </tr>
+                                        <tr th:each="standardActivity,iter : ${standardActivityList}" th:id="rowS+${iter.index}">
+                                            <div th:id="formS+${iter.index}">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkboxS+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'S' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox hidden">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fUsername"
+                                                           th:id="username + ${iter.index}" name="projectActivity" type="text"
+                                                           th:value="${standardActivity.getUsername()}"
+                                                           th:placeholder="${standardActivity.getUsername()}" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fProjectActivity"
+                                                           th:id="standardActivity + ${iter.index}" name="standardActivity" type="text"
+                                                           th:value="'Std:' +${standardActivity.getActivityKey()}"
+                                                           th:placeholder="'Std: ' +${standardActivity.getActivityKey()}" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fLocation"
+                                                           th:id="Slocation + ${iter.index}" name="location" type="text"
+                                                           th:value="${standardActivity.getLocation()}"
+                                                           th:placeholder="${standardActivity.getLocation()}" required
+                                                           readonly>
+                                                </td>
+                                                <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                                    <form th:id="formS+${iter.index}+.+${i}" method="put">
+                                                        <input type="hidden" name="projectActivityKeys" th:value="'Std:'+${standardActivity.getActivityKey()}"/>
+                                                        <input type="hidden" name="locationName" th:value="${standardActivity.getLocation()}"/>
+                                                        <input type="hidden" name="day" th:value="${i}"/>
+                                                        <input class="input has-text-centered numeric-input" th:classappend="${weekendDays.contains(i) ? 'has-background-primary-light':''}"
+                                                               th:id="hourS+${iter.index}+.+${i}" name="hour"
+                                                               type="number"
+                                                               th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getUsername()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                               th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getUsername()}__.__${standardActivity.getLocation()}__.__${i}__')}"
+                                                               onkeyup="computeSubTotals()"
+                                                               required readonly>
+                                                    </form>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-centered has-text-weight-semibold"
+                                                           th:id="rowTotalS+${iter.index}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
+                                                </td>
+                                            </div>
+                                        </tr>
+
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="has-text-centered">
+                                                <span class="has-text-primary-dark has-text-weight-bold">
+                                                Tot
+                                                </span>
+                                            </td>
+                                            <td th:each="i : ${#numbers.sequence( 1, monthDays/1)}">
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-centered has-text-weight-semibold"
+                                                       th:id="hourTotFinal"
+                                                       type="number"
+                                                       th:value="0"
+                                                       th:placeholder="0"
+                                                       required readonly>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!--
+                                    <div class="mt-5 has-text-centered has-text-warning-dark">Nota: Con meno di due anni di anzianità richiedere PERMESSI anziché ROL</div>
+                                    -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+
+</html>
