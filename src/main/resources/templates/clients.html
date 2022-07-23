@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:include="fragments/headFragment.html :: headFragment">
+</head>
+
+<body>
+<script src="/js/mainjs.js"></script>
+<script src="/js/table-system.js"></script>
+
+<script type="text/javascript">
+    let columnList = ["checkbox", "clientKey", "clientDesc", "clientType"];
+
+    async function action(actionString) {
+        let error_log = "";
+        let tableChanged = false;
+        if (Object.values(tableRowList).every(v => v === false))
+            return 1;
+        switch (actionString) {
+            case 'saveClients':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        for (let value of data.values()) {
+                            console.log(value);
+                        }
+                        console.log(data);
+                        if (index !== "add")
+                            await fetch("/clients", {method: 'PUT', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else
+                                        span = "<span class=\"has-text-primary\">";
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                        else
+                            await fetch("/clients", {method: 'POST', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+                    }
+                }
+                break;
+            case 'deleteClients':
+                for (let index in tableRowList) {
+                    if (tableRowList[index]) {
+                        let data = new FormData(document.getElementById("form" + index));
+                        if (index != "add")
+                            await fetch("/clients", {method: 'DELETE', body: data})
+                                .then(async response => {
+                                    let body = await response.text().then(val => val);
+                                    let status = response.status;
+                                    let span;
+                                    if (status !== 200)
+                                        span = "<span class=\"has-text-danger\">";
+                                    else {
+                                        span = "<span class=\"has-text-primary\">";
+                                        tableChanged = true;
+                                    }
+                                    error_log += span + body + "</span><br>";
+                                })
+                                .catch(error => console.log(error));
+
+                    }
+                }
+                break;
+        }
+        let errorelement = document.getElementById("error-log-text");
+        errorelement.innerHTML = error_log;
+        showErrorLog(true);
+        if (tableChanged === true)
+            setTimeout(function () {window.location.reload(true)}, 3000);
+    }
+
+    function filterTableRow() {
+        for (let i = 0; document.getElementById("row" + i) !== null; i++) {
+            let row = document.getElementById("row" + i);
+            row.classList.remove('hidden');
+        }
+        let tableColumnList = ["ClientKey", "ClientDesc", "ClientType"];
+        for (let columnKey of tableColumnList) {
+            let columnInputs = document.getElementsByClassName("f" + columnKey);
+            let filterValue = document.getElementById(columnKey + "filter").value;
+            for (let columnInput of columnInputs) {
+                let parentTableRow;
+                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
+                if (columnKey === "ClientType")
+                    parentTableRow = columnInput.parentNode.parentNode.parentNode;
+                else
+                    parentTableRow = columnInput.parentNode.parentNode;
+                if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
+                    parentTableRow.classList.add('hidden');
+                }
+            }
+        }
+    }
+</script>
+
+<section class="">
+    <div class="container mt-6">
+        <div class="columns">
+            <div class="column" style="min-width:685px;">
+
+                <div th:include="fragments/authbar.html :: authbar"></div>
+
+                <div class="level mt-5">
+                    <div class="level-left">
+                        <nav class="breadcrumb has-succeeds-separator is-medium level-item" aria-label="breadcrumbs">
+                            <ul>
+                                <li>
+                                    <a href="/">
+                                    <span class="icon is-medium">
+                                      <i class="fas fa-home" aria-hidden="true"></i>
+                                    </span>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/clients">
+                                        <span>Clients</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Save"
+                                  th:onclick="'action(\'saveClients\');'">
+                                  <i class="fas fa-save fa-2x table-button"></i>
+                                </span>
+                            <span class="icon is-large has-text-primary is-clickable" data-tooltip="Delete"
+                                  th:onclick="'showConfirm(true);'">
+                                  <i class="fas fa-trash-alt fa-2x table-button"></i>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-log" class="hidden notification has-background-primary-light">
+                    <button class="delete" th:onclick="'showErrorLog(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p id="error-log-text" class="has-text-weight-semibold ml-2"></p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confirm-delete" class="hidden notification is-primary">
+                    <button class="delete" th:onclick="'showConfirm(false)'"></button>
+                    <div class="level m-0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Do you really want to delete selected clients?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p class="has-text-weight-semibold is-underlined ml-2"> This action is not reversible
+                                    and will erase all client-related data.</p>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button class="button is-danger"
+                                        th:onclick="'action(\'deleteClients\'), showConfirm(false);'">Continue
+                                </button>
+                                <button class="button ml-3" th:onclick="'showConfirm(false);'">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p class="subtitle has-text-white has-text-weight-semibold m-auto">Client Management</p>
+                    </div>
+                    <div class="message-body">
+                        <div class="columns is-centered">
+                            <div class="column">
+
+                                <div class="table__wrapper">
+                                    <table id="sortableTable" class="mx-auto">
+                                        <!-- Search Filter -->
+                                        <tr>
+                                            <th></th>
+                                            <th class="has-text-primary-dark">Search Filter</th>
+                                        </tr>
+                                        <tr id="rowfilter">
+                                            <td style="text-align:center; vertical-align:middle;">
+
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-primary has-text-weight-semibold"
+                                                       th:id="ClientKeyfilter" name="clientKey" type="text"
+                                                       placeholder="" maxlength="5" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <input class="input fclientDesc" id="ClientDescfilter" name="clientDesc"
+                                                       type="text" placeholder="" maxlength="32" required
+                                                       th:onkeyup="'filterTableRow()'">
+                                            </td>
+                                            <td>
+                                                <div class="select">
+                                                    <select th:id="ClientTypefilter" name="clientType"
+                                                            class="width200 fClientType" th:onchange="'filterTableRow()'">
+                                                        <option th:value="ALL">ALL</option>
+                                                        <option th:each="clientType : ${clientTypeList}"
+                                                                th:value="${clientType.clientTypeKey}"
+                                                                th:text="${clientType.clientTypeKey}"></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- header table -->
+                                        <tr class="table-header">
+                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="clientKeyCol has-text-primary-dark table-header pl-2">Client Key
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientKey\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="clientDescCol has-text-primary-dark table-header pl-2">Description
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientDesc\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                            <th class="clientTypeCol has-text-primary-dark table-header pl-2">Type
+                                                <span class="icon has-text-primary is-pulled-right mr-1"
+                                                      data-tooltip="Order">
+                                                    <i class="fas fa-sort fa-lg table-button is-clickable"
+                                                       th:onclick="'sortTable(\'clientType\',columnList);'"></i>
+                                                </span>
+                                            </th>
+                                        </tr>
+                                        <!-- Data rows -->
+                                        <tr th:each="client,iter : ${clientList}" th:id="row+${iter.index}">
+                                            <form th:action="@{/updateclient}" th:id="form+${iter.index}"
+                                                  th:object="${client}" method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input th:id="checkbox+${iter.index}"
+                                                           th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
+                                                           type="checkbox" class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-background-primary-light has-text-primary has-text-weight-semibold fClientKey"
+                                                           th:id="clientKey + ${iter.index}" name="clientKey" type="text"
+                                                           th:value="${client.clientKey}"
+                                                           th:placeholder="${client.clientKey}" maxlength="5" required
+                                                           readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input fClientDesc" th:id="clientDesc + ${iter.index}" name="clientDesc"
+                                                           type="text" th:value="${client.clientDesc}"
+                                                           th:placeholder="${client.clientDesc}" maxlength="32" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="clientType + ${iter.index}" name="clientType"
+                                                                class="width200 fClientType">
+                                                            <option name="clientType" th:each="clientType : ${clientTypeList}"
+                                                                    th:selected="${clientType.clientTypeKey == client.clientType.clientTypeKey}"
+                                                                    th:value="${clientType.clientTypeKey}"
+                                                                    th:text="${clientType.clientTypeKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        <!--new team form-->
+                                        <tr id="rowadd">
+                                            <form th:action="@{/addClient}" id="formadd" th:object="${client}"
+                                                  method="post">
+                                                <td style="text-align:center; vertical-align:middle;">
+                                                    <input id="checkboxadd"
+                                                           th:onclick="'selectTableRow(\'add\');'" type="checkbox"
+                                                           class="tablecheckbox">
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-primary has-text-weight-semibold"
+                                                           th:id="usernameaddclient" name="clientKey" type="text"
+                                                           placeholder="" maxlength="5" required>
+                                                </td>
+                                                <td>
+                                                    <input class="input" th:id="descaddclient" name="clientDesc" type="text"
+                                                           placeholder="" maxlength="128" required>
+                                                </td>
+                                                <td>
+                                                    <div class="select">
+                                                        <select th:id="clienttypeaddclient" name="clientType" class="width200">
+                                                            <option th:each="clientType : ${clientTypeList}"
+                                                                    th:value="${clientType.clientTypeKey}"
+                                                                    th:text="${clientType.clientTypeKey}"></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+</body>
+</html>
