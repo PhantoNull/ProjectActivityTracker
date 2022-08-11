@@ -36,7 +36,7 @@ public class TrackingController {
     private static final String ADMIN_ROLE = "ADMIN";
     private static final String DATE_FORMAT_DDMMYYYY = "dd-MM-yyyy";
 
-    final int[][] festivityListDayMonth = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {1,11}, {8,12}, {25,12}, {26,12}, {0, 0}};
+    final int[][] festivityListDayMonth = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {16, 8}, {1,11}, {8,12}, {25,12}, {26,12}, {0, 0}};
 
     @Autowired
     public TrackingController(UserService userService, CompiledProjectActivityService compiledProjectActivityService, CompiledStandardActivityService compiledStandardActivityService, ProjectActivityService projectActivityService, StandardActivityService standardActivityService, LocationService locationService, MonthlyNoteService monthlyNoteService) {
@@ -47,24 +47,6 @@ public class TrackingController {
         this.standardActivityService = standardActivityService;
         this.locationService = locationService;
         this.monthlyNoteService = monthlyNoteService;
-    }
-
-    @GetMapping ("/tracking")
-    public String tracking(Model model, Principal principal) throws ParseException {
-        LocalDate currentDate = LocalDate.now();
-        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
-    }
-
-    @GetMapping("/tracking/{username}")
-    public String trackingUsername(@PathVariable String username,
-                                   Model model,
-                                   Principal principal) throws ParseException {
-        User userAdmin = userService.findUser(principal.getName());
-        User userTimeSheet = userService.findUser(username);
-        if((!userAdmin.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username)) || userTimeSheet == null)
-            return ERROR_PAGE;
-        LocalDate currentDate = LocalDate.now();
-        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
     }
 
     @GetMapping ("/report")
@@ -86,8 +68,8 @@ public class TrackingController {
             return ERROR_PAGE;
 
         LocalDate easterMonday = getEasterDate(year).plusDays(1);
-        festivityListDayMonth[10][0] = easterMonday.getDayOfMonth();
-        festivityListDayMonth[10][1] = easterMonday.getMonthValue();
+        festivityListDayMonth[festivityListDayMonth.length - 1][0] = easterMonday.getDayOfMonth();
+        festivityListDayMonth[festivityListDayMonth.length - 1][1] = easterMonday.getMonthValue();
 
         List<User> uncompiledTimeSheetUserList = userService.findAll();
         Iterator<User> iter = uncompiledTimeSheetUserList.iterator();
@@ -201,6 +183,25 @@ public class TrackingController {
         return "report";
     }
 
+
+    @GetMapping ("/tracking")
+    public String tracking(Model model, Principal principal) throws ParseException {
+        LocalDate currentDate = LocalDate.now();
+        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), model, principal);
+    }
+
+    @GetMapping("/tracking/{username}")
+    public String trackingUsername(@PathVariable String username,
+                                   Model model,
+                                   Principal principal) throws ParseException {
+        User userAdmin = userService.findUser(principal.getName());
+        User userTimeSheet = userService.findUser(username);
+        if((!userAdmin.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username)) || userTimeSheet == null)
+            return ERROR_PAGE;
+        LocalDate currentDate = LocalDate.now();
+        return getTrackingMonthYear(currentDate.getYear(), currentDate.getMonthValue(), username, model, principal);
+    }
+
     @GetMapping ("/tracking/{year}/{month}")
     public String getTrackingMonthYear(@PathVariable int year,
                                        @PathVariable int month,
@@ -232,8 +233,8 @@ public class TrackingController {
         model.addAttribute("locationList", locationService.findAll());
 
         LocalDate easterMonday = getEasterDate(year).plusDays(1);
-        festivityListDayMonth[10][0] = easterMonday.getDayOfMonth();
-        festivityListDayMonth[10][1] = easterMonday.getMonthValue();
+        festivityListDayMonth[festivityListDayMonth.length-1][0] = easterMonday.getDayOfMonth();
+        festivityListDayMonth[festivityListDayMonth.length-1][1] = easterMonday.getMonthValue();
 
         model.addAttribute("userTimeSheetDescription", userService.findUser(username).getDescription());
         model.addAttribute("userTimeSheetUsername", username);
@@ -262,7 +263,7 @@ public class TrackingController {
                 }
             }
             if(pos != -1)
-                hours = Character.getNumericValue(userService.findUser(principal.getName()).getTime().charAt(pos));
+                hours = Character.getNumericValue(userRepo.getTime().charAt(pos));
             model.addAttribute("hoursToWork."+i, hours);
         }
         for (int[] ints : festivityListDayMonth) {
@@ -372,8 +373,8 @@ public class TrackingController {
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.findUser(username);
 
-        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
+            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         }
 
         if(monthlyNote == null){
@@ -388,8 +389,8 @@ public class TrackingController {
 
 
         LocalDate easterMonday = getEasterDate(year).plusDays(1);
-        festivityListDayMonth[10][0] = easterMonday.getDayOfMonth();
-        festivityListDayMonth[10][1] = easterMonday.getMonthValue();
+        festivityListDayMonth[festivityListDayMonth.length - 1][0] = easterMonday.getDayOfMonth();
+        festivityListDayMonth[festivityListDayMonth.length - 1][1] = easterMonday.getMonthValue();
 
         if(matchFound) {
             if(matcher.group(1).equals("Std")) {
@@ -510,8 +511,8 @@ public class TrackingController {
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
 
-        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
+            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         }
 
         if(matchFound) {
@@ -609,8 +610,8 @@ public class TrackingController {
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
 
-        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
+            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         }
         if(matchFound) {
             if(matcher.group(1).equals("Std")) {
@@ -681,8 +682,8 @@ public class TrackingController {
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
 
-        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6))){
-            return AdviceController.responseForbidden("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
+            return AdviceController.responseForbidden("Cannot edit this timesheet note. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         }
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
         if(monthlyNote != null && monthlyNote.isLocked())
@@ -717,8 +718,8 @@ public class TrackingController {
         userRepo = userService.findUser(username);
         if(userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
-        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6)))
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         else if(monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else if(monthlyNote.isLocked())
@@ -748,8 +749,8 @@ public class TrackingController {
         userRepo = userService.findUser(username);
         if(userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
-        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(6)))
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(6));
+        else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
+            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
         else if(monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else{

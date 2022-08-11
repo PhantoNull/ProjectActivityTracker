@@ -53,7 +53,7 @@ public class UserController {
         LocalDate currentDate = LocalDate.now();
         int month = currentDate.getMonthValue();
         int year = currentDate.getYear();
-        if(currentDate.getDayOfMonth() <= 10) {
+        if(currentDate.getDayOfMonth() <= 15) {
             month = currentDate.getMonthValue() - 1;
             if(month == 0) {
                 month = 12;

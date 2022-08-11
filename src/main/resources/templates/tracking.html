@@ -222,7 +222,7 @@
 <section class="">
     <div class="container mt-6 is-fluid">
         <div class="columns">
-            <div class="column" style="min-width:1600px;">
+            <div class="column" style="min-width:1350px;">
 
                 <div th:include="fragments/authbar.html :: authbar"></div>
 
@@ -255,7 +255,8 @@
                                   th:data-year="${year}"
                                   th:data-fest-days="${weekendDays}"
                                   th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false, this.getAttribute('data-fest-days'));">
-                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                                  <!--<i class="fas fa-file-spreadsheet fa-2x table-button"></i>-->
+                                  <img class="table-button-img" src="/images/excel.png">
                             </span>
                             <span th:if="${trackingLocked != null && !trackingLocked}" class="icon is-large has-text-primary is-clickable" data-tooltip="Submit Timesheet"
                                   th:data-username="${userTimeSheetUsername}"
