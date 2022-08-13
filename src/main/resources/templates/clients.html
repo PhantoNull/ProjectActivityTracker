@@ -241,7 +241,12 @@
                                         </tr>
                                         <!-- header table -->
                                         <tr class="table-header">
-                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="checkboxCol has-text-primary-dark table-header"
+                                                style="text-align:center; vertical-align:middle;">
+                                                <input th:id="checkboxSelectAll"
+                                                       th:onclick="'selectAllCheckboxes();'"
+                                                       type="checkbox">
+                                            </th>
                                             <th class="clientKeyCol has-text-primary-dark table-header pl-2">Client Key
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">

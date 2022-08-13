@@ -185,10 +185,8 @@
                 <p>
                 <form th:action="@{/change}" id="changePassword">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <label>
-                        <input id="inputPassword" class="input" type="password" name="password" maxlength="64"
+                    <input id="inputPassword" class="input" type="password" name="password" maxlength="64"
                                required/>
-                    </label>
                 </form>
                 <div id="error-log" class="is-text m-auto">
                 </div>
