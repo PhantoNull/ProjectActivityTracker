@@ -9,6 +9,15 @@
 <body>
 <script src="/js/mainjs.js"></script>
 <script>
+    document.getElementById('changePassword')
+        .addEventListener('keyup', function(event) {
+            if (event.code === 'Enter')
+            {
+                event.preventDefault();
+                changePassword();
+            }
+        });
+
     async function changePassword() {
         let error_log = "";
 
@@ -183,7 +192,7 @@
                 <p>
                 <p class="mb-2 mt-5">Insert your new password:
                 <p>
-                <form th:action="@{/change}" id="changePassword">
+                <form id="changePassword" onkeydown="return event.key != 'Enter';">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <input id="inputPassword" class="input" type="password" name="password" maxlength="64"
                                required/>
