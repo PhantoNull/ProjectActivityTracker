@@ -69,6 +69,7 @@ public class MainController {
         }
         return "redirect:/login?logout";
     }
+
     //Metodo inizializzante solo per dati default DB, da rimuovere in produzione
     @GetMapping("/initialize")
     public String initialize() throws ParseException {
