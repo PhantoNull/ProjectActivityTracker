@@ -22,6 +22,8 @@
 		<src.dir>src/main/java</src.dir>
 		<src.dir>src/main/resources/public</src.dir>
 		<src.dir>src/main/resources/templates</src.dir>
+		<sonar.organization>phantonull</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<dependencies>
