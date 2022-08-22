@@ -35,6 +35,7 @@ public class TrackingController {
     private static final String ERROR_PAGE = "error";
     private static final String ADMIN_ROLE = "ADMIN";
     private static final String DATE_FORMAT_DDMMYYYY = "dd-MM-yyyy";
+    private static final String CANNOT_MODIFY_TIME_SHEET_STRING = "Cannot edit this timesheet. Last editable day was ";
 
     final int[][] festivityListDayMonth = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {16, 8}, {1,11}, {8,12}, {25,12}, {26,12}, {0, 0}};
 
@@ -374,7 +375,7 @@ public class TrackingController {
         userRepo = userService.findUser(username);
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
         }
 
         if(monthlyNote == null){
@@ -512,7 +513,7 @@ public class TrackingController {
         boolean matchFound = matcher.find();
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING+ passedDate.plusMonths(1).plusDays(25));
         }
 
         if(matchFound) {
@@ -611,7 +612,7 @@ public class TrackingController {
         boolean matchFound = matcher.find();
 
         if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))){
-            return AdviceController.responseBadRequest("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING+ passedDate.plusMonths(1).plusDays(25));
         }
         if(matchFound) {
             if(matcher.group(1).equals("Std")) {
@@ -719,7 +720,7 @@ public class TrackingController {
         if(userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING+ passedDate.plusMonths(1).plusDays(25));
         else if(monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else if(monthlyNote.isLocked())
@@ -750,7 +751,7 @@ public class TrackingController {
         if(userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         else if(LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Last editable day was "+ passedDate.plusMonths(1).plusDays(25));
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING+ passedDate.plusMonths(1).plusDays(25));
         else if(monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else{
