@@ -36,7 +36,7 @@ jobs:
           DB_PORT: ${{ secrets.DB_PORT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_SCHEMA: ${ secrets.DB_SCHEMA }}
+          DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
