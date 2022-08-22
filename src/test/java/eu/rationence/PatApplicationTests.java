@@ -37,7 +37,7 @@ class PatApplicationTests {
 		roleService.save(roleAdmin);
 		roleService.save(roleToDelete);
 		assertEquals("ADMIN", roleService.findRole("ADMIN").getRoleName());
-		assertEquals("USER", roleService.findRole("ADMIN").getRoleName());
+		assertEquals("USER", roleService.findRole("USER").getRoleName());
 		assertEquals("ROLE_TO_DELETE", roleService.findRole("ROLE_TO_DELETE").getRoleName());
 		roleService.deleteRole("ROLE_TO_DELETE");
 		assertNull(roleService.findRole("ROLE_TO_DELETE"));
