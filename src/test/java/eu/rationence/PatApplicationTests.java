@@ -20,8 +20,9 @@ class PatApplicationTests {
 	private final ProjectService projectService;
 	private final TeamService teamService;
 	private final UserService userService;
+	private final LocationService locationService;
 	@Autowired
-	PatApplicationTests(RoleService roleService, ClientTypeService clientTypeService, ClientService clientService, ProjectTypeService projectTypeService, ProjectService projectService, TeamService teamService, UserService userService) {
+	PatApplicationTests(RoleService roleService, ClientTypeService clientTypeService, ClientService clientService, ProjectTypeService projectTypeService, ProjectService projectService, TeamService teamService, UserService userService, LocationService locationService) {
 		this.roleService = roleService;
 		this.clientTypeService = clientTypeService;
 		this.clientService = clientService;
@@ -29,6 +30,7 @@ class PatApplicationTests {
 		this.projectService = projectService;
 		this.teamService = teamService;
 		this.userService = userService;
+		this.locationService = locationService;
 	}
 
 	@Test
@@ -275,5 +277,35 @@ class PatApplicationTests {
 		assertEquals(disabled, userService.find("Marco.Rossi"));
 		userService.delete("Marco.Rossi");
 		assertNull(userService.find("Marco.Rossi"));
+	}
+
+	@Test
+	void locationServiceTest(){
+		assertNull(locationService.find("CASA"));
+		assertNull(locationService.find("SEDE"));
+		assertNull(locationService.find("TRASFERTA"));
+		assertNull(locationService.find("CLIENTE"));
+		Location casa = Location.builder()
+				.locationName("CASA").build();
+		Location sede = Location.builder()
+				.locationName("SEDE").build();
+		Location trasf = Location.builder()
+				.locationName("TRASFERTA").build();
+		Location cliente = Location.builder()
+				.locationName("CLIENTE").build();
+		Location del = Location.builder()
+				.locationName("DEL").build();
+		locationService.save(casa);
+		locationService.save(sede);
+		locationService.save(trasf);
+		locationService.save(cliente);
+		locationService.save(del);
+		assertEquals(casa, locationService.find("CASA"));
+		assertEquals(sede, locationService.find("SEDE"));
+		assertEquals(trasf, locationService.find("TRASFERTA"));
+		assertEquals(cliente, locationService.find("CLIENTE"));
+		assertEquals(del, locationService.find("DEL"));
+		locationService.delete("DEL");
+		assertNull(locationService.find("DEL"));
 	}
 }
