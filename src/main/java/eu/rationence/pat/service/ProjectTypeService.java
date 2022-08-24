@@ -23,4 +23,6 @@ public class ProjectTypeService {
     }
 
     public ProjectType save(ProjectType p){ return projectTypeRepository.save(p);}
+
+    public void delete(String projectTypeKey){ projectTypeRepository.deleteProjectTypeByProjectTypeKey(projectTypeKey);}
 }

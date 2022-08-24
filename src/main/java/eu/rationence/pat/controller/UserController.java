@@ -77,7 +77,7 @@ public class UserController {
         model.addAttribute("listaRuoli", roleService.findAll());
         model.addAttribute("pageTitle", "PAT Prova");
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "users";
@@ -92,13 +92,13 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            if(userService.findUser(user.getUsername()) != null)
+            if(userService.find(user.getUsername()) != null)
                 return AdviceController.responseConflict(user.getUsername() + " has been already created");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if(validityError != null)
                 return validityError;
-            Team teamRepo = teamService.findTeamByTeamName(teamKey);
-            Role roleRepo = roleService.findRole(roleKey);
+            Team teamRepo = teamService.find(teamKey);
+            Role roleRepo = roleService.find(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -131,15 +131,15 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUser(user.getUsername());
+            User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't update " + CLASS_DESC + " '" + user.getUsername() + "'.");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if(validityError != null)
                 return validityError;
             user.setPasswordHash(userRepo.getPasswordHash());
-            Team teamRepo = teamService.findTeamByTeamName(teamKey);
-            Role roleRepo = roleService.findRole(roleKey);
+            Team teamRepo = teamService.find(teamKey);
+            Role roleRepo = roleService.find(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             userService.save(user);
@@ -156,7 +156,7 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUser(user.getUsername());
+            User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + user.getUsername() + "'s password");
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -186,7 +186,7 @@ public class UserController {
                                                      Principal principal){
         try{
             String username = principal.getName();
-            User userRepo = userService.findUser(username);
+            User userRepo = userService.find(username);
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + CLASS_DESC + " " + username + "'s password");
             Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){8,64}$");
@@ -210,7 +210,7 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUser(user.getUsername());
+            User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Cannot delete " + CLASS_DESC + " '" + user.getUsername() + "'.");
             String username = principal.getName();
@@ -236,8 +236,8 @@ public class UserController {
             return AdviceController.responseBadRequest(user.getUsername() + "'s time '" + user.getTime() + "' is not valid");
         if(!AdviceController.isStringPositiveDecimal(cost))
             return AdviceController.responseBadRequest(user.getUsername() + "'s cost '" + cost + "' is not valid");
-        Team teamRepo = teamService.findTeamByTeamName(teamKey);
-        Role roleRepo = roleService.findRole(roleKey);
+        Team teamRepo = teamService.find(teamKey);
+        Role roleRepo = roleService.find(roleKey);
         if(teamRepo == null)
             return AdviceController.responseNotFound("Team " + teamKey + " does not exits");
         if(roleRepo == null)

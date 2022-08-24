@@ -32,7 +32,7 @@ public class TeamController {
         model.addAttribute("userList", userService.findAll());
         model.addAttribute("teamList", teamService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "teams";
@@ -49,12 +49,12 @@ public class TeamController {
                 return AdviceController.responseBadRequest(CLASS_DESC + " name can't be blank");
             else if(team.getTeamDesc().length() < 1)
                 return AdviceController.responseBadRequest(CLASS_DESC + " description can't be blank");
-            else if(teamService.findTeamByTeamName(team.getTeamName()) != null)
+            else if(teamService.find(team.getTeamName()) != null)
                 return AdviceController.responseConflict(team.getTeamName() + " has been already created");
-            User userRepo = userService.findUser(teamAdminKey);
+            User userRepo = userService.find(teamAdminKey);
             if(userRepo == null)
                 return AdviceController.responseNotFound(teamAdminKey + " is not a valid user for" + CLASS_DESC + " Manager");
-            teamService.saveTeam(team);
+            teamService.save(team);
             return AdviceController.responseOk(CLASS_DESC + " '" + team.getTeamName() + "' saved");
         }
         catch(Exception e){
@@ -69,13 +69,13 @@ public class TeamController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User userRepo = userService.findUser(teamAdminKey);
+            User userRepo = userService.find(teamAdminKey);
             if(userRepo == null)
                 return AdviceController.responseNotFound(teamAdminKey + " is not a valid user");
-            Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
+            Team teamRepo = teamService.find(team.getTeamName());
             if(teamRepo == null)
                 return AdviceController.responseNotFound(team.getTeamName() + " is not a valid " + CLASS_DESC + "Manager");
-            teamService.saveTeam(team);
+            teamService.save(team);
             return AdviceController.responseOk(CLASS_DESC + " '" + team.getTeamName() + "' updated");
         }
         catch(Exception e){
@@ -89,7 +89,7 @@ public class TeamController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            Team teamRepo = teamService.findTeamByTeamName(team.getTeamName());
+            Team teamRepo = teamService.find(team.getTeamName());
             if(teamRepo == null)
                 return AdviceController.responseNotFound(team.getTeamName() + " does not exists");
             teamService.deleteTeam(team.getTeamName());

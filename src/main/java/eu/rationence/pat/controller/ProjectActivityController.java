@@ -47,7 +47,7 @@ public class ProjectActivityController {
         model.addAttribute("activityList", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()));
         model.addAttribute("projectKey", projectKey);
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "activities";

@@ -54,7 +54,7 @@ public class UserActivityController {
         model.addAttribute("projectKey", projectKey);
 
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "userActivities";
@@ -71,7 +71,7 @@ public class UserActivityController {
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
-            User userRepo = userService.findUser(username);
+            User userRepo = userService.find(username);
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't assign '" + username + "' to " + CLASS_DESC + " '" + activityKey + "'");
             userActivity.setC_Username(userRepo);
@@ -103,7 +103,7 @@ public class UserActivityController {
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
-            User userRepo = userService.findUser(username);
+            User userRepo = userService.find(username);
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't assign '" + username + "' to " + CLASS_DESC + " '" + activityKey + "'");
             userActivity.setC_Username(userRepo);

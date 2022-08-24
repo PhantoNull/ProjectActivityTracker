@@ -48,7 +48,7 @@ public class ProjectController {
             model.addAttribute(project.getProjectKey()+"Activities",activitiesNumber);
         }
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "projects";
@@ -127,9 +127,9 @@ public class ProjectController {
                                                         String clientKey, String projectTypeKey, String value){
         if(!AdviceController.isStringPositiveDecimal(value))
             return AdviceController.responseBadRequest("Value must be numeric");
-        else if(teamService.findTeamByTeamName(teamKey) == null)
+        else if(teamService.find(teamKey) == null)
             return AdviceController.responseNotFound("Team '" + teamKey + "' does not exist");
-        else if(userService.findUser(projectManagerKey) == null)
+        else if(userService.find(projectManagerKey) == null)
             return ResponseEntity.badRequest().body(CLASS_DESC + " Manager '" + projectManagerKey + "' is invalid");
         else if(clientService.find(clientKey) == null)
             return AdviceController.responseNotFound("Client '" + clientKey + "' not found");

@@ -50,7 +50,7 @@ public class MainController {
     @GetMapping ("/")
     public String index(Model model, Principal principal) {
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "index";
@@ -110,9 +110,9 @@ public class MainController {
                 .teamDesc("Analytics")
                 .teamAdmin("Marco.Rossi")
                 .build();
-        teamService.saveTeam(devTeam);
-        teamService.saveTeam(ammTeam);
-        teamService.saveTeam(anaTeam);
+        teamService.save(devTeam);
+        teamService.save(ammTeam);
+        teamService.save(anaTeam);
 
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -161,9 +161,6 @@ public class MainController {
                 .enabled(true)
                 .build();
         userService.save(marcon);
-
-        teamService.saveTeam(devTeam);
-        teamService.saveTeam(ammTeam);
 
         ProjectType projCons = ProjectType.builder()
                 .projectTypeKey("CONS")
