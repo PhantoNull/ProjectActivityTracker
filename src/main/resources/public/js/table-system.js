@@ -12,6 +12,14 @@ function selectTableRow(id){
     }
 
 }
+function selectTableRowEdited(id) {
+    tableRowList[id] = true;
+    let c = document.getElementById("row" + id);
+    c.classList.add('is-selected');
+    c = document.getElementById("checkbox" + id);
+    c.checked = true;
+}
+
 let selectedAllCheckboxes = false;
 function selectAllCheckboxes(){
     let checkboxes = document.getElementsByClassName("tablecheckbox");

@@ -44,8 +44,14 @@
                     let dailyInput = document.getElementById("hour" + index + "." + day);
                     if(dailyInput !== null){
                         let val = parseInt(dailyInput.value);
-                        if(!isNaN(val))
+                        if(!isNaN(val)) {
+                            dailyInput.value = val;
+                            if(val > 12){
+                                val = 12;
+                                dailyInput.value = 12;
+                            }
                             rowSubtotal[index] += val;
+                        }
                         else
                             dailyInput.value = 0;
                     }
@@ -457,7 +463,7 @@
                                                                type="number"
                                                                th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
                                                                th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
-                                                               onkeyup="computeSubTotals()"
+                                                               th:oninput="'computeSubTotals(), selectTableRowEdited(\'' + ${iter.index} + '\');'"
                                                                required>
                                                     </form>
                                                 </td>
@@ -502,7 +508,7 @@
                                                                type="number"
                                                                th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
                                                                th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
-                                                               onkeyup="computeSubTotals()"
+                                                               th:oninput="'computeSubTotals(), selectTableRowEdited(\'S' + ${iter.index} + '\');'"
                                                                required>
                                                     </form>
                                                 </td>
