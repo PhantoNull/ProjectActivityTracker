@@ -95,7 +95,7 @@ input:focus {
 .ratiologo{width: 20rem;}
 .username{text-shadow: 0 0 4px rgba(255, 255, 255, 0.36);}
 th.checkboxCol{width: 30px; !important}
-th.hoursCol{width: 40px; !important}
+th.hoursCol{width: 30px; !important}
 th.hoursTotCol{width: 60px; !important}
 th.usernameCol{width:180px; !important}
 th.nameCol{width:120px; !important}
@@ -119,6 +119,12 @@ th.activityTrackingCol{min-width: 200px; !important}
 
 .tablecheckbox:checked{ background-color:#4FA9BAFF; }
 .table-button:hover { color: #5598A8FF;}
+.table-button-img:hover { filter: brightness(96%)
+                                    contrast(94%)
+                                    invert(52%)
+                                    sepia(46%)
+                                    saturate(378%)
+                                    hue-rotate(144deg);}
 .table-header{ padding-top: 20px; !important}
 
 .a{text-decoration: none;}

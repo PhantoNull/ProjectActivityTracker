@@ -15,7 +15,7 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public Role findRole(String role){
+    public Role find(String role){
         return roleRepository.getRoleByRoleName(role);
     }
 
@@ -25,5 +25,5 @@ public class RoleService {
 
     public Role save(Role role){ return roleRepository.save(role);}
 
-    public void deleteRole(String roleName){ roleRepository.deleteRoleByRoleName(roleName);}
+    public void delete(String roleName){ roleRepository.deleteRoleByRoleName(roleName);}
 }

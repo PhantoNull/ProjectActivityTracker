@@ -309,7 +309,12 @@
                                         </tr>
                                         <!-- header table -->
                                         <tr class="table-header">
-                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
+                                            <th class="checkboxCol has-text-primary-dark table-header"
+                                                style="text-align:center; vertical-align:middle;">
+                                                <input th:id="checkboxSelectAll"
+                                                       th:onclick="'selectAllCheckboxes();'"
+                                                       type="checkbox">
+                                            </th>
                                             <th class="usernameCol has-text-primary-dark table-header pl-2">Username
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
@@ -470,7 +475,7 @@
                                                 </td>
                                                 <td>
                                                     <a th:href="'/tracking/' + ${user.username}">
-                                                        <span class="icon has-text-primary mt-2 ml-2 table-button"
+                                                        <span class="icon mt-2 ml-2 table-button"
                                                               th:classappend="${#vars.getVariable('sheet.__${user.username}__')}"
                                                               th:data-tooltip="${user.username} + ' time sheets'">
                                                             <i th:if="${#vars.getVariable('sheet.__${user.username}__')=='has-text-primary'}" class="fas fa-file-check fa-lg is-clickable table-button"></i>

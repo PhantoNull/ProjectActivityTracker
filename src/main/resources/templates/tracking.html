@@ -44,8 +44,14 @@
                     let dailyInput = document.getElementById("hour" + index + "." + day);
                     if(dailyInput !== null){
                         let val = parseInt(dailyInput.value);
-                        if(!isNaN(val))
+                        if(!isNaN(val)) {
+                            dailyInput.value = val;
+                            if(val > 12){
+                                val = 12;
+                                dailyInput.value = 12;
+                            }
                             rowSubtotal[index] += val;
+                        }
                         else
                             dailyInput.value = 0;
                     }
@@ -222,7 +228,7 @@
 <section class="">
     <div class="container mt-6 is-fluid">
         <div class="columns">
-            <div class="column" style="min-width:1600px;">
+            <div class="column" style="min-width:1350px;">
 
                 <div th:include="fragments/authbar.html :: authbar"></div>
 
@@ -255,7 +261,8 @@
                                   th:data-year="${year}"
                                   th:data-fest-days="${weekendDays}"
                                   th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),this.getAttribute('data-username'), false, this.getAttribute('data-fest-days'));">
-                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                                  <!--<i class="fas fa-file-spreadsheet fa-2x table-button"></i>-->
+                                  <img class="table-button-img" src="/images/excel.png">
                             </span>
                             <span th:if="${trackingLocked != null && !trackingLocked}" class="icon is-large has-text-primary is-clickable" data-tooltip="Submit Timesheet"
                                   th:data-username="${userTimeSheetUsername}"
@@ -409,9 +416,14 @@
                                     <table id="sortableTable" class="mx-auto subTotalTable">
                                         <!-- header table -->
                                         <tr class="table-header">
-                                            <th class="checkboxCol has-text-primary-dark table-header"></th>
-                                            <th class="activityTrackingCol has-text-primary-dark table-header">Activity</th>
-                                            <th class="locationCol has-text-primary-dark table-header">Location</th>
+                                            <th class="checkboxCol has-text-primary-dark table-header"
+                                                style="text-align:center; vertical-align:middle;">
+                                                <input th:id="checkboxSelectAll"
+                                                       th:onclick="'selectAllCheckboxes();'"
+                                                       type="checkbox">
+                                            </th>
+                                            <th class="activityTrackingCol has-text-primary-dark table-header pl-2">Activity</th>
+                                            <th class="locationCol has-text-primary-dark table-header pl-2">Location</th>
                                             <th class="hoursCol has-text-primary-dark table-header has-text-centered"
                                                 th:each="i : ${#numbers.sequence( 1, monthDays/1)}" th:text="${i}"></th>
                                             <th class="hoursTotCol has-text-primary-dark table-header has-text-centered">Tot
@@ -451,7 +463,7 @@
                                                                type="number"
                                                                th:value="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
                                                                th:placeholder="${#vars.getVariable('__${projectActivity.getProject()}__.__${projectActivity.getActivityKey()}__.__${projectActivity.getLocation()}__.__${i}__')}"
-                                                               onkeyup="computeSubTotals()"
+                                                               th:oninput="'computeSubTotals(), selectTableRowEdited(\'' + ${iter.index} + '\');'"
                                                                required>
                                                     </form>
                                                 </td>
@@ -496,7 +508,7 @@
                                                                type="number"
                                                                th:value="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
                                                                th:placeholder="${#vars.getVariable('Standard.__${standardActivity.getActivityKey()}__.__${standardActivity.getLocation()}__.__${i}__')}"
-                                                               onkeyup="computeSubTotals()"
+                                                               th:oninput="'computeSubTotals(), selectTableRowEdited(\'S' + ${iter.index} + '\');'"
                                                                required>
                                                     </form>
                                                 </td>

@@ -32,7 +32,7 @@ public class RoleController {
     public String roles(Model model, Principal principal) {
         model.addAttribute("listaRuoli", roleService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "roles";
@@ -58,7 +58,7 @@ public class RoleController {
         try {
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            if(roleService.findRole(role.getRoleName()) == null)
+            if(roleService.find(role.getRoleName()) == null)
                 return AdviceController.responseNotFound("Cannot update " + CLASS_DESC +  " " + role.getRoleName());
             roleService.save(role);
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' saved");
@@ -76,7 +76,7 @@ public class RoleController {
                 return AdviceController.responseForbidden("Can't delete default ADMIN or USER " + CLASS_DESC);
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            roleService.deleteRole(role.getRoleName());
+            roleService.delete(role.getRoleName());
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' deleted");
         }
         catch(DataIntegrityViolationException e){

@@ -6,16 +6,40 @@ function selectTableRow(id){
     tableRowList[id] = !tableRowList[id];
     if(tableRowList[id]){
         document.getElementById("row"+id).classList.add('is-selected');
-        console.log("attivata "+ id);
-        console.log(tableRowList)
     }
     else{
         document.getElementById("row"+id).classList.remove('is-selected');
-        console.log("disattivata " +id);
-        console.log(tableRowList)
     }
 
 }
+function selectTableRowEdited(id) {
+    tableRowList[id] = true;
+    let c = document.getElementById("row" + id);
+    c.classList.add('is-selected');
+    c = document.getElementById("checkbox" + id);
+    c.checked = true;
+}
+
+let selectedAllCheckboxes = false;
+function selectAllCheckboxes(){
+    let checkboxes = document.getElementsByClassName("tablecheckbox");
+    for(let c of checkboxes){
+        c.onclick();
+        c.onclick();
+        c.checked=false;
+    }
+    for(let tr in tableRowList){
+        tableRowList[tr] = false;
+    }
+    for(let c of checkboxes){
+        if(selectedAllCheckboxes === false && c.id!=="checkboxadd"){
+            c.onclick();
+            c.checked=true;
+        }
+    }
+    selectedAllCheckboxes = !selectedAllCheckboxes;
+}
+
 let currentOrder = 'desc';
 function sortTable(column, columnList) {
     tableRowList = [];

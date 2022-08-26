@@ -32,7 +32,7 @@ public class StandardActivityController {
     public String standardActivities(Model model, Principal principal) {
         model.addAttribute("stdActivityList", standardActivityService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "standardactivities";

@@ -36,7 +36,7 @@ public class ClientController {
         model.addAttribute("clientList", clientService.findAll());
         model.addAttribute("clientTypeList", clientTypeService.findAll());
         String username = principal.getName();
-        User userRepo = userService.findUser(username);
+        User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
         model.addAttribute("userTeamName", userRepo.getTeam().getTeamDesc());
         return "clients";

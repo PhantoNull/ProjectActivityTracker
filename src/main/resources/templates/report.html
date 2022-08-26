@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="it" style="overflow-x: scroll;">
 <head th:include="fragments/headFragment.html :: headFragment">
 </head>
 
@@ -74,7 +74,7 @@
 <section class="">
     <div class="container mt-6 is-fluid">
         <div class="columns">
-            <div class="column" style="min-width:1600px;">
+            <div class="column" style="min-width:1500px;">
 
                 <div th:include="fragments/authbar.html :: authbar"></div>
 
@@ -106,7 +106,8 @@
                                   th:data-year="${year}"
                                   th:data-fest-days="${weekendDays}"
                                   th:onclick="extractXLSX(this.getAttribute('data-month'),this.getAttribute('data-year'),'GLOBAL',true, this.getAttribute('data-fest-days'));">
-                                  <i class="fas fa-file-excel fa-2x table-button"></i>
+                                  <!--<i class="fas fa-file-spreadsheet fa-2x table-button"></i>-->
+                                  <img class="table-button-img" src="/images/excel.png">
                             </span>
                         </div>
                     </div>
