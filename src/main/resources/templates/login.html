@@ -5,6 +5,20 @@
     <title id="pageTitle">Login Rationence</title>
 </head>
 
+<script>
+    function showAndHidePassword(){
+        let inputPsw = document.getElementById("password");
+        let iconEye = document.getElementById("iconeye");
+        if(inputPsw.getAttribute("type") === "password"){
+            inputPsw.setAttribute("type", "text");
+            iconEye.setAttribute("class", "fas fa-eye-slash");
+        } else {
+            inputPsw.setAttribute("type", "password");
+            iconEye.setAttribute("class", "fas fa-eye");
+        }
+    }
+</script>
+
 <body>
 <section class="container">
     <div class="columns is-multiline">
@@ -36,8 +50,12 @@
                         </div>
 
                         <div class="field">
-                            <div class="control">
+                            <div class="control has-icons-right">
                                 <input class="input is-medium is-grey-dark" id="password" name="password" type="password" placeholder="Password">
+                                <span class="icon is-clickable is-small is-right"
+                                        onclick="showAndHidePassword()">
+                                    <i id="iconeye" class="fas fa-eye"></i>
+                                </span>
                             </div>
                         </div>
                         <button type="submit" class="button is-block is-primary is-fullwidth is-medium">Login</button>

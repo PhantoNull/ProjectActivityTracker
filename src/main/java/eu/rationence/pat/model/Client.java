@@ -32,8 +32,8 @@ public class Client implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Client utente = (Client) o;
-        return clientKey != null && Objects.equals(clientKey, utente.clientKey);
+        Client client = (Client) o;
+        return clientKey != null && Objects.equals(clientKey, client.clientKey);
     }
 
     @Override

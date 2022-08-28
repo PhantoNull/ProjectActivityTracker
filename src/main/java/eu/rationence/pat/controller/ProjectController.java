@@ -2,7 +2,9 @@ package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.User;
 import eu.rationence.pat.model.Project;
+import eu.rationence.pat.model.dto.ProjectDTO;
 import eu.rationence.pat.service.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.security.Principal;
 
 @Controller
 public class ProjectController {
+    private final ModelMapper modelMapper;
     private final UserService userService;
     private final TeamService teamService;
     private final ProjectService projectService;
@@ -26,7 +29,8 @@ public class ProjectController {
     private static final String CLASS_DESC = "Project";
 
     @Autowired
-    public ProjectController(UserService userService, TeamService teamService, ProjectService projectService, ProjectTypeService projectTypeService, ClientService clientService, ProjectActivityService projectActivityService) {
+    public ProjectController(ModelMapper modelMapper, UserService userService, TeamService teamService, ProjectService projectService, ProjectTypeService projectTypeService, ClientService clientService, ProjectActivityService projectActivityService) {
+        this.modelMapper = modelMapper;
         this.userService = userService;
         this.teamService = teamService;
         this.projectService = projectService;
@@ -55,7 +59,7 @@ public class ProjectController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<String> addProject(@Valid Project project,
+    public ResponseEntity<String> addProject(@Valid ProjectDTO projectDTO,
                                              @RequestParam(value="team") String teamKey ,
                                              @RequestParam(value="projectManager") String projectManagerKey,
                                              @RequestParam(value="client") String clientKey,
@@ -65,6 +69,7 @@ public class ProjectController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Project project = modelMapper.map(projectDTO, Project.class);
             if(projectService.find(project.getProjectKey()) != null)
                 return AdviceController.responseConflict(project.getProjectKey() + " has been already created");
             ResponseEntity<String> validityError = checkProjectValidity(teamKey, projectManagerKey, clientKey, projectTypeKey, value);
@@ -79,7 +84,7 @@ public class ProjectController {
     }
 
     @PutMapping("/projects")
-    public ResponseEntity<String> updateProject(@Valid Project project,
+    public ResponseEntity<String> updateProject(@Valid ProjectDTO projectDTO,
                                                 @RequestParam(value="team") String teamKey ,
                                                 @RequestParam(value="projectManager") String projectManagerKey,
                                                 @RequestParam(value="client") String clientKey,
@@ -89,6 +94,7 @@ public class ProjectController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Project project = modelMapper.map(projectDTO, Project.class);
             ResponseEntity<String> validityError = checkProjectValidity(teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if(validityError != null)
                 return validityError;
@@ -104,11 +110,12 @@ public class ProjectController {
     }
 
     @DeleteMapping("/projects")
-    public ResponseEntity<String> deleteProject(@Valid Project project,
+    public ResponseEntity<String> deleteProject(@Valid ProjectDTO projectDTO,
                                                 BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Project project = modelMapper.map(projectDTO, Project.class);
             Project projectRepo = projectService.find(project.getProjectKey());
             if(projectRepo == null)
                 return AdviceController.responseNotFound("Cannot delete " + CLASS_DESC + " '" + project.getProjectKey() + "'");
@@ -116,7 +123,7 @@ public class ProjectController {
             return AdviceController.responseOk(CLASS_DESC + " '" + projectRepo.getProjectKey() + "' deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + project.getProjectKey() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + projectDTO.getProjectKey() + "' (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());

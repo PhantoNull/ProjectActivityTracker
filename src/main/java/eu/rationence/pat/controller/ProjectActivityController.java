@@ -1,12 +1,14 @@
 package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.User;
+import eu.rationence.pat.model.dto.ProjectActivityDTO;
 import eu.rationence.pat.service.ProjectActivityService;
 import eu.rationence.pat.service.UserService;
 import eu.rationence.pat.model.Project;
 import eu.rationence.pat.model.ProjectActivity;
 import eu.rationence.pat.service.ActivityTypeService;
 import eu.rationence.pat.service.ProjectService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.security.Principal;
 
 @Controller
 public class ProjectActivityController {
+    private final ModelMapper modelMapper;
     private final UserService userService;
     private final ProjectService projectService;
     private final ActivityTypeService activityTypeService;
@@ -27,7 +30,8 @@ public class ProjectActivityController {
     private static final String CLASS_DESC = "Activity";
 
     @Autowired
-    public ProjectActivityController(UserService userService, ProjectService projectService, ActivityTypeService activityTypeService, ProjectActivityService projectActivityService) {
+    public ProjectActivityController(ModelMapper modelMapper, UserService userService, ProjectService projectService, ActivityTypeService activityTypeService, ProjectActivityService projectActivityService) {
+        this.modelMapper = modelMapper;
         this.userService = userService;
         this.projectService = projectService;
         this.activityTypeService = activityTypeService;
@@ -54,12 +58,13 @@ public class ProjectActivityController {
     }
 
     @PostMapping("/projects/{projectKey}")
-    public ResponseEntity<String> addActivity(@Valid ProjectActivity projectActivity,
+    public ResponseEntity<String> addActivity(@Valid ProjectActivityDTO projectActivityDTO,
                                               @RequestParam(value="manDays") String manDays,
                                               @RequestParam(value="activityKey") String activityKey,
                                               @RequestParam(value="activityType") String activityType,
                                               @PathVariable String projectKey){
         try{
+            ProjectActivity projectActivity = modelMapper.map(projectActivityDTO, ProjectActivity.class);
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
@@ -75,12 +80,13 @@ public class ProjectActivityController {
     }
 
     @PutMapping("/projects/{projectKey}")
-    public ResponseEntity<String> updateActivity(@Valid ProjectActivity projectActivity,
+    public ResponseEntity<String> updateActivity(@Valid ProjectActivityDTO projectActivityDTO,
                                               @RequestParam(value="manDays") String manDays,
                                               @RequestParam(value="activityKey") String activityKey,
                                               @RequestParam(value="activityType") String activityType,
                                               @PathVariable String projectKey){
         try{
+            ProjectActivity projectActivity = modelMapper.map(projectActivityDTO, ProjectActivity.class);
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if(validityError != null)
                 return validityError;
@@ -97,10 +103,11 @@ public class ProjectActivityController {
     }
 
     @DeleteMapping("/projects/{projectKey}")
-    public ResponseEntity<String> updateActivity(@Valid ProjectActivity projectActivity,
+    public ResponseEntity<String> updateActivity(@Valid ProjectActivityDTO projectActivityDTO,
                                                  @RequestParam(value="activityKey") String activityKey,
                                                  @PathVariable String projectKey){
         try{
+            ProjectActivity projectActivity = modelMapper.map(projectActivityDTO, ProjectActivity.class);
             Project projectRepo = projectService.find(projectKey);
             if(projectRepo == null)
                 return AdviceController.responseNotFound("Project " + projectKey + " does not exits");
@@ -111,7 +118,7 @@ public class ProjectActivityController {
             return AdviceController.responseOk(CLASS_DESC + " '" + projectActivity.getActivityKey() + "' successfully deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + projectActivity.getActivityKey() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + projectActivityDTO.getActivityKey() + "' (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());

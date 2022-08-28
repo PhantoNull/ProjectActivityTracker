@@ -2,10 +2,10 @@ package eu.rationence.pat.controller;
 import eu.rationence.pat.model.*;
 import eu.rationence.pat.service.*;
 
-import eu.rationence.pat.model.row_model.CompiledProjectActivityRow;
-import eu.rationence.pat.model.row_model.CompiledStandardActivityRow;
-import eu.rationence.pat.model.row_model.CompiledUserProjectActivityRow;
-import eu.rationence.pat.model.row_model.CompiledUserStandardActivityRow;
+import eu.rationence.pat.model.dto.CompiledProjectActivityRow;
+import eu.rationence.pat.model.dto.CompiledStandardActivityRow;
+import eu.rationence.pat.model.dto.CompiledUserProjectActivityRow;
+import eu.rationence.pat.model.dto.CompiledUserStandardActivityRow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

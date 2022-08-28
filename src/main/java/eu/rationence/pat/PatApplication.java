@@ -5,11 +5,13 @@ import eu.rationence.pat.service.EmailService;
 import eu.rationence.pat.service.MonthlyNoteService;
 import eu.rationence.pat.service.UserService;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -36,6 +38,11 @@ public class PatApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PatApplication.class, args);
+	}
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
 	}
 
 	@Scheduled(cron = "0 0 12 L * *")

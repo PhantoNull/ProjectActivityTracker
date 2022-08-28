@@ -1,4 +1,4 @@
-package eu.rationence.pat.model.row_model;
+package eu.rationence.pat.model.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @ToString
 @SuperBuilder
-public class CompiledUserProjectActivityRow extends CompiledProjectActivityRow {
+public class CompiledUserStandardActivityRow extends CompiledStandardActivityRow{
     private String username;
-
 }

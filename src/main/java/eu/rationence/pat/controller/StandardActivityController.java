@@ -2,8 +2,10 @@ package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.StandardActivity;
 import eu.rationence.pat.model.User;
+import eu.rationence.pat.model.dto.StandardActivityDTO;
 import eu.rationence.pat.service.StandardActivityService;
 import eu.rationence.pat.service.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,14 @@ import java.security.Principal;
 
 @Controller
 public class StandardActivityController {
+    private final ModelMapper modelMapper;
     private final StandardActivityService standardActivityService;
     private final UserService userService;
     private static final String CLASS_DESC = "Standard Activity";
 
     @Autowired
-    public StandardActivityController(StandardActivityService standardActivityService, UserService userService) {
+    public StandardActivityController(ModelMapper modelMapper, StandardActivityService standardActivityService, UserService userService) {
+        this.modelMapper = modelMapper;
         this.standardActivityService = standardActivityService;
         this.userService = userService;
     }
@@ -39,12 +43,13 @@ public class StandardActivityController {
     }
 
     @PostMapping("/standardactivities")
-    public ResponseEntity<String> addActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> addActivity(@Valid StandardActivityDTO stdActDTO,
                                                 BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            else if(stdAct.getActivityKey().length() < 1)
+            StandardActivity stdAct = modelMapper.map(stdActDTO, StandardActivity.class);
+            if(stdAct.getActivityKey().length() < 1)
                 return AdviceController.responseBadRequest(CLASS_DESC + " Key Name can't be blank");
             else if(standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey()) != null)
                 return AdviceController.responseConflict(stdAct.getActivityKey() + " has been already created");
@@ -57,11 +62,12 @@ public class StandardActivityController {
     }
 
     @PutMapping("/standardactivities")
-    public ResponseEntity<String> updateActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> updateActivity(@Valid StandardActivityDTO stdActDTO,
                                                     BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            StandardActivity stdAct = modelMapper.map(stdActDTO, StandardActivity.class);
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
                 return AdviceController.responseNotFound(stdAct.getActivityKey() + " is not a valid activity");
@@ -74,11 +80,12 @@ public class StandardActivityController {
     }
 
     @DeleteMapping("/standardactivities")
-    public ResponseEntity<String> deleteActivity(@Valid StandardActivity stdAct,
+    public ResponseEntity<String> deleteActivity(@Valid StandardActivityDTO stdActDTO,
                                                     BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            StandardActivity stdAct = modelMapper.map(stdActDTO, StandardActivity.class);
             StandardActivity stdActRepo = standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey());
             if(stdActRepo == null)
                 return AdviceController.responseNotFound(stdAct.getActivityKey() + " is not a valid activity");
@@ -86,7 +93,7 @@ public class StandardActivityController {
             return AdviceController.responseOk("Team '" + stdAct.getActivityKey() + "' successfully deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + stdAct.getActivityKey() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + stdActDTO.getActivityKey() + "' (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());

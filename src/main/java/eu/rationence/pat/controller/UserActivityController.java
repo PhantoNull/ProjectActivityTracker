@@ -1,6 +1,7 @@
 package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.User;
+import eu.rationence.pat.model.dto.UserActivityDTO;
 import eu.rationence.pat.service.ProjectActivityService;
 import eu.rationence.pat.service.UserActivityService;
 import eu.rationence.pat.service.UserService;
@@ -8,7 +9,9 @@ import eu.rationence.pat.model.ProjectActivity;
 import eu.rationence.pat.model.Project;
 import eu.rationence.pat.model.UserActivity;
 import eu.rationence.pat.service.ProjectService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +25,7 @@ import java.util.List;
 
 @Controller
 public class UserActivityController {
+    private final ModelMapper modelMapper;
     private final UserService userService;
     private final ProjectService projectService;
     private final ProjectActivityService projectActivityService;
@@ -29,7 +33,8 @@ public class UserActivityController {
     private static final String CLASS_DESC = "Activity";
 
     @Autowired
-    public UserActivityController(UserService userService, ProjectService projectService, ProjectActivityService projectActivityService, UserActivityService userActivityService) {
+    public UserActivityController(ModelMapper modelMapper, UserService userService, ProjectService projectService, ProjectActivityService projectActivityService, UserActivityService userActivityService) {
+        this.modelMapper = modelMapper;
         this.userService = userService;
         this.projectService = projectService;
         this.projectActivityService = projectActivityService;
@@ -61,13 +66,14 @@ public class UserActivityController {
     }
 
     @PostMapping("/projects/{projectKey}/{activityKey}")
-    public ResponseEntity<String> addUserActivity(@Valid UserActivity userActivity,
+    public ResponseEntity<String> addUserActivity(@Valid UserActivityDTO userActivityDTO,
                                                   @RequestParam(value="dailyRate") String dailyRate,
                                                   @RequestParam(value="username") String username,
                                                   @PathVariable String projectKey,
                                                   @PathVariable String activityKey,
                                                   BindingResult result){
         try{
+            UserActivity userActivity = modelMapper.map(userActivityDTO, UserActivity.class);
             ResponseEntity<String> validityError = checkUserActivityValidity(projectKey, activityKey, dailyRate);
             if(validityError != null)
                 return validityError;
@@ -90,13 +96,14 @@ public class UserActivityController {
     }
 
     @PutMapping("/projects/{projectKey}/{activityKey}")
-    public ResponseEntity<String> updateUserActivity(@Valid UserActivity userActivity,
+    public ResponseEntity<String> updateUserActivity(@Valid UserActivityDTO userActivityDTO,
                                                      @RequestParam(value="dailyRate") String dailyRate,
                                                      @RequestParam(value="username") String username,
                                                      @PathVariable String projectKey,
                                                      @PathVariable String activityKey,
                                                      BindingResult result){
         try{
+            UserActivity userActivity = modelMapper.map(userActivityDTO, UserActivity.class);
             UserActivity userActivityRepo = userActivityService.findUserActivity(activityKey, projectKey, username);
             if(userActivityRepo == null)
                 return AdviceController.responseNotFound("Can't update '" + username + "' to " + CLASS_DESC + " '" + activityKey + "'");
@@ -117,9 +124,10 @@ public class UserActivityController {
     }
 
     @DeleteMapping("/projects/{projectKey}/{activityKey}")
-    public ResponseEntity<String> deleteUserActivity(@Valid UserActivity userActivity,
+    public ResponseEntity<String> deleteUserActivity(@Valid UserActivityDTO userActivityDTO,
                                                      BindingResult result){
         try{
+            UserActivity userActivity = modelMapper.map(userActivityDTO, UserActivity.class);
             UserActivity userActivityRepo = userActivityService.findUserActivity(userActivity.getActivityKey(), userActivity.getProject(), userActivity.getUsername());
             if(userActivityRepo == null)
                 return AdviceController.responseNotFound("Can't remove '" + userActivity.getUsername() + "' from " + CLASS_DESC +" '" + userActivity.getActivityKey() + "'");
