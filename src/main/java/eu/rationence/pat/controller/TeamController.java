@@ -1,9 +1,11 @@
 package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.User;
+import eu.rationence.pat.model.dto.TeamDTO;
 import eu.rationence.pat.service.TeamService;
 import eu.rationence.pat.service.UserService;
 import eu.rationence.pat.model.Team;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +19,14 @@ import java.security.Principal;
 
 @Controller
 public class TeamController {
+    private final ModelMapper modelMapper;
     private final UserService userService;
     private final TeamService teamService;
     private static final String CLASS_DESC = "Team";
 
     @Autowired
-    public TeamController(UserService userService, TeamService teamService) {
+    public TeamController(ModelMapper modelMapper, UserService userService, TeamService teamService) {
+        this.modelMapper = modelMapper;
         this.userService = userService;
         this.teamService = teamService;
     }
@@ -39,13 +43,14 @@ public class TeamController {
     }
 
     @PostMapping("/teams")
-    public ResponseEntity<String> addTeam(@Valid Team team,
+    public ResponseEntity<String> addTeam(@Valid TeamDTO teamDTO,
                                           @RequestParam(value="teamAdmin") String teamAdminKey,
                                           BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            else if(team.getTeamName().length() < 1)
+            Team team = modelMapper.map(teamDTO, Team.class);
+            if(team.getTeamName().length() < 1)
                 return AdviceController.responseBadRequest(CLASS_DESC + " name can't be blank");
             else if(team.getTeamDesc().length() < 1)
                 return AdviceController.responseBadRequest(CLASS_DESC + " description can't be blank");
@@ -63,12 +68,13 @@ public class TeamController {
     }
 
     @PutMapping("/teams")
-    public ResponseEntity<String> updateTeam(@Valid Team team,
+    public ResponseEntity<String> updateTeam(@Valid TeamDTO teamDTO,
                                              @RequestParam(value="teamAdmin") String teamAdminKey,
                                              BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Team team = modelMapper.map(teamDTO, Team.class);
             User userRepo = userService.find(teamAdminKey);
             if(userRepo == null)
                 return AdviceController.responseNotFound(teamAdminKey + " is not a valid user");
@@ -84,11 +90,12 @@ public class TeamController {
     }
 
     @DeleteMapping("/teams")
-    public ResponseEntity<String> deleteTeam(@Valid Team team,
+    public ResponseEntity<String> deleteTeam(@Valid TeamDTO teamDTO,
                                              BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Team team = modelMapper.map(teamDTO, Team.class);
             Team teamRepo = teamService.find(team.getTeamName());
             if(teamRepo == null)
                 return AdviceController.responseNotFound(team.getTeamName() + " does not exists");
@@ -96,7 +103,7 @@ public class TeamController {
             return AdviceController.responseOk(CLASS_DESC + " '" + team.getTeamName() + "' successfully deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + team.getTeamName() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + teamDTO.getTeamName() + "' (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());

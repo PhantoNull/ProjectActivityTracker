@@ -2,8 +2,10 @@ package eu.rationence.pat.controller;
 
 import eu.rationence.pat.model.Role;
 import eu.rationence.pat.model.User;
+import eu.rationence.pat.model.dto.RoleDTO;
 import eu.rationence.pat.service.RoleService;
 import eu.rationence.pat.service.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,14 @@ import java.security.Principal;
 
 @Controller
 public class RoleController {
+    private final ModelMapper modelMapper;
     private final RoleService roleService;
     private final UserService userService;
     private static final String CLASS_DESC = "Role";
 
     @Autowired
-    public RoleController(RoleService roleService, UserService userService) {
+    public RoleController(ModelMapper modelMapper, RoleService roleService, UserService userService) {
+        this.modelMapper = modelMapper;
         this.roleService = roleService;
         this.userService = userService;
     }
@@ -39,11 +43,12 @@ public class RoleController {
     }
 
     @PostMapping("/roles")
-    public ResponseEntity<String> addRole(@Valid Role role,
+    public ResponseEntity<String> addRole(@Valid RoleDTO roleDTO,
                                           BindingResult result) {
         try {
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Role role = modelMapper.map(roleDTO, Role.class);
             roleService.save(role);
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' saved");
         } catch (Exception e) {
@@ -53,11 +58,12 @@ public class RoleController {
     }
 
     @PutMapping("/roles")
-    public ResponseEntity<String> updateRole(@Valid Role role,
+    public ResponseEntity<String> updateRole(@Valid RoleDTO roleDTO,
                                           BindingResult result) {
         try {
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Role role = modelMapper.map(roleDTO, Role.class);
             if(roleService.find(role.getRoleName()) == null)
                 return AdviceController.responseNotFound("Cannot update " + CLASS_DESC +  " " + role.getRoleName());
             roleService.save(role);
@@ -69,18 +75,19 @@ public class RoleController {
     }
 
     @DeleteMapping("/roles")
-    public ResponseEntity<String> deleteRole(@Valid Role role,
+    public ResponseEntity<String> deleteRole(@Valid RoleDTO roleDTO,
                                              BindingResult result) {
         try {
-            if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
-                return AdviceController.responseForbidden("Can't delete default ADMIN or USER " + CLASS_DESC);
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            Role role = modelMapper.map(roleDTO, Role.class);
+            if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
+                return AdviceController.responseForbidden("Can't delete default ADMIN or USER " + CLASS_DESC);
             roleService.delete(role.getRoleName());
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + role.getRoleName() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + roleDTO.getRoleName() + "' (Constraint violation)");
         }
         catch (Exception e) {
             return AdviceController.responseServerError(e.getMessage());

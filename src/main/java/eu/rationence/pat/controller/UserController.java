@@ -4,8 +4,10 @@ import eu.rationence.pat.model.Role;
 import eu.rationence.pat.model.User;
 import eu.rationence.pat.model.MonthlyNote;
 import eu.rationence.pat.model.Team;
+import eu.rationence.pat.model.dto.UserDTO;
 import eu.rationence.pat.service.*;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,7 @@ import java.util.regex.Pattern;
 
 @Controller
 public class UserController {
+    private final ModelMapper modelMapper;
     private final UserService userService;
     private final TeamService teamService;
     private final RoleService roleService;
@@ -38,7 +41,8 @@ public class UserController {
     private static final String CLASS_DESC = "User";
 
     @Autowired
-    public UserController(UserService userService, TeamService teamService, RoleService roleService, EmailService emailService, MonthlyNoteService monthlyNoteService) {
+    public UserController(ModelMapper modelMapper, UserService userService, TeamService teamService, RoleService roleService, EmailService emailService, MonthlyNoteService monthlyNoteService) {
+        this.modelMapper = modelMapper;
         this.userService = userService;
         this.teamService = teamService;
         this.roleService = roleService;
@@ -84,7 +88,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<String> addUser(@Valid User user,
+    public ResponseEntity<String> addUser(@Valid UserDTO userDTO,
                                           @RequestParam(value="team") String teamKey,
                                           @RequestParam(value="role") String roleKey,
                                           @RequestParam(value="cost") String cost,
@@ -92,6 +96,7 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            User user = modelMapper.map(userDTO, User.class);
             if(userService.find(user.getUsername()) != null)
                 return AdviceController.responseConflict(user.getUsername() + " has been already created");
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
@@ -123,7 +128,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<String> updateUser(@Valid User user,
+    public ResponseEntity<String> updateUser(@Valid UserDTO userDTO,
                                              @RequestParam(value="team") String teamKey,
                                              @RequestParam(value="role") String roleKey,
                                              @RequestParam(value="cost") String cost,
@@ -131,6 +136,7 @@ public class UserController {
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            User user = modelMapper.map(userDTO, User.class);
             User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't update " + CLASS_DESC + " '" + user.getUsername() + "'.");
@@ -151,11 +157,12 @@ public class UserController {
     }
 
     @PostMapping("/resetPasswordUser")
-    public ResponseEntity<String> resetPasswordUser(@Valid User user,
+    public ResponseEntity<String> resetPasswordUser(@Valid UserDTO userDTO,
                                                     BindingResult result){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            User user = modelMapper.map(userDTO, User.class);
             User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Can't reset " + user.getUsername() + "'s password");
@@ -204,12 +211,13 @@ public class UserController {
     }
 
     @DeleteMapping("/users")
-    public ResponseEntity<String> deleteUser(@Valid User user,
+    public ResponseEntity<String> deleteUser(@Valid UserDTO userDTO,
                                              BindingResult result,
                                              Principal principal){
         try{
             if(result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            User user = modelMapper.map(userDTO, User.class);
             User userRepo = userService.find(user.getUsername());
             if(userRepo == null)
                 return AdviceController.responseNotFound("Cannot delete " + CLASS_DESC + " '" + user.getUsername() + "'.");
@@ -220,7 +228,7 @@ public class UserController {
             return AdviceController.responseOk(CLASS_DESC + " '" + user.getUsername() + "' successfully deleted");
         }
         catch(DataIntegrityViolationException e){
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + "'" + user.getUsername() + "' (Constraint violation)");
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + "'" + userDTO.getUsername() + "' (Constraint violation)");
         }
         catch(Exception e){
             return AdviceController.responseServerError(e.getMessage());
