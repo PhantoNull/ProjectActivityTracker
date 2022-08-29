@@ -72,7 +72,10 @@ public class MainController {
 
     //Metodo inizializzante solo per dati default DB, da rimuovere in produzione
     @GetMapping("/initialize")
-    public String initialize() throws ParseException {
+    public String initialize(HttpServletRequest request) throws ParseException {
+        if(request.getRequestURL().indexOf("localhost/initialize")==-1) {
+            return "error";
+        }
         String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Esterna",
                 "Donazione Sangue", "Malattia", "Permesso Studio",
                 "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};

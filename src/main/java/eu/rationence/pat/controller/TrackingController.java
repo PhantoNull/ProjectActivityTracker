@@ -36,6 +36,7 @@ public class TrackingController {
     private static final String ADMIN_ROLE = "ADMIN";
     private static final String DATE_FORMAT_DDMMYYYY = "dd-MM-yyyy";
     private static final String CANNOT_MODIFY_TIME_SHEET_STRING = "Cannot edit this timesheet. Last editable day was ";
+    private static final String CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING = "Cannot edit this timesheet. It is locked.";
 
     final int[][] festivityListDayMonth = {{1,1}, {6,1}, {25,4}, {1,5}, {2,6}, {15,8}, {16, 8}, {1,11}, {8,12}, {25,12}, {26,12}, {0, 0}};
 
@@ -369,7 +370,7 @@ public class TrackingController {
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
         if(monthlyNote != null && monthlyNote.isLocked())
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING);
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.find(username);
@@ -501,7 +502,7 @@ public class TrackingController {
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
         if(monthlyNote != null && monthlyNote.isLocked())
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING);
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.find(username);
@@ -600,7 +601,7 @@ public class TrackingController {
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
         if(monthlyNote != null && monthlyNote.isLocked())
-            return AdviceController.responseForbidden("Cannot edit this timesheet. Time sheet is locked.");
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING);
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         userRepo = userService.find(username);
