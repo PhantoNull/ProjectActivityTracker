@@ -3,15 +3,27 @@ package eu.rationence;
 import eu.rationence.pat.PatApplication;
 import eu.rationence.pat.model.*;
 import eu.rationence.pat.service.*;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = PatApplication.class)
+@AutoConfigureMockMvc
 class PatApplicationTests {
 	private final RoleService roleService;
 	private final ClientTypeService clientTypeService;
@@ -21,6 +33,11 @@ class PatApplicationTests {
 	private final TeamService teamService;
 	private final UserService userService;
 	private final LocationService locationService;
+
+	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+	@Autowired
+	private MockMvc mockMvc;
+
 	@Autowired
 	PatApplicationTests(RoleService roleService, ClientTypeService clientTypeService, ClientService clientService, ProjectTypeService projectTypeService, ProjectService projectService, TeamService teamService, UserService userService, LocationService locationService) {
 		this.roleService = roleService;
@@ -35,18 +52,12 @@ class PatApplicationTests {
 
 	@Test
 	void roleServiceTest() {
-		assertNull(roleService.find("ADMIN"));
-		assertNull(roleService.find("USER"));
-		assertNull(roleService.find("ROLE_TO_DELETE"));
 		Role roleUser = Role.builder()
-				.roleName("USER")
-				.build();
+				.roleName("USER").build();
 		Role roleAdmin = Role.builder()
-				.roleName("ADMIN")
-				.build();
+				.roleName("ADMIN").build();
 		Role roleToDelete = Role.builder()
-				.roleName("ROLE_TO_DELETE")
-				.build();
+				.roleName("ROLE_TO_DELETE").build();
 		roleService.save(roleUser);
 		roleService.save(roleAdmin);
 		roleService.save(roleToDelete);
@@ -58,11 +69,7 @@ class PatApplicationTests {
 	}
 
 	@Test
-	void clientTypeServiceTest(){
-		assertNull(clientTypeService.find("DIRECT"));
-		assertNull(clientTypeService.find("PARTNER"));
-		assertNull(clientTypeService.find("INTERNAL"));
-		assertNull(clientTypeService.find("TYPE_TO_DELETE"));
+	void clientTypeServiceTest() {
 		ClientType clientDirect = ClientType.builder()
 				.clientTypeKey("DIRECT")
 				.build();
@@ -85,76 +92,22 @@ class PatApplicationTests {
 		assertEquals(clientTypeToDelete, clientTypeService.find("TYPE_TO_DELETE"));
 		clientTypeService.delete("TYPE_TO_DELETE");
 		assertNull(clientTypeService.find("TYPE_TO_DELETE"));
-
 	}
 
 	@Test
-	void clientServiceTest(){
-		assertNull(clientService.find("BPER"));
-		assertNull(clientService.find("KNIME"));
-		assertNull(clientService.find("RATIO"));
-		assertNull(clientService.find("CLIENT_TO_DELETE"));
-		ClientType clientDirect = clientTypeService.find("DIRECT");
-		ClientType clientPartner = clientTypeService.find("PARTNER");
-		ClientType clientInternal = clientTypeService.find("INTERNAL");
-		Client clientBPER = Client.builder()
-				.clientKey("BPER")
-				.clientDesc("Banca Popolare Emilia Romagna")
-				.clientType(clientDirect)
-				.build();
-		clientService.save(clientBPER);
-
-		Client clientKNIME = Client.builder()
-				.clientKey("KNIME")
-				.clientDesc("Konstanz Information Miner")
-				.clientType(clientPartner)
-				.build();
-		clientService.save(clientKNIME);
-
-		Client clientRATIO = Client.builder()
-				.clientKey("RATIO")
-				.clientDesc("Rationence")
-				.clientType(clientInternal)
-				.build();
-		clientService.save(clientRATIO);
-
-		Client clientToDelete = Client.builder()
-				.clientKey("DEL")
-				.clientDesc("Client To Delete")
-				.clientType(clientInternal)
-				.build();
-		clientService.save(clientToDelete);
-		assertEquals(clientBPER, clientService.find("BPER"));
-		assertEquals(clientKNIME, clientService.find("KNIME"));
-		assertEquals(clientRATIO, clientService.find("RATIO"));
-		assertEquals(clientToDelete, clientService.find("DEL"));
-		clientService.delete("DEL");
-		assertNull(clientService.find("DEL"));
-	}
-
-	@Test
-	void projectTypeServiceTest(){
-		assertNull(projectTypeService.find("CONS"));
-		assertNull(projectTypeService.find("DEVP"));
-		assertNull(projectTypeService.find("TRNG"));
-		assertNull(projectTypeService.find("SERV"));
-		assertNull(projectTypeService.find("INT"));
-		assertNull(projectTypeService.find("DEL"));
+	void projectTypeServiceTest() {
 		ProjectType projCons = ProjectType.builder()
 				.projectTypeKey("CONS")
 				.projectTypeDesc("Consulenza")
 				.build();
-
 		ProjectType projDevp = ProjectType.builder()
 				.projectTypeKey("DEVP")
 				.projectTypeDesc("Development")
 				.build();
-
 		ProjectType projTrng = ProjectType.builder()
 				.projectTypeKey("TRNG")
 				.projectTypeDesc("Training")
 				.build();
-
 		ProjectType projServ = ProjectType.builder()
 				.projectTypeKey("SERV")
 				.projectTypeDesc("Service")
@@ -183,108 +136,231 @@ class PatApplicationTests {
 		assertNull(projectTypeService.find("DEL"));
 	}
 
+	@SneakyThrows
 	@Test
-	void teamAndUserServiceTest(){
-		assertNull(teamService.find("DEV"));
-		assertNull(teamService.find("AMM"));
-		assertNull(teamService.find("ANA"));
-		assertNull(teamService.find("DEL"));
+	@WithMockUser(username = "Admin",authorities="ADMIN")
+	void testClientsEndpointAdmin() {
+		initializePAT();
+		mockMvc.perform(get("/clients").with(csrf()))
+				.andExpectAll(status().isOk());
+
+		mockMvc.perform(post("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY")
+						.param("clientDesc", "Create")
+						.param("clientType", "PARTNER"))
+				.andExpectAll(status().isOk())
+				.andDo(print());
+
+		mockMvc.perform(get("/clients").with(csrf()))
+				.andExpectAll(status().isOk())
+				.andExpect(content().string(containsString("CLKEY")));
+
+		mockMvc.perform(post("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY")
+						.param("clientDesc", "Trying Recreate")
+						.param("clientType", "PARTNER"))
+				.andExpectAll(status().is4xxClientError())
+				.andDo(print());
+
+		mockMvc.perform(put("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY")
+						.param("clientDesc", "Changing desc and type")
+						.param("clientType", "DIRECT"))
+				.andExpectAll(status().isOk())
+				.andDo(print());
+
+		mockMvc.perform(get("/clients").with(csrf()))
+				.andExpectAll(status().isOk())
+				.andExpect(content().string(containsString("Changing desc and type")));
+
+		mockMvc.perform(delete("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY")
+						.param("clientDesc", "Changing desc and type")
+						.param("clientType", "DIRECT"))
+				.andExpectAll(status().isOk())
+				.andDo(print());
+
+		mockMvc.perform(delete("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY"))
+				.andExpectAll(status().is4xxClientError())
+				.andDo(print());
+	}
+
+	@SneakyThrows
+	@Test
+	@WithMockUser(username = "User",authorities="USER")
+	void testClientsEndpointUser() {
+		initializePAT();
+		mockMvc.perform(get("/clients").with(csrf()))
+				.andExpectAll(status().is4xxClientError());
+
+		mockMvc.perform(post("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "Prova")
+						.param("clientDesc", "123456")
+						.param("clientType", "PARTNER"))
+				.andExpectAll((status().is4xxClientError()))
+				.andDo(print());
+
+		mockMvc.perform(put("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "Prova")
+						.param("clientDesc", "123456")
+						.param("clientType", "PARTNER"))
+				.andExpectAll((status().is4xxClientError()))
+				.andDo(print());
+
+		mockMvc.perform(delete("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "Prova")
+						.param("clientDesc", "123456")
+						.param("clientType", "PARTNER"))
+				.andExpectAll((status().is4xxClientError()))
+				.andDo(print());
+	}
+
+	@SneakyThrows
+	@Test
+	@WithMockUser(username = "Admin",authorities="ADMIN")
+	void testProjectsEndpointAdmin(){
+		initializePAT();
+
+		mockMvc.perform(post("/clients").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("clientKey", "CLKEY")
+						.param("clientDesc", "Create")
+						.param("clientType", "PARTNER"))
+				.andExpectAll(status().isOk())
+				.andDo(print());
+
+		mockMvc.perform(post("/projects").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("projectKey", "PROJKEY")
+						.param("projectDesc", "Descrizione Progetto")
+						.param("client", "CLKEY")
+						.param("projectType", "CONS")
+						.param("dateStart", "2022-04-01")
+						.param("team", "DEV")
+						.param("projectManager", "User")
+						.param("value","1000"))
+				.andExpectAll((status().isOk()))
+				.andDo(print());
+
+		mockMvc.perform(post("/projects").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("projectKey", "PROJKEY")
+						.param("projectDesc", "Retry create progetto")
+						.param("client", "CLKEY")
+						.param("projectType", "CONS")
+						.param("dateStart", "2022-04-01")
+						.param("team", "DEV")
+						.param("projectManager", "User")
+						.param("value","1000"))
+				.andExpectAll((status().is4xxClientError()))
+				.andDo(print());
+
+		mockMvc.perform(put("/projects").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("projectKey", "PROJKEY")
+						.param("projectDesc", "Modifica desc e type")
+						.param("client", "CLKEY")
+						.param("projectType", "DEVP")
+						.param("dateStart", "2022-04-01")
+						.param("team", "DEV")
+						.param("projectManager", "User")
+						.param("value","1000"))
+				.andExpectAll((status().isOk()))
+				.andDo(print());
+
+		mockMvc.perform(delete("/projects").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("projectKey", "PROJKEY"))
+				.andExpectAll((status().isOk()))
+				.andDo(print());
+
+		mockMvc.perform(delete("/projects").with(csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.param("projectKey", "PROJKEY"))
+				.andExpectAll((status().is4xxClientError()))
+				.andDo(print());
+
+		clientService.delete("CLKEY");
+	}
+
+
+	void initializePAT(){
+		Role roleUser = Role.builder()
+				.roleName("USER").build();
+		Role roleAdmin = Role.builder()
+				.roleName("ADMIN").build();
+		roleService.save(roleUser);
+		roleService.save(roleAdmin);
+
 		Team devTeam = Team.builder()
 				.teamName("DEV")
-				.teamDesc("Sviluppatori")
-				.teamAdmin("Luca.DiPierro")
+				.teamDesc("Developers")
+				.teamAdmin("User")
 				.build();
 		Team ammTeam = Team.builder()
 				.teamName("AMM")
-				.teamDesc("Amministrazione")
-				.teamAdmin("Giuseppe.Marcon")
-				.build();
-		Team anaTeam = Team.builder()
-				.teamName("ANA")
-				.teamDesc("Analytics")
-				.teamAdmin("Marco.Rossi")
-				.build();
-		Team delTeam = Team.builder()
-				.teamName("DEL")
-				.teamDesc("To Delete")
-				.teamAdmin("Marco.Rossi")
+				.teamDesc("Administration")
+				.teamAdmin("Admin")
 				.build();
 		teamService.save(devTeam);
 		teamService.save(ammTeam);
-		teamService.save(anaTeam);
-		teamService.save(delTeam);
-		assertEquals(ammTeam, teamService.find("AMM"));
-		assertEquals(devTeam, teamService.find("DEV"));
-		assertEquals(anaTeam, teamService.find("ANA"));
-		assertEquals(delTeam, teamService.find("DEL"));
-		teamService.deleteTeam("DEL");
-		assertNull(teamService.find("DEL"));
 
-		assertNull(userService.find("Luca.DiPierro"));
-		assertNull(userService.find("Giuseppe.Marcon"));
-		assertNull(userService.find("Marco.Rossi"));
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		Role roleUser = roleService.find("USER");
-		Role roleAdmin = roleService.find("ADMIN");
-		System.out.println(devTeam);
-		System.out.println(roleUser);
-		User luca = User.builder()
-				.username("Luca.DiPierro")
-				.name("Luca")
-				.surname("Di Pierro")
-				.description("Luca Di Pierro")
-				.email("luca.dipierro@rationence.eu")
+		User user = User.builder()
+				.username("User")
+				.name("UserUsername")
+				.surname("UserSurname")
+				.description("UserUsername UserSurname")
+				.email("user.email@rationence.eu")
 				.role(roleUser)
-				.team(ammTeam)
+				.team(devTeam)
 				.cost(100)
-				.passwordHash(encoder.encode("password90!"))
+				.passwordHash(encoder.encode("passwordUser"))
 				.time("88888")
 				.enabled(true)
 				.build();
-		userService.save(luca);
+		userService.save(user);
+		assertEquals(userService.find("User"), user);
 
-		User disabled = User.builder()
-				.username("Marco.Rossi")
-				.name("Marco")
-				.surname("Rossi")
-				.description("Marco Rossi")
-				.email("marco.rossi@rationence.eu")
+		User admin = User.builder()
+				.username("Admin")
+				.name("AdminUsername")
+				.surname("AdminSurname")
+				.description("AdminUsername AdminSurname")
+				.email("admin.email@rationence.eu")
 				.role(roleUser)
-				.team(anaTeam)
-				.cost(100)
-				.passwordHash(encoder.encode("password"))
-				.time("66006")
-				.enabled(false)
-				.build();
-		userService.save(disabled);
-
-		User marcon = User.builder()
-				.username("Giuseppe.Marcon")
-				.name("Giuseppe")
-				.surname("Marcon")
-				.description("Giuseppe Marcon")
-				.email("giuseppe.marcon@rationence.eu")
-				.role(roleAdmin)
 				.team(ammTeam)
 				.cost(200)
-				.passwordHash(encoder.encode("passwordmarcon"))
+				.passwordHash(encoder.encode("passwordAdmin"))
 				.time("88888")
 				.enabled(true)
 				.build();
-		userService.save(marcon);
-		assertEquals(marcon, userService.find("Giuseppe.Marcon"));
-		assertEquals(luca, userService.find("Luca.DiPierro"));
-		assertEquals(disabled, userService.find("Marco.Rossi"));
-		userService.delete("Marco.Rossi");
-		assertNull(userService.find("Marco.Rossi"));
-	}
+		userService.save(admin);
+		assertEquals(userService.find("Admin"), admin);
 
-	@Test
-	void locationServiceTest(){
-		assertNull(locationService.find("CASA"));
-		assertNull(locationService.find("SEDE"));
-		assertNull(locationService.find("TRASFERTA"));
-		assertNull(locationService.find("CLIENTE"));
+
+		ClientType clientDirect = ClientType.builder()
+				.clientTypeKey("DIRECT")
+				.build();
+		ClientType clientPartner = ClientType.builder()
+				.clientTypeKey("PARTNER")
+				.build();
+		ClientType clientInternal = ClientType.builder()
+				.clientTypeKey("INTERNAL")
+				.build();
+		clientTypeService.save(clientDirect);
+		clientTypeService.save(clientPartner);
+		clientTypeService.save(clientInternal);
+
 		Location casa = Location.builder()
 				.locationName("CASA").build();
 		Location sede = Location.builder()
@@ -293,19 +369,31 @@ class PatApplicationTests {
 				.locationName("TRASFERTA").build();
 		Location cliente = Location.builder()
 				.locationName("CLIENTE").build();
-		Location del = Location.builder()
-				.locationName("DEL").build();
 		locationService.save(casa);
 		locationService.save(sede);
 		locationService.save(trasf);
 		locationService.save(cliente);
-		locationService.save(del);
-		assertEquals(casa, locationService.find("CASA"));
-		assertEquals(sede, locationService.find("SEDE"));
-		assertEquals(trasf, locationService.find("TRASFERTA"));
-		assertEquals(cliente, locationService.find("CLIENTE"));
-		assertEquals(del, locationService.find("DEL"));
-		locationService.delete("DEL");
-		assertNull(locationService.find("DEL"));
+
+		ProjectType projCons = ProjectType.builder()
+				.projectTypeKey("CONS")
+				.projectTypeDesc("Consulenza").build();
+		ProjectType projDevp = ProjectType.builder()
+				.projectTypeKey("DEVP")
+				.projectTypeDesc("Development").build();
+		ProjectType projTrng = ProjectType.builder()
+				.projectTypeKey("TRNG")
+				.projectTypeDesc("Training").build();
+		ProjectType projServ = ProjectType.builder()
+				.projectTypeKey("SERV")
+				.projectTypeDesc("Service").build();
+		ProjectType projInt = ProjectType.builder()
+				.projectTypeKey("INT")
+				.projectTypeDesc("Internal").build();
+		projectTypeService.save(projCons);
+		projectTypeService.save(projDevp);
+		projectTypeService.save(projTrng);
+		projectTypeService.save(projServ);
+		projectTypeService.save(projInt);
 	}
 }
+

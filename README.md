@@ -16,6 +16,12 @@
 
 ![Rationence.png](src/main/resources/public/images/Logo.png?raw=true)
 
+
+## Cos'è 
+
+PAT(Project Activity Tracking) è un software per il tracciamento delle attività di consulenti.
+
+
 ## Come eseguire il progetto
 
 ### Prerequisiti
