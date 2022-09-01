@@ -22,21 +22,21 @@ import java.util.Objects;
 public class CompiledStandardActivity implements Serializable {
 
     @Id
-    @Column(name = "c_Username", nullable = false, length=64)
+    @Column(name = "c_Username", nullable = false, length = 64)
     private String username;
 
     @Id
-    @Column(name = "c_Location", nullable = false, length=16)
+    @Column(name = "c_Location", nullable = false, length = 16)
     private String locationName;
 
     @Id
-    @Column(name="c_Activity", length=32, nullable = false)
+    @Column(name = "c_Activity", length = 32, nullable = false)
     private String activityKey;
 
     @Id
-    @Column(name="d_Date", nullable = false)
+    @Column(name = "d_Date", nullable = false)
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
     @ManyToOne
@@ -55,7 +55,7 @@ public class CompiledStandardActivity implements Serializable {
             foreignKey = @ForeignKey(name = "fk_CompiledStandardActivity_Location"), insertable = false, updatable = false)
     private Location c_Location;
 
-    @Column(name="n_Hours", nullable = false)
+    @Column(name = "n_Hours", nullable = false)
     private int hours;
 
     @Override

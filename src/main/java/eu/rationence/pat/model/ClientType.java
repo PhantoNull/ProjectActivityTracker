@@ -21,7 +21,7 @@ import java.util.Objects;
 public class ClientType implements Serializable {
 
     @Id
-    @Column(name="c_ClientType", length=16, unique = true, nullable = false)
+    @Column(name = "c_ClientType", length = 16, unique = true, nullable = false)
     private String clientTypeKey;
 
     @Override

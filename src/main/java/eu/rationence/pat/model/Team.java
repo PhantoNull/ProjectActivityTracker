@@ -3,7 +3,10 @@ package eu.rationence.pat.model;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,13 +21,13 @@ import java.util.Objects;
 public class Team implements Serializable {
 
     @Id
-    @Column(name="c_Team", length=5, unique = true, nullable = false)
+    @Column(name = "c_Team", length = 5, unique = true, nullable = false)
     private String teamName;
 
-    @Column(name="x_Team", length=128, nullable = false)
+    @Column(name = "x_Team", length = 128, nullable = false)
     private String teamDesc;
 
-    @Column(name="c_TeamAdmin", length=64, nullable = false)
+    @Column(name = "c_TeamAdmin", length = 64, nullable = false)
     private String teamAdmin;
 
     @Override

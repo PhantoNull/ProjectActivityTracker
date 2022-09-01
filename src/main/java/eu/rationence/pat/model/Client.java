@@ -18,13 +18,13 @@ import java.util.Objects;
 public class Client implements Serializable {
 
     @Id
-    @Column(name="c_Client", length=16, unique = true, nullable = false)
+    @Column(name = "c_Client", length = 16, unique = true, nullable = false)
     private String clientKey;
 
-    @Column(name="x_Client", length=64, nullable = false)
+    @Column(name = "x_Client", length = 64, nullable = false)
     private String clientDesc;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_ClientType", nullable = false, foreignKey = @ForeignKey(name = "fk_ClientType_Client"))
     private ClientType clientType;
 

@@ -1,6 +1,9 @@
 package eu.rationence.pat.model.dto;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -8,6 +11,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @ToString
 @SuperBuilder
-public class CompiledUserStandardActivityRow extends CompiledStandardActivityRow{
+public class CompiledUserStandardActivityRow extends CompiledStandardActivityRow {
     private String username;
 }

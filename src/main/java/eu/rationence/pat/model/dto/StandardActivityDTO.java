@@ -1,14 +1,15 @@
- package eu.rationence.pat.model.dto;
+package eu.rationence.pat.model.dto;
 
- import lombok.*;
- import java.io.Serializable;
+import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
- public class StandardActivityDTO implements Serializable {
+public class StandardActivityDTO implements Serializable {
 
-     private String activityKey;
+    private String activityKey;
 
-     private boolean internal;
+    private boolean internal;
 
-     private boolean waged;
- }
+    private boolean waged;
+}

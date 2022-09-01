@@ -21,10 +21,10 @@ import java.util.Objects;
 public class ProjectType implements Serializable {
 
     @Id
-    @Column(name="c_ProjectType", length=4, unique = true, nullable = false)
+    @Column(name = "c_ProjectType", length = 4, unique = true, nullable = false)
     private String projectTypeKey;
 
-    @Column(name="x_ProjectType", length=64, nullable = false)
+    @Column(name = "x_ProjectType", length = 64, nullable = false)
     private String projectTypeDesc;
 
     @Override
