@@ -362,9 +362,9 @@ public class TrackingController {
                                                        @RequestParam(required = false) boolean autocompile,
                                                        Principal principal) throws ParseException {
 
-        User userRepo = userService.find(principal.getName());
-        if (!userRepo.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
-            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+        User userPrincipal = userService.find(principal.getName());
+        if (!userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userPrincipal.getUsername());
 
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
@@ -372,10 +372,10 @@ public class TrackingController {
             return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING);
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        userRepo = userService.find(username);
+        User userRepo = userService.find(username);
 
-        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))) {
-            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
+        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9)) && !userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE)) {
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(9));
         }
 
         if (monthlyNote == null) {
@@ -511,8 +511,8 @@ public class TrackingController {
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
 
-        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))) {
-            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
+        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9))) {
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(9));
         }
 
         if (matchFound) {
@@ -591,9 +591,9 @@ public class TrackingController {
                                                           @RequestParam String locationName,
                                                           Principal principal) throws ParseException {
 
-        User userRepo = userService.find(principal.getName());
-        if (!userRepo.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
-            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+        User userPrincipal = userService.find(principal.getName());
+        if (!userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userPrincipal.getUsername());
 
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
@@ -601,7 +601,7 @@ public class TrackingController {
             return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_LOCKED_STRING);
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        userRepo = userService.find(username);
+        User userRepo = userService.find(username);
         if (userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
 
@@ -609,8 +609,8 @@ public class TrackingController {
         Matcher matcher = actPattern.matcher(projectActivityKeys);
         boolean matchFound = matcher.find();
 
-        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))) {
-            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
+        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9)) && !userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE)) {
+            return AdviceController.responseBadRequest(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(9));
         }
         if (matchFound) {
             if (matcher.group(1).equals("Std")) {
@@ -670,18 +670,18 @@ public class TrackingController {
                                                       @RequestParam String note,
                                                       Principal principal) throws ParseException {
 
-        User userRepo = userService.find(principal.getName());
-        if (!userRepo.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
-            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+        User userPrincipal = userService.find(principal.getName());
+        if (!userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userPrincipal.getUsername());
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
-        userRepo = userService.find(username);
+        User userRepo = userService.find(username);
         if (userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
 
-        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25))) {
-            return AdviceController.responseForbidden("Cannot edit this timesheet note. Last editable day was " + passedDate.plusMonths(1).plusDays(25));
+        if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9)) && !userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE)) {
+            return AdviceController.responseForbidden("Cannot edit this timesheet note. Last editable day was " + passedDate.plusMonths(1).plusDays(9));
         }
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
         if (monthlyNote != null && monthlyNote.isLocked())
@@ -705,18 +705,18 @@ public class TrackingController {
                                                         @PathVariable String username,
                                                         Principal principal) throws ParseException {
 
-        User userRepo = userService.find(principal.getName());
-        if (!userRepo.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
-            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+        User userPrincipal = userService.find(principal.getName());
+        if (!userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userPrincipal.getUsername());
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
-        userRepo = userService.find(username);
+        User userRepo = userService.find(username);
         if (userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
-        else if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
-            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
+        else if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9)) && !userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE))
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(9));
         else if (monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else if (monthlyNote.isLocked())
@@ -736,18 +736,18 @@ public class TrackingController {
                                                  @PathVariable String username,
                                                  Principal principal) throws ParseException {
 
-        User userRepo = userService.find(principal.getName());
-        if (!userRepo.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
-            return AdviceController.responseForbidden("Forbidden action for user " + userRepo.getUsername());
+        User userPrincipal = userService.find(principal.getName());
+        if (!userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE) && !principal.getName().equals(username))
+            return AdviceController.responseForbidden("Forbidden action for user " + userPrincipal.getUsername());
 
         LocalDate passedDate = LocalDate.of(year, month, 1);
         Date date = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY).parse("1-" + month + "-" + year);
         MonthlyNote monthlyNote = monthlyNoteService.find(username, date);
-        userRepo = userService.find(username);
+        User userRepo = userService.find(username);
         if (userRepo == null)
             return AdviceController.responseNotFound("Cannot update " + username + " time sheet. (Not found)");
-        else if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(25)))
-            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(25));
+        else if (LocalDate.now().isAfter(passedDate.plusMonths(1).plusDays(9)) && !userPrincipal.getRole().getRoleName().equals(ADMIN_ROLE))
+            return AdviceController.responseForbidden(CANNOT_MODIFY_TIME_SHEET_STRING + passedDate.plusMonths(1).plusDays(9));
         else if (monthlyNote == null)
             return AdviceController.responseNotFound("Cannot submit time sheet. (Not found)");
         else {

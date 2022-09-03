@@ -16,7 +16,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,7 +58,6 @@ class PatApplicationTests {
     @Test
     @WithMockUser(username = "Admin", authorities = "ADMIN")
     void testRolesEndpointAdmin() {
-
         mockMvc.perform(post("/roles").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("roleName", "TROLE"))
@@ -74,6 +72,22 @@ class PatApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("roleName", "TROLE"))
                 .andExpectAll(status().isOk());
+
+        mockMvc.perform(delete("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testRolesEndpointUser() {
+
+        mockMvc.perform(post("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
 
         mockMvc.perform(delete("/roles").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,6 +127,33 @@ class PatApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("activityKey", "ATTKEY"))
                 .andExpectAll(status().isOk());
+
+        mockMvc.perform(delete("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY"))
+                .andExpectAll(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testStandardActivitiesEndpointUser() {
+        mockMvc.perform(get("/standardactivities").with(csrf()))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(post("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "true")
+                        .param("internal", "false"))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(put("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "false")
+                        .param("internal", "true"))
+                .andExpectAll(status().is4xxClientError());
 
         mockMvc.perform(delete("/standardactivities").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
