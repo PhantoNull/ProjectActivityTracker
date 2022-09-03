@@ -3,309 +3,504 @@ package eu.rationence;
 import eu.rationence.pat.PatApplication;
 import eu.rationence.pat.model.*;
 import eu.rationence.pat.service.*;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = PatApplication.class)
+@AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PatApplicationTests {
-	private final RoleService roleService;
-	private final ClientTypeService clientTypeService;
-	private final ClientService clientService;
-	private final ProjectTypeService projectTypeService;
-	private final ProjectService projectService;
-	private final TeamService teamService;
-	private final UserService userService;
-	private final LocationService locationService;
-	@Autowired
-	PatApplicationTests(RoleService roleService, ClientTypeService clientTypeService, ClientService clientService, ProjectTypeService projectTypeService, ProjectService projectService, TeamService teamService, UserService userService, LocationService locationService) {
-		this.roleService = roleService;
-		this.clientTypeService = clientTypeService;
-		this.clientService = clientService;
-		this.projectTypeService = projectTypeService;
-		this.projectService = projectService;
-		this.teamService = teamService;
-		this.userService = userService;
-		this.locationService = locationService;
-	}
+    private final RoleService roleService;
+    private final ClientTypeService clientTypeService;
+    private final ClientService clientService;
+    private final ProjectTypeService projectTypeService;
+    private final ProjectService projectService;
+    private final TeamService teamService;
+    private final UserService userService;
+    private final LocationService locationService;
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private MockMvc mockMvc;
 
-	@Test
-	void roleServiceTest() {
-		assertNull(roleService.find("ADMIN"));
-		assertNull(roleService.find("USER"));
-		assertNull(roleService.find("ROLE_TO_DELETE"));
-		Role roleUser = Role.builder()
-				.roleName("USER")
-				.build();
-		Role roleAdmin = Role.builder()
-				.roleName("ADMIN")
-				.build();
-		Role roleToDelete = Role.builder()
-				.roleName("ROLE_TO_DELETE")
-				.build();
-		roleService.save(roleUser);
-		roleService.save(roleAdmin);
-		roleService.save(roleToDelete);
-		assertEquals(roleAdmin, roleService.find("ADMIN"));
-		assertEquals(roleUser, roleService.find("USER"));
-		assertEquals(roleToDelete, roleService.find("ROLE_TO_DELETE"));
-		roleService.delete("ROLE_TO_DELETE");
-		assertNull(roleService.find("ROLE_TO_DELETE"));
-	}
+    @Autowired
+    PatApplicationTests(RoleService roleService, ClientTypeService clientTypeService, ClientService clientService, ProjectTypeService projectTypeService, ProjectService projectService, TeamService teamService, UserService userService, LocationService locationService) {
+        this.roleService = roleService;
+        this.clientTypeService = clientTypeService;
+        this.clientService = clientService;
+        this.projectTypeService = projectTypeService;
+        this.projectService = projectService;
+        this.teamService = teamService;
+        this.userService = userService;
+        this.locationService = locationService;
+    }
 
-	@Test
-	void clientTypeServiceTest(){
-		assertNull(clientTypeService.find("DIRECT"));
-		assertNull(clientTypeService.find("PARTNER"));
-		assertNull(clientTypeService.find("INTERNAL"));
-		assertNull(clientTypeService.find("TYPE_TO_DELETE"));
-		ClientType clientDirect = ClientType.builder()
-				.clientTypeKey("DIRECT")
-				.build();
-		ClientType clientPartner = ClientType.builder()
-				.clientTypeKey("PARTNER")
-				.build();
-		ClientType clientInternal = ClientType.builder()
-				.clientTypeKey("INTERNAL")
-				.build();
-		ClientType clientTypeToDelete = ClientType.builder()
-				.clientTypeKey("TYPE_TO_DELETE")
-				.build();
-		clientTypeService.save(clientDirect);
-		clientTypeService.save(clientPartner);
-		clientTypeService.save(clientInternal);
-		clientTypeService.save(clientTypeToDelete);
-		assertEquals(clientDirect, clientTypeService.find("DIRECT"));
-		assertEquals(clientPartner, clientTypeService.find("PARTNER"));
-		assertEquals(clientInternal, clientTypeService.find("INTERNAL"));
-		assertEquals(clientTypeToDelete, clientTypeService.find("TYPE_TO_DELETE"));
-		clientTypeService.delete("TYPE_TO_DELETE");
-		assertNull(clientTypeService.find("TYPE_TO_DELETE"));
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "Admin", authorities = "ADMIN")
+    void testRolesEndpointAdmin() {
+        mockMvc.perform(post("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().isOk());
 
-	}
+        mockMvc.perform(post("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
 
-	@Test
-	void clientServiceTest(){
-		assertNull(clientService.find("BPER"));
-		assertNull(clientService.find("KNIME"));
-		assertNull(clientService.find("RATIO"));
-		assertNull(clientService.find("CLIENT_TO_DELETE"));
-		ClientType clientDirect = clientTypeService.find("DIRECT");
-		ClientType clientPartner = clientTypeService.find("PARTNER");
-		ClientType clientInternal = clientTypeService.find("INTERNAL");
-		Client clientBPER = Client.builder()
-				.clientKey("BPER")
-				.clientDesc("Banca Popolare Emilia Romagna")
-				.clientType(clientDirect)
-				.build();
-		clientService.save(clientBPER);
+        mockMvc.perform(delete("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().isOk());
 
-		Client clientKNIME = Client.builder()
-				.clientKey("KNIME")
-				.clientDesc("Konstanz Information Miner")
-				.clientType(clientPartner)
-				.build();
-		clientService.save(clientKNIME);
+        mockMvc.perform(delete("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
+    }
 
-		Client clientRATIO = Client.builder()
-				.clientKey("RATIO")
-				.clientDesc("Rationence")
-				.clientType(clientInternal)
-				.build();
-		clientService.save(clientRATIO);
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testRolesEndpointUser() {
 
-		Client clientToDelete = Client.builder()
-				.clientKey("DEL")
-				.clientDesc("Client To Delete")
-				.clientType(clientInternal)
-				.build();
-		clientService.save(clientToDelete);
-		assertEquals(clientBPER, clientService.find("BPER"));
-		assertEquals(clientKNIME, clientService.find("KNIME"));
-		assertEquals(clientRATIO, clientService.find("RATIO"));
-		assertEquals(clientToDelete, clientService.find("DEL"));
-		clientService.delete("DEL");
-		assertNull(clientService.find("DEL"));
-	}
+        mockMvc.perform(post("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
 
-	@Test
-	void projectTypeServiceTest(){
-		assertNull(projectTypeService.find("CONS"));
-		assertNull(projectTypeService.find("DEVP"));
-		assertNull(projectTypeService.find("TRNG"));
-		assertNull(projectTypeService.find("SERV"));
-		assertNull(projectTypeService.find("INT"));
-		assertNull(projectTypeService.find("DEL"));
-		ProjectType projCons = ProjectType.builder()
-				.projectTypeKey("CONS")
-				.projectTypeDesc("Consulenza")
-				.build();
+        mockMvc.perform(delete("/roles").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("roleName", "TROLE"))
+                .andExpectAll(status().is4xxClientError());
+    }
 
-		ProjectType projDevp = ProjectType.builder()
-				.projectTypeKey("DEVP")
-				.projectTypeDesc("Development")
-				.build();
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "Admin", authorities = "ADMIN")
+    void testStandardActivitiesEndpointAdmin() {
+        mockMvc.perform(get("/standardactivities").with(csrf()))
+                .andExpectAll(status().isOk());
 
-		ProjectType projTrng = ProjectType.builder()
-				.projectTypeKey("TRNG")
-				.projectTypeDesc("Training")
-				.build();
+        mockMvc.perform(post("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "true")
+                        .param("internal", "false"))
+                .andExpectAll(status().isOk());
 
-		ProjectType projServ = ProjectType.builder()
-				.projectTypeKey("SERV")
-				.projectTypeDesc("Service")
-				.build();
-		ProjectType projInt = ProjectType.builder()
-				.projectTypeKey("INT")
-				.projectTypeDesc("Internal")
-				.build();
-		ProjectType projDel = ProjectType.builder()
-				.projectTypeKey("DEL")
-				.projectTypeDesc("To be Deleted")
-				.build();
-		projectTypeService.save(projCons);
-		projectTypeService.save(projDevp);
-		projectTypeService.save(projTrng);
-		projectTypeService.save(projServ);
-		projectTypeService.save(projInt);
-		projectTypeService.save(projDel);
-		assertEquals(projCons, projectTypeService.find("CONS"));
-		assertEquals(projDevp, projectTypeService.find("DEVP"));
-		assertEquals(projTrng, projectTypeService.find("TRNG"));
-		assertEquals(projServ, projectTypeService.find("SERV"));
-		assertEquals(projInt, projectTypeService.find("INT"));
-		assertEquals(projDel, projectTypeService.find("DEL"));
-		projectTypeService.delete("DEL");
-		assertNull(projectTypeService.find("DEL"));
-	}
+        mockMvc.perform(post("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "true")
+                        .param("internal", "false"))
+                .andExpectAll(status().is4xxClientError());
 
-	@Test
-	void teamAndUserServiceTest(){
-		assertNull(teamService.find("DEV"));
-		assertNull(teamService.find("AMM"));
-		assertNull(teamService.find("ANA"));
-		assertNull(teamService.find("DEL"));
-		Team devTeam = Team.builder()
-				.teamName("DEV")
-				.teamDesc("Sviluppatori")
-				.teamAdmin("Luca.DiPierro")
-				.build();
-		Team ammTeam = Team.builder()
-				.teamName("AMM")
-				.teamDesc("Amministrazione")
-				.teamAdmin("Giuseppe.Marcon")
-				.build();
-		Team anaTeam = Team.builder()
-				.teamName("ANA")
-				.teamDesc("Analytics")
-				.teamAdmin("Marco.Rossi")
-				.build();
-		Team delTeam = Team.builder()
-				.teamName("DEL")
-				.teamDesc("To Delete")
-				.teamAdmin("Marco.Rossi")
-				.build();
-		teamService.save(devTeam);
-		teamService.save(ammTeam);
-		teamService.save(anaTeam);
-		teamService.save(delTeam);
-		assertEquals(ammTeam, teamService.find("AMM"));
-		assertEquals(devTeam, teamService.find("DEV"));
-		assertEquals(anaTeam, teamService.find("ANA"));
-		assertEquals(delTeam, teamService.find("DEL"));
-		teamService.deleteTeam("DEL");
-		assertNull(teamService.find("DEL"));
+        mockMvc.perform(put("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "false")
+                        .param("internal", "true"))
+                .andExpectAll(status().isOk());
 
-		assertNull(userService.find("Luca.DiPierro"));
-		assertNull(userService.find("Giuseppe.Marcon"));
-		assertNull(userService.find("Marco.Rossi"));
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		Role roleUser = roleService.find("USER");
-		Role roleAdmin = roleService.find("ADMIN");
-		System.out.println(devTeam);
-		System.out.println(roleUser);
-		User luca = User.builder()
-				.username("Luca.DiPierro")
-				.name("Luca")
-				.surname("Di Pierro")
-				.description("Luca Di Pierro")
-				.email("luca.dipierro@rationence.eu")
-				.role(roleUser)
-				.team(ammTeam)
-				.cost(100)
-				.passwordHash(encoder.encode("password90!"))
-				.time("88888")
-				.enabled(true)
-				.build();
-		userService.save(luca);
+        mockMvc.perform(delete("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY"))
+                .andExpectAll(status().isOk());
 
-		User disabled = User.builder()
-				.username("Marco.Rossi")
-				.name("Marco")
-				.surname("Rossi")
-				.description("Marco Rossi")
-				.email("marco.rossi@rationence.eu")
-				.role(roleUser)
-				.team(anaTeam)
-				.cost(100)
-				.passwordHash(encoder.encode("password"))
-				.time("66006")
-				.enabled(false)
-				.build();
-		userService.save(disabled);
+        mockMvc.perform(delete("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY"))
+                .andExpectAll(status().is4xxClientError());
+    }
 
-		User marcon = User.builder()
-				.username("Giuseppe.Marcon")
-				.name("Giuseppe")
-				.surname("Marcon")
-				.description("Giuseppe Marcon")
-				.email("giuseppe.marcon@rationence.eu")
-				.role(roleAdmin)
-				.team(ammTeam)
-				.cost(200)
-				.passwordHash(encoder.encode("passwordmarcon"))
-				.time("88888")
-				.enabled(true)
-				.build();
-		userService.save(marcon);
-		assertEquals(marcon, userService.find("Giuseppe.Marcon"));
-		assertEquals(luca, userService.find("Luca.DiPierro"));
-		assertEquals(disabled, userService.find("Marco.Rossi"));
-		userService.delete("Marco.Rossi");
-		assertNull(userService.find("Marco.Rossi"));
-	}
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testStandardActivitiesEndpointUser() {
+        mockMvc.perform(get("/standardactivities").with(csrf()))
+                .andExpectAll(status().is4xxClientError());
 
-	@Test
-	void locationServiceTest(){
-		assertNull(locationService.find("CASA"));
-		assertNull(locationService.find("SEDE"));
-		assertNull(locationService.find("TRASFERTA"));
-		assertNull(locationService.find("CLIENTE"));
-		Location casa = Location.builder()
-				.locationName("CASA").build();
-		Location sede = Location.builder()
-				.locationName("SEDE").build();
-		Location trasf = Location.builder()
-				.locationName("TRASFERTA").build();
-		Location cliente = Location.builder()
-				.locationName("CLIENTE").build();
-		Location del = Location.builder()
-				.locationName("DEL").build();
-		locationService.save(casa);
-		locationService.save(sede);
-		locationService.save(trasf);
-		locationService.save(cliente);
-		locationService.save(del);
-		assertEquals(casa, locationService.find("CASA"));
-		assertEquals(sede, locationService.find("SEDE"));
-		assertEquals(trasf, locationService.find("TRASFERTA"));
-		assertEquals(cliente, locationService.find("CLIENTE"));
-		assertEquals(del, locationService.find("DEL"));
-		locationService.delete("DEL");
-		assertNull(locationService.find("DEL"));
-	}
+        mockMvc.perform(post("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "true")
+                        .param("internal", "false"))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(put("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY")
+                        .param("waged", "false")
+                        .param("internal", "true"))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(delete("/standardactivities").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("activityKey", "ATTKEY"))
+                .andExpectAll(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "Admin", authorities = "ADMIN")
+    void testClientsEndpointAdmin() {
+        mockMvc.perform(get("/clients").with(csrf()))
+                .andExpectAll(status().isOk());
+
+        mockMvc.perform(post("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Create")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll(status().isOk());
+
+        mockMvc.perform(get("/clients").with(csrf()))
+                .andExpectAll(status().isOk())
+                .andExpect(content().string(containsString("CLKEY")));
+
+        mockMvc.perform(post("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Trying Recreate")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(put("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Changing desc and type")
+                        .param("clientType", "DIRECT"))
+                .andExpectAll(status().isOk());
+
+        mockMvc.perform(get("/clients").with(csrf()))
+                .andExpectAll(status().isOk())
+                .andExpect(content().string(containsString("Changing desc and type")));
+
+        mockMvc.perform(delete("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Changing desc and type")
+                        .param("clientType", "DIRECT"))
+                .andExpectAll(status().isOk());
+
+        mockMvc.perform(delete("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY"))
+                .andExpectAll(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testClientsEndpointUser() {
+        mockMvc.perform(get("/clients").with(csrf()))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(post("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "Prova")
+                        .param("clientDesc", "123456")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(put("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "Prova")
+                        .param("clientDesc", "123456")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(delete("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "Prova")
+                        .param("clientDesc", "123456")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll((status().is4xxClientError()));
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "Admin", authorities = "ADMIN")
+    void testProjectsEndpointAdmin() {
+
+        mockMvc.perform(post("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Create")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll(status().isOk())
+                .andDo(print());
+
+        mockMvc.perform(post("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Descrizione Progetto")
+                        .param("client", "CLKEY")
+                        .param("projectType", "CONS")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().isOk()));
+
+        mockMvc.perform(post("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Retry create progetto")
+                        .param("client", "CLKEY")
+                        .param("projectType", "CONS")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(put("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Modifica desc e type")
+                        .param("client", "CLKEY")
+                        .param("projectType", "DEVP")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().isOk()));
+
+        mockMvc.perform(delete("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY"))
+                .andExpectAll((status().isOk()));
+
+        mockMvc.perform(delete("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(delete("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY"))
+                .andExpectAll(status().isOk())
+                .andDo(print());
+    }
+
+    @SneakyThrows
+    @Test
+    @WithMockUser(username = "User", authorities = "USER")
+    void testProjectsEndpointUser() {
+        mockMvc.perform(get("/clients").with(csrf()))
+                .andExpectAll(status().is4xxClientError())
+                .andDo(print());
+
+        mockMvc.perform(post("/clients").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("clientKey", "CLKEY")
+                        .param("clientDesc", "Create")
+                        .param("clientType", "PARTNER"))
+                .andExpectAll(status().is4xxClientError());
+
+        mockMvc.perform(post("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Descrizione Progetto")
+                        .param("client", "CLKEY")
+                        .param("projectType", "CONS")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(post("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Retry create progetto")
+                        .param("client", "CLKEY")
+                        .param("projectType", "CONS")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(put("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY")
+                        .param("projectDesc", "Modifica desc e type")
+                        .param("client", "CLKEY")
+                        .param("projectType", "DEVP")
+                        .param("dateStart", "2022-04-01")
+                        .param("team", "DEV")
+                        .param("projectManager", "User")
+                        .param("value", "1000"))
+                .andExpectAll((status().is4xxClientError()));
+
+        mockMvc.perform(delete("/projects").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("projectKey", "PROJKEY"))
+                .andExpectAll((status().is4xxClientError()));
+    }
+
+    @Test
+    @BeforeAll
+    void initializePAT() {
+        Role roleUser = Role.builder()
+                .roleName("USER").build();
+        Role roleAdmin = Role.builder()
+                .roleName("ADMIN").build();
+        roleService.save(roleUser);
+        roleService.save(roleAdmin);
+        assertEquals(roleUser, roleService.find("USER"));
+        assertEquals(roleAdmin, roleService.find("ADMIN"));
+        ArrayList<Role> roleList = new ArrayList();
+        roleList.add(roleAdmin);
+        roleList.add(roleUser);
+        assertEquals(roleList, roleService.findAll());
+
+        Team devTeam = Team.builder()
+                .teamName("DEV")
+                .teamDesc("Developers")
+                .teamAdmin("User")
+                .build();
+        Team ammTeam = Team.builder()
+                .teamName("AMM")
+                .teamDesc("Administration")
+                .teamAdmin("Admin")
+                .build();
+        teamService.save(devTeam);
+        teamService.save(ammTeam);
+        assertEquals(devTeam, teamService.find("DEV"));
+        assertEquals(ammTeam, teamService.find("AMM"));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        User user = User.builder()
+                .username("User")
+                .name("UserUsername")
+                .surname("UserSurname")
+                .description("UserUsername UserSurname")
+                .email("user.email@rationence.eu")
+                .role(roleUser)
+                .team(devTeam)
+                .cost(100)
+                .passwordHash(encoder.encode("passwordUser"))
+                .time("88888")
+                .enabled(true)
+                .build();
+        userService.save(user);
+        User admin = User.builder()
+                .username("Admin")
+                .name("AdminUsername")
+                .surname("AdminSurname")
+                .description("AdminUsername AdminSurname")
+                .email("admin.email@rationence.eu")
+                .role(roleUser)
+                .team(ammTeam)
+                .cost(200)
+                .passwordHash(encoder.encode("passwordAdmin"))
+                .time("88888")
+                .enabled(true)
+                .build();
+        userService.save(admin);
+        assertEquals(user, userService.find("User"));
+        assertEquals(admin, userService.find("Admin"));
+
+
+        ClientType clientDirect = ClientType.builder()
+                .clientTypeKey("DIRECT")
+                .build();
+        ClientType clientPartner = ClientType.builder()
+                .clientTypeKey("PARTNER")
+                .build();
+        ClientType clientInternal = ClientType.builder()
+                .clientTypeKey("INTERNAL")
+                .build();
+        ClientType clientDelete = ClientType.builder()
+                .clientTypeKey("DELETE")
+                .build();
+        clientTypeService.save(clientDirect);
+        clientTypeService.save(clientPartner);
+        clientTypeService.save(clientInternal);
+        clientTypeService.save(clientDelete);
+        assertEquals(clientDirect, clientTypeService.find("DIRECT"));
+        assertEquals(clientPartner, clientTypeService.find("PARTNER"));
+        assertEquals(clientInternal, clientTypeService.find("INTERNAL"));
+        assertEquals(clientDelete, clientTypeService.find("DELETE"));
+        clientTypeService.delete("DELETE");
+        assertNull(clientTypeService.find("DELETE"));
+
+        Location casa = Location.builder()
+                .locationName("CASA").build();
+        Location sede = Location.builder()
+                .locationName("SEDE").build();
+        Location trasf = Location.builder()
+                .locationName("TRASFERTA").build();
+        Location cliente = Location.builder()
+                .locationName("CLIENTE").build();
+        Location delete = Location.builder()
+                .locationName("DELETE").build();
+        locationService.save(casa);
+        locationService.save(sede);
+        locationService.save(trasf);
+        locationService.save(cliente);
+        locationService.save(delete);
+        assertEquals(casa, locationService.find("CASA"));
+        assertEquals(sede, locationService.find("SEDE"));
+        assertEquals(trasf, locationService.find("TRASFERTA"));
+        assertEquals(cliente, locationService.find("CLIENTE"));
+        assertEquals(delete, locationService.find("DELETE"));
+        locationService.delete("DELETE");
+        assertNull(locationService.find("DELETE"));
+
+        ProjectType projCons = ProjectType.builder()
+                .projectTypeKey("CONS")
+                .projectTypeDesc("Consulenza").build();
+        ProjectType projDevp = ProjectType.builder()
+                .projectTypeKey("DEVP")
+                .projectTypeDesc("Development").build();
+        ProjectType projTrng = ProjectType.builder()
+                .projectTypeKey("TRNG")
+                .projectTypeDesc("Training").build();
+        ProjectType projServ = ProjectType.builder()
+                .projectTypeKey("SERV")
+                .projectTypeDesc("Service").build();
+        ProjectType projInt = ProjectType.builder()
+                .projectTypeKey("INT")
+                .projectTypeDesc("Internal").build();
+        ProjectType projDel = ProjectType.builder()
+                .projectTypeKey("DEL")
+                .projectTypeDesc("Delete").build();
+        projectTypeService.save(projCons);
+        projectTypeService.save(projDevp);
+        projectTypeService.save(projTrng);
+        projectTypeService.save(projServ);
+        projectTypeService.save(projInt);
+        projectTypeService.save(projDel);
+        assertEquals(projCons, projectTypeService.find("CONS"));
+        assertEquals(projDevp, projectTypeService.find("DEVP"));
+        assertEquals(projDel, projectTypeService.find("DEL"));
+        projectTypeService.delete("DEL");
+        assertNull(projectTypeService.find("DEL"));
+    }
 }
+

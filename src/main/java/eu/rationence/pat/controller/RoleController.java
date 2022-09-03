@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -20,10 +22,10 @@ import java.security.Principal;
 
 @Controller
 public class RoleController {
+    private static final String CLASS_DESC = "Role";
     private final ModelMapper modelMapper;
     private final RoleService roleService;
     private final UserService userService;
-    private static final String CLASS_DESC = "Role";
 
     @Autowired
     public RoleController(ModelMapper modelMapper, RoleService roleService, UserService userService) {
@@ -46,26 +48,12 @@ public class RoleController {
     public ResponseEntity<String> addRole(@Valid RoleDTO roleDTO,
                                           BindingResult result) {
         try {
-            if(result.hasErrors())
+            if (result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
             Role role = modelMapper.map(roleDTO, Role.class);
-            roleService.save(role);
-            return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' saved");
-        } catch (Exception e) {
-            return AdviceController.responseServerError(e.getMessage());
-        }
-
-    }
-
-    @PutMapping("/roles")
-    public ResponseEntity<String> updateRole(@Valid RoleDTO roleDTO,
-                                          BindingResult result) {
-        try {
-            if(result.hasErrors())
-                return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            Role role = modelMapper.map(roleDTO, Role.class);
-            if(roleService.find(role.getRoleName()) == null)
-                return AdviceController.responseNotFound("Cannot update " + CLASS_DESC +  " " + role.getRoleName());
+            if (roleService.find(role.getRoleName()) != null) {
+                return AdviceController.responseConflict(role.getRoleName() + "has already been created");
+            }
             roleService.save(role);
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' saved");
         } catch (Exception e) {
@@ -78,18 +66,18 @@ public class RoleController {
     public ResponseEntity<String> deleteRole(@Valid RoleDTO roleDTO,
                                              BindingResult result) {
         try {
-            if(result.hasErrors())
+            if (result.hasErrors())
                 return AdviceController.responseBadRequest(result.getAllErrors().toString());
             Role role = modelMapper.map(roleDTO, Role.class);
             if (role.getRoleName().equals("ADMIN") || role.getRoleName().equals("USER"))
                 return AdviceController.responseForbidden("Can't delete default ADMIN or USER " + CLASS_DESC);
+            else if (roleService.find(role.getRoleName()) == null)
+                return AdviceController.responseNotFound("Can't delete role " + role.getRoleName() + " (not found)");
             roleService.delete(role.getRoleName());
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' deleted");
-        }
-        catch(DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + " '" + roleDTO.getRoleName() + "' (Constraint violation)");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return AdviceController.responseServerError(e.getMessage());
         }
     }

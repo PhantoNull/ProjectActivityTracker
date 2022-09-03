@@ -21,7 +21,7 @@ import java.util.Objects;
 public class Role implements Serializable {
 
     @Id
-    @Column(name="c_Role", length=16, unique = true, nullable = false)
+    @Column(name = "c_Role", length = 16, unique = true, nullable = false)
     private String roleName;
 
     @Override

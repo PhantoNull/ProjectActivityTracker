@@ -1,10 +1,9 @@
- package eu.rationence.pat.model.dto;
+package eu.rationence.pat.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import eu.rationence.pat.model.Role;
 import eu.rationence.pat.model.Team;
 import eu.rationence.pat.model.UserActivity;
-import lombok.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -14,7 +13,7 @@ import java.util.Set;
 public class UserDTO implements Serializable {
     private String username;
 
-    private Set<UserActivity> activities  = new HashSet<>();
+    private Set<UserActivity> activities = new HashSet<>();
 
     private Role role;
 

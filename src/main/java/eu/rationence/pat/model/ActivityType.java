@@ -21,10 +21,10 @@ import java.util.Objects;
 public class ActivityType implements Serializable {
 
     @Id
-    @Column(name="c_ActivityType", length=4, unique = true, nullable = false)
+    @Column(name = "c_ActivityType", length = 4, unique = true, nullable = false)
     private String activityTypeKey;
 
-    @Column(name="x_ActivityType", length=64, nullable = false)
+    @Column(name = "x_ActivityType", length = 64, nullable = false)
     private String activityTypeDesc;
 
     @Override

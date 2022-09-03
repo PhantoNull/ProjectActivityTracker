@@ -1,4 +1,4 @@
- package eu.rationence.pat.model;
+package eu.rationence.pat.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
- @Entity(name = "User")
+@Entity(name = "User")
 @Table(name = "PAT_Users")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,44 +22,44 @@ import java.util.Set;
 public class User implements Serializable {
 
     @Id
-    @Column(name="c_Username", length=64, unique = true, nullable = false)
+    @Column(name = "c_Username", length = 64, unique = true, nullable = false)
     private String username;
 
-     @OneToMany(mappedBy = "c_Username")
-     private Set<UserActivity> activities  = new HashSet<>();
+    @OneToMany(mappedBy = "c_Username")
+    private Set<UserActivity> activities = new HashSet<>();
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_Role", nullable = false, foreignKey = @ForeignKey(name = "fk_Role_User"))
     private Role role;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_Team", nullable = false, foreignKey = @ForeignKey(name = "fk_Team_User"))
     @JsonManagedReference
     private Team team;
 
-    @Column(name="e_Email", unique = true, length=128, nullable = false)
+    @Column(name = "e_Email", unique = true, length = 128, nullable = false)
     @Email
     private String email;
 
-    @Column(name="x_Name", nullable = false, length=32)
+    @Column(name = "x_Name", nullable = false, length = 32)
     private String name;
 
-    @Column(name="x_Surame", nullable = false, length=64)
+    @Column(name = "x_Surame", nullable = false, length = 64)
     private String surname;
 
-    @Column(name="x_Description", nullable = false, length=128)
+    @Column(name = "x_Description", nullable = false, length = 128)
     private String description;
 
-    @Column(name="i_Cost", nullable = false)
+    @Column(name = "i_Cost", nullable = false)
     private int cost;
 
-    @Column(name="x_Time", nullable = false, length=5)
+    @Column(name = "x_Time", nullable = false, length = 5)
     private String time;
 
-    @Column(name="h_Password", nullable = false, length=128)
+    @Column(name = "h_Password", nullable = false, length = 128)
     private String passwordHash;
 
-    @Column(name="f_Enabled", nullable = false)
+    @Column(name = "f_Enabled", nullable = false)
     private boolean enabled;
 
     @Override

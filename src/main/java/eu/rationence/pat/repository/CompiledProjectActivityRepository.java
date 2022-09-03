@@ -1,7 +1,7 @@
 package eu.rationence.pat.repository;
 
-import eu.rationence.pat.model.composite_keys.CompiledProjectActivityCompositeKey;
 import eu.rationence.pat.model.CompiledProjectActivity;
+import eu.rationence.pat.model.composite_keys.CompiledProjectActivityCompositeKey;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -22,7 +22,7 @@ public interface CompiledProjectActivityRepository extends CrudRepository<Compil
     @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and DATEPART(month, d_Date) = ?2 and DATEPART(year, d_Date) = ?3", nativeQuery = true)
     List<CompiledProjectActivity> findCompiledProjectActivitiesByUsernameAndMonthAndYear(String username, int month, int year);
 
-    @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and c_Location = ?2 and c_Project = ?3 and c_Activity = ?4 and DATEPART(month, d_Date) = ?5 and DATEPART(year, d_Date) = ?6" , nativeQuery = true)
+    @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and c_Location = ?2 and c_Project = ?3 and c_Activity = ?4 and DATEPART(month, d_Date) = ?5 and DATEPART(year, d_Date) = ?6", nativeQuery = true)
     List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(String username, String location, String projectKey, String activityKey, int month, int year);
 
     CompiledProjectActivity save(CompiledProjectActivity compiledProjectActivity);

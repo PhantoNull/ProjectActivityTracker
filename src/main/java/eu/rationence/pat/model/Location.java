@@ -21,8 +21,9 @@ import java.util.Objects;
 public class Location implements Serializable {
 
     @Id
-    @Column(name="c_Location", length=16, unique = true, nullable = false)
+    @Column(name = "c_Location", length = 16, unique = true, nullable = false)
     private String locationName;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

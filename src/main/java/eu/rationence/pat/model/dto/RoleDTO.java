@@ -1,6 +1,7 @@
 package eu.rationence.pat.model.dto;
 
-import lombok.*;
+import lombok.Data;
+
 import java.io.Serializable;
 
 @Data

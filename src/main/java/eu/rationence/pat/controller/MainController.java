@@ -9,7 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
@@ -47,7 +48,7 @@ public class MainController {
         this.locationService = locationService;
     }
 
-    @GetMapping ("/")
+    @GetMapping("/")
     public String index(Model model, Principal principal) {
         String username = principal.getName();
         User userRepo = userService.find(username);
@@ -61,10 +62,10 @@ public class MainController {
         return "login";
     }
 
-    @GetMapping(value="/logout")
-    public String logoutPage (HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping(value = "/logout")
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null){
+        if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         return "redirect:/login?logout";
@@ -72,14 +73,17 @@ public class MainController {
 
     //Metodo inizializzante solo per dati default DB, da rimuovere in produzione
     @GetMapping("/initialize")
-    public String initialize() throws ParseException {
-        String[] stdNames = {"Stage","Ferie","ROL","Legge 104","Visita Medica", "Formazione Alunno", "Formazione Esterna",
+    public String initialize(HttpServletRequest request) throws ParseException {
+        if (request.getRequestURL().indexOf("localhost/initialize") == -1) {
+            return "error";
+        }
+        String[] stdNames = {"Stage", "Ferie", "ROL", "Legge 104", "Visita Medica", "Formazione Alunno", "Formazione Esterna",
                 "Donazione Sangue", "Malattia", "Permesso Studio",
                 "Permesso non retribuito", "Recupero", "Permesso", "Lutto", "Congedo Parentale Covid", "Permesso Cariche Elettive"};
         boolean[] stdInternal = {true, false, true, false, false, true, true, false, false, false, false, false, false, false,
                 false, false};
         boolean[] stdWaged = {true, false, true, true, false, true, false, false, true, false, false, true, true, false, false, false};
-        for(int i = 0; i < stdNames.length; i++){
+        for (int i = 0; i < stdNames.length; i++) {
             StandardActivity std = StandardActivity.builder().
                     activityKey(stdNames[i]).internal(stdInternal[i]).waged(stdWaged[i]).build();
             standardActivityService.save(std);
@@ -283,7 +287,7 @@ public class MainController {
         String[] actTypeKeyList = {"PM", "ANA", "DEV", "TEST", "BUG", "SUPP", "DOC", "QUAL", "AM", "TRNG", "TUTO", "INT", "TM"};
         String[] actTypeDescList = {"Project Management", "Analytics", "Development", "Testing", "Bug-Fixing", "Support",
                 "Documenting", "Quality", "Application Maintenance", "Training", "Tutoring", "Internal", "T&M"};
-        for(int i = 0; i < actTypeKeyList.length; i++){
+        for (int i = 0; i < actTypeKeyList.length; i++) {
             ActivityType aT = ActivityType.builder()
                     .activityTypeKey(actTypeKeyList[i]).activityTypeDesc(actTypeDescList[i]).build();
             activityTypeService.save(aT);

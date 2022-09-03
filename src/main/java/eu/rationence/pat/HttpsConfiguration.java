@@ -12,6 +12,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class HttpsConfiguration {
+    @Value("${server.port.http}") //Defined in application.properties file
+    int httpPort;
+    @Value("${server.port}") //Defined in application.properties file
+    int httpsPort;
+
     @Bean
     public ServletWebServerFactory servletContainer() {
         TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
@@ -28,12 +33,6 @@ public class HttpsConfiguration {
         tomcat.addAdditionalTomcatConnectors(redirectConnector());
         return tomcat;
     }
-
-    @Value("${server.port.http}") //Defined in application.properties file
-    int httpPort;
-
-    @Value("${server.port}") //Defined in application.properties file
-    int httpsPort;
 
     private Connector redirectConnector() {
         Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
