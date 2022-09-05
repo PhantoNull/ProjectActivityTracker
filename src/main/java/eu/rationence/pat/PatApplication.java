@@ -45,19 +45,19 @@ public class PatApplication {
         return new ModelMapper();
     }
 
-    @Scheduled(cron = "0 0 12 L * *")
+    @Scheduled(cron = "0 0 12 L-2 * *")
     public void sendReminderTimeSheetEmail() throws ParseException {
         LocalDate currentDate = LocalDate.now();
-        List<User> uncompiledTimeSheetUserList = userService.findAll();
-        for (User user : uncompiledTimeSheetUserList) {
+        List<User> allUserList = userService.findAll();
+        for (User user : allUserList) {
             MonthlyNote monthlyNote = monthlyNoteService.find(user.getUsername(), new SimpleDateFormat("dd-MM-yyyy").parse("1-" + currentDate.getMonthValue() + "-" + currentDate.getYear()));
-            if (user.isEnabled() && monthlyNote != null && !monthlyNote.isLocked()) {
+            if (user.isEnabled() && (monthlyNote == null || !monthlyNote.isLocked())) {
                 try {
                     emailService.sendSimpleMessage(user.getEmail(), "PAT - Reminder TimeSheet",
                             "Gentile " + user.getName() + "<br><br>" +
-                                    "Essendo l'ultimo giorno del mese e risultando al sistema che il tuo Time Sheet non " +
-                                    "è stato ancora confermato viene inviato automaticamente questo promemoria " +
-                                    "per ricordarti di compilarlo e confermarlo entro oggi.<br><br>" +
+                                    "Essendo gli ultimi giorni del mese e risultando al sistema che il tuo Time Sheet non " +
+                                    "sia stato ancora confermato viene inviato automaticamente questo promemoria " +
+                                    "per ricordarti di compilarlo e confermarlo entro la fine del mese.<br><br>" +
                                     "Grazie!");
                 } catch (Exception e) {
                     logger.error(e.getMessage());
