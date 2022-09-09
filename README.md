@@ -36,12 +36,19 @@ PAT(Project Activity Tracking) è un software per il tracciamento delle attivit�
 
 *I seguenti comandi sono da eseguire all'interno della root del repository*
 
+
 - `mvn clean package`: Esegue la build del progetto e i relativi test.
+  Assieme al comando vanno specificate in coda le variabili d'ambiente per impostare valori nel file properties con formattazione `-DNomeVariabile=valore`
+  
+  Una valorizzazione di esemplificativa può essere:
+  
+  `mvn clean package -DDB_IP=localhost -DDB_PORT=1433 -DDB_SCHEMA=Rationence_PAT -DDB_USER=utente_db -DDB_PASSWORD=password_utentedb -DMAIL_HOST="smtps.provider.com" -DMAIL_PORT=465 -DMAIL_USERNAME=email@provider.com -DMAIL_PASSWORD=password_email`
+  
   Se ha successo copia i file generati in `target/`, dove `target/` è la cartella in cui risiedono i file compilati del server.
   Infine, crea il pacchetto .jar completo.
 
 - `java -jar target/PAT-VERSION.jar`: Esegue il file .jar generato in precedenza.
   `VERSION` è il numero di versione presente nel file `pom.xml` alla path `project.version`.
-  Attualmente è `1.2`.
+  Attualmente è `1.3`.
 
 - Il server è ora accessibile all'indirizzo `localhost`.
