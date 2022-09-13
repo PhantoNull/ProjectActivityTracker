@@ -1,5 +1,6 @@
 package eu.rationence.pat.controller;
 
+import eu.rationence.pat.PatApplication;
 import eu.rationence.pat.model.MonthlyNote;
 import eu.rationence.pat.model.Role;
 import eu.rationence.pat.model.Team;
@@ -8,9 +9,12 @@ import eu.rationence.pat.model.dto.UserDTO;
 import eu.rationence.pat.service.*;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +43,7 @@ public class UserController {
     private final RoleService roleService;
     private final EmailService emailService;
     private final MonthlyNoteService monthlyNoteService;
+    Logger logger = LoggerFactory.getLogger(PatApplication.class);
 
     @Autowired
     public UserController(ModelMapper modelMapper, UserService userService, TeamService teamService, RoleService roleService, EmailService emailService, MonthlyNoteService monthlyNoteService) {
@@ -57,7 +62,7 @@ public class UserController {
         LocalDate currentDate = LocalDate.now();
         int month = currentDate.getMonthValue();
         int year = currentDate.getYear();
-        if (currentDate.getDayOfMonth() <= 15) {
+        if (currentDate.getDayOfMonth() <= 10) {
             month = currentDate.getMonthValue() - 1;
             if (month == 0) {
                 month = 12;
@@ -154,6 +159,29 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/users")
+    public ResponseEntity<String> deleteUser(@Valid UserDTO userDTO,
+                                             BindingResult result,
+                                             Principal principal) {
+        try {
+            if (result.hasErrors())
+                return AdviceController.responseBadRequest(result.getAllErrors().toString());
+            User user = modelMapper.map(userDTO, User.class);
+            User userRepo = userService.find(user.getUsername());
+            if (userRepo == null)
+                return AdviceController.responseNotFound("Cannot delete " + CLASS_DESC + " '" + user.getUsername() + "'.");
+            String username = principal.getName();
+            if (userRepo.getUsername().equalsIgnoreCase(username))
+                return AdviceController.responseForbidden("Cannot delete your account while logged in");
+            userService.delete(user.getUsername());
+            return AdviceController.responseOk(CLASS_DESC + " '" + user.getUsername() + "' successfully deleted");
+        } catch (DataIntegrityViolationException e) {
+            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + "'" + userDTO.getUsername() + "' (Constraint violation)");
+        } catch (Exception e) {
+            return AdviceController.responseServerError(e.getMessage());
+        }
+    }
+
     @PostMapping("/resetPasswordUser")
     public ResponseEntity<String> resetPasswordUser(@Valid UserDTO userDTO,
                                                     BindingResult result) {
@@ -206,26 +234,33 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/users")
-    public ResponseEntity<String> deleteUser(@Valid UserDTO userDTO,
-                                             BindingResult result,
-                                             Principal principal) {
-        try {
-            if (result.hasErrors())
-                return AdviceController.responseBadRequest(result.getAllErrors().toString());
-            User user = modelMapper.map(userDTO, User.class);
-            User userRepo = userService.find(user.getUsername());
-            if (userRepo == null)
-                return AdviceController.responseNotFound("Cannot delete " + CLASS_DESC + " '" + user.getUsername() + "'.");
-            String username = principal.getName();
-            if (userRepo.getUsername().equalsIgnoreCase(username))
-                return AdviceController.responseForbidden("Cannot delete your account while logged in");
-            userService.delete(user.getUsername());
-            return AdviceController.responseOk(CLASS_DESC + " '" + user.getUsername() + "' successfully deleted");
-        } catch (DataIntegrityViolationException e) {
-            return AdviceController.responseForbidden("Cannot delete " + CLASS_DESC + "'" + userDTO.getUsername() + "' (Constraint violation)");
-        } catch (Exception e) {
-            return AdviceController.responseServerError(e.getMessage());
+    @PostMapping("/sendReminder")
+    public ResponseEntity<String> changePasswordUser(Principal principal) throws ParseException {
+        sendReminderTimeSheetEmail();
+        return AdviceController.responseOk("Reminder sent to all users whom have not compiled yet");
+    }
+
+    @Scheduled(cron = "0 0 13 1-10,L-3 * *")
+    public void sendReminderTimeSheetEmail() throws ParseException {
+        LocalDate currentDate = LocalDate.now();
+        if(currentDate.getDayOfMonth() <= 10){
+            currentDate = currentDate.minusMonths(1);
+        }
+        List<User> allUserList = userService.findAll();
+        for (User user : allUserList) {
+            MonthlyNote monthlyNote = monthlyNoteService.find(user.getUsername(), new SimpleDateFormat("dd-MM-yyyy").parse("1-" + currentDate.getMonthValue() + "-" + currentDate.getYear()));
+            if (user.isEnabled() && (monthlyNote == null || !monthlyNote.isLocked())) {
+                try {
+                    emailService.sendSimpleMessage(user.getEmail(), "PAT - Reminder TimeSheet",
+                            "Gentile " + user.getName() + "<br><br>" +
+                                    "Risultando al sistema che il tuo Time Sheet per la mensilità " + currentDate.getMonthValue() +"/"+ currentDate.getYear() + " non sia stato  " +
+                                    "ancora confermato viene inviato automaticamente questo promemoria " +
+                                    "per ricordarti di compilarlo e confermarlo il prima possibile.<br><br>" +
+                                    "Grazie!");
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
         }
     }
 
@@ -246,5 +281,4 @@ public class UserController {
             return AdviceController.responseNotFound("Role " + roleKey + " does not exist");
         return null;
     }
-
 }

@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class HttpsConfiguration {
-    @Value("${server.port.http}") //Defined in application.properties file
+    @Value("${server.port.http}")
     int httpPort;
-    @Value("${server.port}") //Defined in application.properties file
+    @Value("${server.port}")
     int httpsPort;
 
     @Bean
