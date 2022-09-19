@@ -31,8 +31,8 @@ public class UserActivity implements Serializable {
     private String username;
 
     @ManyToOne
-    @JoinColumns({@JoinColumn(name = "c_Activity", foreignKey = @ForeignKey(name = "fk_Activity_UserActivity"), insertable = false, updatable = false),
-            @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_UserActivity"), insertable = false, updatable = false)})
+    @JoinColumn(name = "c_Activity", foreignKey = @ForeignKey(name = "fk_Activity_UserActivity"), insertable = false, updatable = false)
+    @JoinColumn(name = "c_Project", foreignKey = @ForeignKey(name = "fk_Project_UserActivity"), insertable = false, updatable = false)
     private ProjectActivity c_Activity;
 
     @ManyToOne
@@ -42,7 +42,7 @@ public class UserActivity implements Serializable {
     private User c_Username;
 
     @Column(name = "i_DailyRate", nullable = false)
-    private Integer dailyRate;
+    private int dailyRate;
 
     @Override
     public boolean equals(Object o) {

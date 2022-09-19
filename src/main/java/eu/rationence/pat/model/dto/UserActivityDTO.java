@@ -18,5 +18,5 @@ public class UserActivityDTO implements Serializable {
 
     private User c_Username;
 
-    private Integer dailyRate;
+    private int dailyRate;
 }
