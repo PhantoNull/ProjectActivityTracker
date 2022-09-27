@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -60,6 +62,10 @@ public class TeamController {
             User userRepo = userService.find(teamAdminKey);
             if (userRepo == null)
                 return AdviceController.responseNotFound(teamAdminKey + " is not a valid user for" + CLASS_DESC + " Manager");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(team.getTeamName());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Team key should contain only allowed characters: [a-zA-Z0-9._-]");
             teamService.save(team);
             return AdviceController.responseOk(CLASS_DESC + " '" + team.getTeamName() + "' saved");
         } catch (Exception e) {

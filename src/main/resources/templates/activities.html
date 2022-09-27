@@ -59,7 +59,7 @@
                 for (let index in tableRowList) {
                     if (tableRowList[index]) {
                         let data = new FormData(document.getElementById("form" + index));
-                        if (index != "add")
+                        if (index !== "add")
                             await fetch("/projects/" + projectKey, {method: 'DELETE', body: data})
                                 .then(async response => {
                                     let body = await response.text().then(val => val);
@@ -82,6 +82,7 @@
         let errorelement = document.getElementById("error-log-text");
         errorelement.innerHTML = error_log;
         showErrorLog(true);
+        drawChart();
         if (tableChanged === true)
             setTimeout(function () {window.location.reload(true)}, 3000);
     }
@@ -109,6 +110,60 @@
         }
     }
 </script>
+
+<script th:inline="javascript">
+    const project_name = [[${project.projectKey}]];
+    const project_start = [[${project.dateStart}]];
+    const project_end = [[${project.dateEnd}]];
+    const project_close = [[${project.dateClose}]];
+    const project_value = [[${project.value}]];
+    const activity_num = [[${activityListNum}]];
+</script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['gantt']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        let data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task ID');
+        data.addColumn('string', 'Task Name');
+        data.addColumn('string', 'Resource');
+        data.addColumn('date', 'Start Date');
+        data.addColumn('date', 'End Date');
+        data.addColumn('number', 'Value');
+        data.addColumn('number', 'Percent Complete');
+        data.addColumn('string', 'Dependencies');
+
+        data.addRows([
+            [project_name,  project_name, project_name,
+                new Date(project_start), new Date(project_end), project_value, 100, null],
+        ]);
+
+        for(let i=0; i<activity_num; i++) {
+            let activityKey = document.getElementById("activityKey"+i).value;
+            let activityDateStart = document.getElementById("dateStart"+i).value;
+            let activityDateEnd = document.getElementById("dateEnd"+i).value;
+            let activityType = document.getElementById("activityType"+i).value;
+            if(activityDateEnd === "")
+                activityDateEnd = project_end;
+            data.addRows([
+                [activityKey, activityKey, activityType,
+                new Date(activityDateStart), new Date(activityDateEnd), null, 50, null],
+                ]);
+        }
+        let options = {
+            gantt: {
+                trackHeight: 20,
+                barHeight: 15
+            }
+        };
+        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+        chart.draw(data, options);
+    }
+</script>
+
 
 <section class="">
     <div class="container mt-6">
@@ -431,7 +486,14 @@
                                 </div>
                             </div>
                         </div>
+                        <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
+                        <div class="columns is-centered">
+                            <div class="column">
+                                <div id="chart_div"></div>
+                            </div>
+                        </div>
                     </div>
+
                 </article>
             </div>
         </div>

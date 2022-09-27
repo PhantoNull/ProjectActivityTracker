@@ -49,7 +49,9 @@ public class ProjectActivityController {
         }
         model.addAttribute("activityTypeList", activityTypeService.findAll());
         model.addAttribute("activityList", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()));
+        model.addAttribute("activityListNum", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()).size());
         model.addAttribute("projectKey", projectKey);
+        model.addAttribute("project", projectRepo);
         String username = principal.getName();
         User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());
@@ -68,6 +70,8 @@ public class ProjectActivityController {
             ResponseEntity<String> validityError = checkActivityValidity(projectKey, activityType, manDays);
             if (validityError != null)
                 return validityError;
+            else if (projectActivity.getActivityKey().length() < 1)
+                return AdviceController.responseBadRequest(CLASS_DESC + " key can't be blank");
             ProjectActivity projectActivityRepo = projectActivityService.find(activityKey, projectKey);
             if (projectActivityRepo != null)
                 return AdviceController.responseConflict(CLASS_DESC + " '" + projectActivity.getActivityKey() + "' has already been created");

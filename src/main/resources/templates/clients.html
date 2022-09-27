@@ -231,7 +231,7 @@
                                                 <div class="select">
                                                     <select th:id="ClientTypefilter" name="clientType"
                                                             class="width200 fClientType" th:onchange="'filterTableRow()'">
-                                                        <option th:value="ALL">ALL</option>
+                                                        <option value="ALL">ALL</option>
                                                         <option th:each="clientType : ${clientTypeList}"
                                                                 th:value="${clientType.clientTypeKey}"
                                                                 th:text="${clientType.clientTypeKey}"></option>

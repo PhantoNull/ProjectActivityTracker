@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -54,6 +56,12 @@ public class RoleController {
             if (roleService.find(role.getRoleName()) != null) {
                 return AdviceController.responseConflict(role.getRoleName() + "has already been created");
             }
+            else if (role.getRoleName().length() < 1)
+                return AdviceController.responseBadRequest(CLASS_DESC + " key can't be blank");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(role.getRoleName());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Role name should contain only allowed characters: [a-zA-Z0-9._-]");
             roleService.save(role);
             return AdviceController.responseOk(CLASS_DESC + " '" + role.getRoleName() + "' saved");
         } catch (Exception e) {

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -56,6 +58,10 @@ public class StandardActivityController {
                 return AdviceController.responseBadRequest(CLASS_DESC + " Key Name can't be blank");
             else if (standardActivityService.findStandardActivityByActivityKey(stdAct.getActivityKey()) != null)
                 return AdviceController.responseConflict(stdAct.getActivityKey() + " has been already created");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(stdAct.getActivityKey());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Standard activity key should contain only allowed characters: [a-zA-Z0-9._-]");
             standardActivityService.save(stdAct);
             return AdviceController.responseOk(CLASS_DESC + " '" + stdAct.getActivityKey() + "' saved");
         } catch (Exception e) {

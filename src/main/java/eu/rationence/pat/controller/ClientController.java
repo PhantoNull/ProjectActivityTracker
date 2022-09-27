@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class ClientController {
@@ -63,6 +65,10 @@ public class ClientController {
             ClientType clientTypeRepo = clientTypeService.find(clientTypeKey);
             if (clientTypeRepo == null)
                 return AdviceController.responseNotFound(clientTypeKey + " is not a valid client type");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(client.getClientKey());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Client key should contain only allowed characters: [a-zA-Z0-9._-]");
             clientService.save(client);
             return AdviceController.responseOk(CLASS_DESC + " '" + client.getClientKey() + "' saved");
         } catch (Exception e) {

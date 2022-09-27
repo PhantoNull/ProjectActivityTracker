@@ -43,7 +43,7 @@ public class UserController {
     private final RoleService roleService;
     private final EmailService emailService;
     private final MonthlyNoteService monthlyNoteService;
-    Logger logger = LoggerFactory.getLogger(PatApplication.class);
+    Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public UserController(ModelMapper modelMapper, UserService userService, TeamService teamService, RoleService roleService, EmailService emailService, MonthlyNoteService monthlyNoteService) {
@@ -107,12 +107,17 @@ public class UserController {
             ResponseEntity<String> validityError = checkUserValidity(user, teamKey, roleKey, cost);
             if (validityError != null)
                 return validityError;
+            else if (user.getUsername().length() < 1)
+                return AdviceController.responseBadRequest(CLASS_DESC + " key can't be blank");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(user.getUsername());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Username should contain only allowed characters: [a-zA-Z0-9._-]");
             Team teamRepo = teamService.find(teamKey);
             Role roleRepo = roleService.find(roleKey);
             user.setTeam(teamRepo);
             user.setRole(roleRepo);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
             SecureRandom random = new SecureRandom();
             byte[] bytes = new byte[16];
             random.nextBytes(bytes);
