@@ -13,7 +13,7 @@ public interface StandardActivityRepository extends CrudRepository<StandardActiv
 
     List<StandardActivity> findAll();
 
-    StandardActivity save(StandardActivity std);
+    <S extends StandardActivity> S save(S std);
 
     @Transactional
     void deleteStandardActivityByActivityKey(String activityKey);

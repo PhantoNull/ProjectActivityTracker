@@ -25,7 +25,7 @@ public interface CompiledStandardActivityRepository extends CrudRepository<Compi
     @Query(value = "SELECT * FROM PAT_CompiledStandardActivities WHERE c_Username = ?1 AND c_Location = ?2 AND c_Activity = ?3 AND DATEPART(month, d_Date) = ?4 AND DATEPART(year, d_Date) = ?5", nativeQuery = true)
     List<CompiledStandardActivity> findCompiledStandardActivitiesListByUsernameAndLocationNameAndActivityKeyAndMonthAndYear(String username, String location, String activityKey, int month, int year);
 
-    CompiledStandardActivity save(CompiledStandardActivity compiledStandardActivity);
+    <S extends CompiledStandardActivity> S save(S compiledStandardActivity);
 
     @Transactional
     void deleteCompiledStandardActivityByActivityKeyAndUsernameAndLocationNameAndDate(String activityKey, String username, String location, Date date);

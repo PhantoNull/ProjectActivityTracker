@@ -12,7 +12,7 @@ import java.util.Date;
 public interface MonthlyNoteRepository extends CrudRepository<MonthlyNote, MonthlyNoteCompositeKey> {
     MonthlyNote getMonthlyNoteByUsernameAndDate(String username, Date date);
 
-    MonthlyNote save(MonthlyNote monthlyNote);
+    <S extends MonthlyNote> S save(S monthlyNote);
 
     @Transactional
     void deleteMonthlyNoteByUsernameAndDate(String username, Date date);

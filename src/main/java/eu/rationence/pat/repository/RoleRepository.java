@@ -13,7 +13,7 @@ public interface RoleRepository extends CrudRepository<Role, String> {
 
     List<Role> findAll();
 
-    Role save(Role role);
+    <S extends Role> S save(S role);
 
     @Transactional
     void deleteRoleByRoleName(String roleName);

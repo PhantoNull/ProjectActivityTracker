@@ -15,7 +15,7 @@ public interface UserRepository extends CrudRepository<User, String> {
 
     List<User> findAll();
 
-    User save(User user);
+    <S extends User> S save(S user);
 
     @Transactional
     void deleteUserByUsername(String username);
