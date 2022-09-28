@@ -1,6 +1,5 @@
 package eu.rationence.pat.controller;
 
-import eu.rationence.pat.PatApplication;
 import eu.rationence.pat.model.MonthlyNote;
 import eu.rationence.pat.model.Role;
 import eu.rationence.pat.model.Team;
