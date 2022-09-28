@@ -4,10 +4,7 @@ import eu.rationence.pat.model.Project;
 import eu.rationence.pat.model.ProjectActivity;
 import eu.rationence.pat.model.User;
 import eu.rationence.pat.model.dto.ProjectActivityDTO;
-import eu.rationence.pat.service.ActivityTypeService;
-import eu.rationence.pat.service.ProjectActivityService;
-import eu.rationence.pat.service.ProjectService;
-import eu.rationence.pat.service.UserService;
+import eu.rationence.pat.service.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,14 +25,16 @@ public class ProjectActivityController {
     private final ProjectService projectService;
     private final ActivityTypeService activityTypeService;
     private final ProjectActivityService projectActivityService;
+    private final CompiledProjectActivityService compiledProjectActivityService;
 
     @Autowired
-    public ProjectActivityController(ModelMapper modelMapper, UserService userService, ProjectService projectService, ActivityTypeService activityTypeService, ProjectActivityService projectActivityService) {
+    public ProjectActivityController(ModelMapper modelMapper, UserService userService, ProjectService projectService, ActivityTypeService activityTypeService, ProjectActivityService projectActivityService, CompiledProjectActivityService compiledProjectActivityService) {
         this.modelMapper = modelMapper;
         this.userService = userService;
         this.projectService = projectService;
         this.activityTypeService = activityTypeService;
         this.projectActivityService = projectActivityService;
+        this.compiledProjectActivityService = compiledProjectActivityService;
     }
 
     @GetMapping("/projects/{projectKey}")
@@ -52,6 +51,11 @@ public class ProjectActivityController {
         model.addAttribute("activityListNum", projectActivityService.findActivitiesByProject(projectRepo.getProjectKey()).size());
         model.addAttribute("projectKey", projectKey);
         model.addAttribute("project", projectRepo);
+
+        for (ProjectActivity projectActivity : projectActivityService.findActivitiesByProject(projectRepo.getProjectKey())) {
+            int totalHoursSpentOnActivity = compiledProjectActivityService.getTotHours(projectActivity.getActivityKey(), projectKey);
+            model.addAttribute(projectActivity.getActivityKey() + "TotHoursCompiled", totalHoursSpentOnActivity);
+        }
         String username = principal.getName();
         User userRepo = userService.find(username);
         model.addAttribute("userTeam", userRepo.getTeam().getTeamName());

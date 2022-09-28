@@ -28,6 +28,9 @@ public class CompiledProjectActivityService {
     public List<CompiledProjectActivity> find(String username, String location, String project, String activityKey, int month, int year) {
         return compiledProjectActivityRepository.findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(username, location, project, activityKey, month, year);
     }
+    public int getTotHours(String activityKey, String project){
+        return compiledProjectActivityRepository.sumCompiledProjectActivityByActivityKeyAndProjectKey(activityKey, project);
+    }
     public CompiledProjectActivity save(CompiledProjectActivity compiledProjectActivity){
         return compiledProjectActivityRepository.save(compiledProjectActivity);
     }

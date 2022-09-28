@@ -132,7 +132,7 @@
         data.addColumn('string', 'Resource');
         data.addColumn('date', 'Start Date');
         data.addColumn('date', 'End Date');
-        data.addColumn('number', 'Value');
+        data.addColumn('number', 'Duration');
         data.addColumn('number', 'Percent Complete');
         data.addColumn('string', 'Dependencies');
 
@@ -146,11 +146,14 @@
             let activityDateStart = document.getElementById("dateStart"+i).value;
             let activityDateEnd = document.getElementById("dateEnd"+i).value;
             let activityType = document.getElementById("activityType"+i).value;
+            let activityDays = document.getElementById("manDays"+i).value * 8;
+            let activityTotHoursCompiled = document.getElementById("TotHoursCompiled"+activityKey).value;
+            let activityPercentage = Math.round(100 * (activityTotHoursCompiled / activityDays));
             if(activityDateEnd === "")
                 activityDateEnd = project_end;
             data.addRows([
                 [activityKey, activityKey, activityType,
-                new Date(activityDateStart), new Date(activityDateEnd), null, 50, null],
+                new Date(activityDateStart), new Date(activityDateEnd), activityDays, activityPercentage, null],
                 ]);
         }
         let options = {
@@ -379,6 +382,7 @@
                                                   th:object="${projectActivity}" method="put">
                                                 <td style="text-align:center; vertical-align:middle;">
                                                     <input type="hidden" name="project" th:value="${projectKey}">
+                                                    <input type="hidden" th:id="TotHoursCompiled + ${projectActivity.activityKey}" th:value="${#vars.getVariable('__${projectActivity.activityKey}__TotHoursCompiled')}">
                                                     <input th:id="checkbox+${iter.index}"
                                                            th:onclick="'selectTableRow(\'' + ${iter.index} + '\');'"
                                                            type="checkbox" class="tablecheckbox">
@@ -488,7 +492,7 @@
                         </div>
                         <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
                         <div class="columns is-centered">
-                            <div class="column">
+                            <div class="column is-flexible">
                                 <div id="chart_div"></div>
                             </div>
                         </div>
