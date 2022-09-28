@@ -94,28 +94,28 @@ input:focus {
 
 .ratiologo{width: 20rem;}
 .username{text-shadow: 0 0 4px rgba(255, 255, 255, 0.36);}
-th.checkboxCol{width: 30px; !important}
-th.hoursCol{width: 30px; !important}
-th.hoursTotCol{width: 60px; !important}
-th.usernameCol{width:180px; !important}
-th.nameCol{width:120px; !important}
-th.surnameCol{width:120px; !important}
-th.descriptionCol{width:200px; !important}
-th.emailCol, th.teamDescCol, th.clientDescCol{width:300px; !important}
-th.projectDescCol{width:200px; !important}
-th.timeCol{width:80px; !important}
-th.roleCol, th.teamCol, th.costCol{width:80px; !important}
-th.teamNameCol, th.locationCol{width: 110px; !important}
-th.valueCol, th.manDaysCol{width: 100px; !important}
-th.projectKeyCol{width: 180px; !important}
-th.dateCol{width: 100px; !important}
-th.activityTrackingCol{min-width: 200px; !important}
+th.checkboxCol{width: 30px !important;}
+th.hoursCol{width: 30px !important;}
+th.hoursTotCol{width: 60px !important;}
+th.usernameCol{width:180px !important;}
+th.nameCol{width:120px !important;}
+th.surnameCol{width:120px !important;}
+th.descriptionCol{width:200px !important;}
+th.emailCol, th.teamDescCol, th.clientDescCol{width:300px !important;}
+th.projectDescCol{width:200px !important;}
+th.timeCol{width:80px !important;}
+th.roleCol, th.teamCol, th.costCol{width:80px !important;}
+th.teamNameCol, th.locationCol{width: 110px !important;}
+th.valueCol, th.manDaysCol{width: 100px !important;}
+th.projectKeyCol{width: 180px !important;}
+th.dateCol{width: 100px !important;}
+th.activityTrackingCol{min-width: 200px !important;}
 .article{border: 1px #2b4d60;}
 
-.width110{width:110px; !important}
-.width80{width:90px; !important}
-.width200{width:200px; !important}
-.width180{width: 180px; !important}
+.width110{width:110px !important;}
+.width80{width:90px !important;}
+.width200{width:200px !important;}
+.width180{width: 180px !important;}
 
 .tablecheckbox:checked{ background-color:#4FA9BAFF; }
 .table-button:hover { color: #5598A8FF;}
@@ -125,7 +125,7 @@ th.activityTrackingCol{min-width: 200px; !important}
                                     sepia(46%)
                                     saturate(378%)
                                     hue-rotate(144deg);}
-.table-header{ padding-top: 20px; !important}
+.table-header{ padding-top: 20px !important;}
 
 .a{text-decoration: none;}
 
@@ -149,12 +149,12 @@ input::-webkit-inner-spin-button {-webkit-appearance: none; margin: 0;}
 input[type=number] { -moz-appearance: textfield;}
 
 
-.input, .select select{
-    padding: 5px; !important
+.input{
+    padding: 5px !important;
 }
 
 .input, .select select{
-    border-radius: 1px; !important
+    border-radius: 1px !important;
 }
 
 .is-not-clickable {
