@@ -58,8 +58,10 @@
                     }
                 }
             }
-            if (index !== "add")
+            if (index !== "add") {
                 document.getElementById("rowTotal" + index).value = rowSubtotal[index];
+                document.getElementById("rowGgTotal" + index).value = (rowSubtotal[index]/8).toFixed(1);
+            }
         }
         for (let day = 1; day <= 31; day++) {
             dailySubtotal[day] = 0;
@@ -83,6 +85,7 @@
             }
         }
         document.getElementById("hourTotFinal").value = totalHours;
+        document.getElementById("ggTotFinal").value = (totalHours/8).toFixed(1);
     }
 
     async function action(actionString, year, month, username) {
@@ -450,6 +453,9 @@
                                             <th class="hoursTotCol has-text-primary-dark table-header has-text-centered">
                                                 Tot
                                             </th>
+                                            <th class="hoursTotCol has-text-primary-dark table-header has-text-centered">
+                                                Gg
+                                            </th>
                                         </tr>
                                         <!-- Data rows -->
                                         <tr th:each="projectActivity,iter : ${projectActivityList}"
@@ -498,6 +504,13 @@
                                                 <td>
                                                     <input class="input has-text-centered has-text-weight-semibold"
                                                            th:id="rowTotal+${iter.index}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
+                                                </td>
+                                                <td>
+                                                    <input class="input has-text-centered has-text-weight-semibold"
+                                                           th:id="rowGgTotal+${iter.index}"
                                                            type="number"
                                                            value="0"
                                                            required readonly>
@@ -553,6 +566,13 @@
                                                            value="0"
                                                            required readonly>
                                                 </td>
+                                                <td>
+                                                    <input class="input has-text-centered has-text-weight-semibold"
+                                                           th:id="rowGgTotalS+${iter.index}"
+                                                           type="number"
+                                                           value="0"
+                                                           required readonly>
+                                                </td>
                                             </div>
                                         </tr>
 
@@ -577,6 +597,14 @@
                                             <td>
                                                 <input class="input has-text-centered has-text-weight-semibold"
                                                        th:id="hourTotFinal"
+                                                       type="number"
+                                                       th:value="0"
+                                                       th:placeholder="0"
+                                                       required readonly>
+                                            </td>
+                                            <td>
+                                                <input class="input has-text-centered has-text-weight-semibold"
+                                                       th:id="ggTotFinal"
                                                        type="number"
                                                        th:value="0"
                                                        th:placeholder="0"

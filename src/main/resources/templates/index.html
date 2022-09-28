@@ -192,7 +192,7 @@
                 <p>
                 <p class="mb-2 mt-5">Insert your new password:
                 <p>
-                <form id="changePassword" onkeydown="return event.key != 'Enter';">
+                <form id="changePassword" onkeydown="return event.key !== 'Enter';">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <input id="inputPassword" class="input" type="password" name="password" maxlength="64"
                                required/>

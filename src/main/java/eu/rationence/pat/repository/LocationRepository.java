@@ -13,7 +13,7 @@ public interface LocationRepository extends CrudRepository<Location, String> {
 
     List<Location> findAll();
 
-    Location save(Location team);
+    <S extends Location> S save(S location);
 
     @Transactional
     void deleteLocationByLocationName(String locationName);

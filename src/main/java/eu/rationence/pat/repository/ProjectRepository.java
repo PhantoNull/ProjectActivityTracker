@@ -13,7 +13,7 @@ public interface ProjectRepository extends CrudRepository<Project, String> {
 
     List<Project> findAll();
 
-    Project save(Project project);
+    <S extends Project> S save(S project);
 
     @Transactional
     void deleteProjectByProjectKey(String projectKey);

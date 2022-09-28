@@ -14,7 +14,7 @@ public interface ProjectActivityRepository extends CrudRepository<ProjectActivit
 
     List<ProjectActivity> findActivitiesByProject(String projectKey);
 
-    ProjectActivity save(ProjectActivity projectActivity);
+    <S extends ProjectActivity> S save(S projectActivity);
 
     @Transactional
     void deleteActivityByActivityKeyAndProject(String activityKey, String projectKey);

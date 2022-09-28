@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -75,6 +77,12 @@ public class ProjectController {
             ResponseEntity<String> validityError = checkProjectValidity(teamKey, projectManagerKey, clientKey, projectTypeKey, value);
             if (validityError != null)
                 return validityError;
+            else if (project.getProjectKey().length() < 1)
+                return AdviceController.responseBadRequest(CLASS_DESC + " key can't be blank");
+            Pattern p = Pattern.compile("[^a-z0-9._-]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(project.getProjectKey());
+            if(m.find())
+                return AdviceController.responseBadRequest("Cannot create " + CLASS_DESC + ". Project key should contain only allowed characters: [a-zA-Z0-9._-]");
             projectService.save(project);
             return AdviceController.responseOk(CLASS_DESC + " '" + project.getProjectKey() + "' saved");
         } catch (Exception e) {

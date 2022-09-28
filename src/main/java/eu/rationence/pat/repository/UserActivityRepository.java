@@ -14,7 +14,7 @@ public interface UserActivityRepository extends CrudRepository<UserActivity, Use
 
     List<UserActivity> findUserActivitiesByProjectAndActivityKey(String projectKey, String activityKey);
 
-    UserActivity save(UserActivity userActivity);
+    <S extends UserActivity> S save(S userActivity);
 
     @Transactional
     void deleteUserActivityByActivityKeyAndProjectAndUsername(String activityKey, String projectKey, String username);

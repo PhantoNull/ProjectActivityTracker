@@ -25,7 +25,10 @@ public interface CompiledProjectActivityRepository extends CrudRepository<Compil
     @Query(value = "SELECT * FROM PAT_CompiledProjectActivities WHERE c_Username = ?1 and c_Location = ?2 and c_Project = ?3 and c_Activity = ?4 and DATEPART(month, d_Date) = ?5 and DATEPART(year, d_Date) = ?6", nativeQuery = true)
     List<CompiledProjectActivity> findCompiledProjectActivitiesListByUsernameAndLocationNameAndProjectAndActivityKeyAndMonthAndYear(String username, String location, String projectKey, String activityKey, int month, int year);
 
-    CompiledProjectActivity save(CompiledProjectActivity compiledProjectActivity);
+    @Query(value= "SELECT COALESCE(SUM(n_Hours),0) FROM PAT_CompiledProjectActivities WHERE c_Project = ?2 and c_Activity = ?1", nativeQuery = true)
+    int sumCompiledProjectActivityByActivityKeyAndProjectKey(String activityKey, String projectKey);
+
+    <S extends CompiledProjectActivity> S save(S compiledProjectActivity);
 
     @Transactional
     void deleteCompiledProjectActivityByActivityKeyAndProjectAndUsernameAndLocationNameAndDate(String activityKey, String projectKey, String username, String location, Date date);

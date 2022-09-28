@@ -13,7 +13,7 @@ public interface ActivityTypeRepository extends CrudRepository<ActivityType, Str
 
     List<ActivityType> findAll();
 
-    ActivityType save(ActivityType activityType);
+    <S extends ActivityType> S save(S activityType);
 
     @Transactional
     void deleteActivityTypeByActivityTypeKey(String string);

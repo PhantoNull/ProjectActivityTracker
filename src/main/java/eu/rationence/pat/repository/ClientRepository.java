@@ -13,7 +13,7 @@ public interface ClientRepository extends CrudRepository<Client, String> {
 
     List<Client> findAll();
 
-    Client save(Client client);
+    <S extends Client> S save(S client);
 
     @Transactional
     void deleteClientByClientKey(String string);

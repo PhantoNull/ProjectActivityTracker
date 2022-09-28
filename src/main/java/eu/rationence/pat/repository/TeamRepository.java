@@ -13,7 +13,7 @@ public interface TeamRepository extends CrudRepository<Team, String> {
 
     List<Team> findAll();
 
-    Team save(Team team);
+    <S extends Team> S save(S team);
 
     @Transactional
     void deleteTeamByTeamName(String teamName);
