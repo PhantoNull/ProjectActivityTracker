@@ -126,6 +126,11 @@
     google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
+        if(project_end == null){
+            let projectGantt = document.getElementById('projectGantt');
+            projectGantt.classList.add('hidden');
+            return;
+        }
         let data = new google.visualization.DataTable();
         data.addColumn('string', 'Task ID');
         data.addColumn('string', 'Task Name');
@@ -135,10 +140,11 @@
         data.addColumn('number', 'Duration');
         data.addColumn('number', 'Percent Complete');
         data.addColumn('string', 'Dependencies');
+        data.addColumn('string', 'tooltip');
 
         data.addRows([
             [project_name,  project_name, project_name,
-                new Date(project_start), new Date(project_end), project_value, 100, null],
+                new Date(project_start), new Date(project_end), project_value, 100, null, "Project: "+project_name],
         ]);
 
         for(let i=0; i<activity_num; i++) {
@@ -152,19 +158,43 @@
             if(activityDateEnd === "")
                 activityDateEnd = project_end;
             data.addRows([
-                [activityKey, activityKey, activityType,
-                new Date(activityDateStart), new Date(activityDateEnd), activityDays, activityPercentage, null],
-                ]);
+                [activityKey, activityKey, "activity",
+                    new Date(activityDateStart), new Date(activityDateEnd), activityDays, activityPercentage, null, "Compiled Days: " + activityTotHoursCompiled],
+            ]);
         }
         let options = {
+            tooltip: {isHtml: true},
             gantt: {
+                criticalPathEnabled: false,
+                labelStyle: {
+                    fontFamily: "Arial",
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    color: '#f30606'
+                },
                 trackHeight: 20,
-                barHeight: 15
+                barHeight: 15,
+                palette: [
+                    {
+                        "color": "#386671",
+                        "dark": "#25454d",
+                        "light": "#73b3c2"
+                    },
+                    {
+                        "color": "#5caabd",
+                        "dark": "#417988",
+                        "light": "#9ee3f6"
+                    },
+                ],
             }
         };
-        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+        let chart = new google.visualization.Gantt(document.getElementById('chart_div'));
         chart.draw(data, options);
     }
+
+    window.addEventListener('resize', function(event) {
+        drawChart();
+    }, true);
 </script>
 
 
@@ -490,10 +520,12 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
-                        <div class="columns is-centered">
-                            <div class="column is-flexible">
-                                <div id="chart_div"></div>
+                        <div id="projectGantt" style="font-weight: bold;">
+                            <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
+                            <div class="columns is-centered">
+                                <div class="column">
+                                    <div id="chart_div"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
