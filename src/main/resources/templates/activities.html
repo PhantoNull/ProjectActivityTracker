@@ -122,24 +122,27 @@
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-    google.charts.load('current', {'packages':['gantt']});
+    google.charts.load("current", {packages:["timeline"]});
     google.charts.setOnLoadCallback(drawChart);
-
     function drawChart() {
-        let data = new google.visualization.DataTable();
-        data.addColumn('string', 'Task ID');
-        data.addColumn('string', 'Task Name');
-        data.addColumn('string', 'Resource');
-        data.addColumn('date', 'Start Date');
-        data.addColumn('date', 'End Date');
-        data.addColumn('number', 'Duration');
-        data.addColumn('number', 'Percent Complete');
-        data.addColumn('string', 'Dependencies');
+        if(project_end == null){
+            let projectGantt = document.getElementById('ganttContainer');
+            projectGantt.classList.add('hidden');
+            return;
+        }
+        var container = document.getElementById('ganttChart');
+        var chart = new google.visualization.Timeline(container);
+        var data = new google.visualization.DataTable();
+        data.addColumn({ type: 'string', id: 'Term' });
+        data.addColumn({ type: 'string', id: 'Name' });
+        data.addColumn({ type: 'date', id: 'Start' });
+        data.addColumn({ type: 'date', id: 'End' });
 
         data.addRows([
-            [project_name,  project_name, project_name,
-                new Date(project_start), new Date(project_end), project_value, 100, null],
+            [project_name,  project_name,
+                new Date(project_start), new Date(project_end)],
         ]);
+        let colorArray = ["#386671",];
 
         for(let i=0; i<activity_num; i++) {
             let activityKey = document.getElementById("activityKey"+i).value;
@@ -149,23 +152,44 @@
             let activityDays = document.getElementById("manDays"+i).value * 8;
             let activityTotHoursCompiled = document.getElementById("TotHoursCompiled"+activityKey).value;
             let activityPercentage = Math.round(100 * (activityTotHoursCompiled / activityDays));
+            let colorActivityBar = "#59a5b7"
+            if(activityPercentage > 100)
+                colorActivityBar = "#9b2222"
+            else if(activityPercentage === 100)
+                colorActivityBar = "#32c574"
+            else if(activityPercentage === 0)
+                colorActivityBar = "#8AB4B1"
+            colorArray.push(colorActivityBar)
             if(activityDateEnd === "")
                 activityDateEnd = project_end;
             data.addRows([
-                [activityKey, activityKey, activityType,
-                new Date(activityDateStart), new Date(activityDateEnd), activityDays, activityPercentage, null],
-                ]);
+                [activityKey, "" + Math.round(activityTotHoursCompiled/8) + "/" + activityDays/8 + "gg (" + activityPercentage + "%)",
+                    new Date(activityDateStart), new Date(activityDateEnd)],
+            ]);
         }
-        let options = {
-            gantt: {
-                trackHeight: 20,
-                barHeight: 15
-            }
+        console.log(colorArray);
+        var options = {
+            rowLabelStyle: {
+                fontSize: 10,
+            },
+            backgroundColor: "#f1f7f8",
+            colors: colorArray,
+            height: (1+activity_num)*50,
+            timeline: { showRowLabels: true,
+                barLabelStyle: {
+                    fontSize: 10
+                },
+            },
+
         };
-        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
         chart.draw(data, options);
     }
+    window.addEventListener('resize', function(event) {
+        drawChart();
+    }, true);
 </script>
+
 
 
 <section class="">
@@ -336,42 +360,42 @@
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'activityKey\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'activityKey\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th class="activityTypeCol has-text-primary-dark table-header pl-2">Type
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'activityType\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'activityType\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th class="dateCol has-text-primary-dark table-header pl-2">Start Date
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'dateStart\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'dateStart\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th class="dateCol has-text-primary-dark table-header pl-2">End Date
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'dateEnd\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'dateEnd\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th class="chargedCol has-text-primary-dark table-header pl-2">Charged
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'charged\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'charged\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th class="manDaysCol has-text-primary-dark table-header pl-2">Days
                                                 <span class="icon has-text-primary is-pulled-right mr-1"
                                                       data-tooltip="Order">
                                                     <i class="fas fa-sort fa-lg table-button is-clickable"
-                                                       th:onclick="'sortTable(\'manDays\',columnList);'"></i>
+                                                       th:onclick="'sortTable(\'manDays\',columnList), drawChart();'"></i>
                                                 </span>
                                             </th>
                                             <th></th>
@@ -490,10 +514,12 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
-                        <div class="columns is-centered">
-                            <div class="column is-flexible">
-                                <div id="chart_div"></div>
+                        <div id="ganttContainer" class="mt-2" style="font-weight: bold;">
+                            <p class="subtitle has-text-weight-bold has-text-centered has-text-primary-dark has-text-weight-semibold m-auto mt-5 mb-3">Project summary</p>
+                            <div class="columns is-centered">
+                                <div class="column">
+                                    <div id="ganttChart" class="mt-3"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -244,7 +244,7 @@ public class UserController {
         return AdviceController.responseOk("Reminder sent to all users whom have not compiled yet");
     }
 
-    @Scheduled(cron = "0 0 13 1-10,L-3,L-2,L-1,L * *")
+    @Scheduled(cron = "0 10 10 1-10,L-3,L-2,L-1,L * *")
     public void sendReminderTimeSheetEmail() throws ParseException {
         LocalDate currentDate = LocalDate.now();
         if(currentDate.getDayOfMonth() <= 10){

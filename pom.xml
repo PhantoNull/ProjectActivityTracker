@@ -12,7 +12,7 @@
 
 	<groupId>eu.rationence</groupId>
 	<artifactId>PAT</artifactId>
-	<version>1.4</version>
+	<version>1.4.1</version>
 	<name>PAT</name>
 	<packaging>jar</packaging>
 	<description>Project Activity Tracker Rationence</description>
