@@ -28,8 +28,8 @@
             for(let day=1; day <= 31; day++){
                 if(index !== "add"){
                     let dailyInput = document.getElementById("hour" + index + "." + day);
-                    let parentTableRow = dailyInput.parentNode.parentNode.parentNode;
                     if(dailyInput !== null){
+                        let parentTableRow = dailyInput.parentNode.parentNode.parentNode;
                         let val = parseInt(dailyInput.value);
                         if(!isNaN(val) && !parentTableRow.classList.contains("hidden")) {
                             rowSubtotal[index] += val;
@@ -60,7 +60,6 @@
             let filterValue = document.getElementById(columnKey + "filter").value;
             for (let columnInput of columnInputs) {
                 let parentTableRow;
-                //I select sono a un livello innestato inferiore (hanno un div in più, quindi un parent in più)
                 parentTableRow = columnInput.parentNode.parentNode;
                 if (!columnInput.value.toLowerCase().includes(filterValue.toLowerCase()) && filterValue !== 'ALL') {
                     parentTableRow.classList.add('hidden');

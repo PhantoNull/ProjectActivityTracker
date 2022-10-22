@@ -1,7 +1,5 @@
 package eu.rationence.pat.service;
 
-
-
 import eu.rationence.pat.repository.ClientRepository;
 import eu.rationence.pat.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
